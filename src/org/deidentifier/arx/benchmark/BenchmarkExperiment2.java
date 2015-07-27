@@ -43,19 +43,19 @@ import de.linearbits.subframe.analyzer.buffered.BufferedStandardDeviationAnalyze
 public class BenchmarkExperiment2 {
 
     /** The benchmark instance */
-    private static final Benchmark BENCHMARK   = new Benchmark(new String[] { "Dataset", "Polygamma" });
+    private static final Benchmark BENCHMARK   = new Benchmark(new String[] { "Dataset", "UtilityMeasure", "Algorithm", "Suppression" });
 
     /** TOTAL */
-    public static final int        TOTAL       = BENCHMARK.addMeasure("Total");
+    //public static final int        TOTAL       = BENCHMARK.addMeasure("Total");
 
     /** CHECK */
-    public static final int        CHECK       = BENCHMARK.addMeasure("Check");
+    //public static final int        CHECK       = BENCHMARK.addMeasure("Check");
 
     /** UTILITY */
     public static final int        UTILITY     = BENCHMARK.addMeasure("Utility");
 
     /** Repetitions */
-    private static final int       REPETITIONS = 5;
+    private static final int       REPETITIONS = 2;
 
     /**
      * Main entry point
@@ -68,18 +68,14 @@ public class BenchmarkExperiment2 {
         // Init
         BENCHMARK.addAnalyzer(UTILITY, new BufferedArithmeticMeanAnalyzer());
         BENCHMARK.addAnalyzer(UTILITY, new BufferedStandardDeviationAnalyzer());
-        BENCHMARK.addAnalyzer(TOTAL, new ValueBuffer());
-        BENCHMARK.addAnalyzer(CHECK, new ValueBuffer());
+        //BENCHMARK.addAnalyzer(TOTAL, new ValueBuffer());
+        //BENCHMARK.addAnalyzer(CHECK, new ValueBuffer());
         
         // Repeat for each data set
         for (BenchmarkDataset data : BenchmarkSetup.getDatasets()) {
 
             // New run
-            BENCHMARK.addRun(data.toString(), "true");
-            anonymize(data, true);
-
-            // New run
-            BENCHMARK.addRun(data.toString(), "false");
+            BENCHMARK.addRun(data.toString(), BenchmarkPrivacyModel.K_ANONYMITY, "RGR", 0.3d);
             anonymize(data, false);
 
             // Write after each experiment
@@ -95,8 +91,8 @@ public class BenchmarkExperiment2 {
      */
     private static void anonymize(BenchmarkDataset dataset, boolean usePolygamma) throws IOException {
         
-        Data data = BenchmarkSetup.getData(dataset, BenchmarkPrivacyModel.UNIQUENESS_PITMAN);
-        ARXConfiguration config = BenchmarkSetup.getConfiguration(dataset, BenchmarkUtilityMeasure.LOSS, BenchmarkPrivacyModel.UNIQUENESS_PITMAN, 0.01d);
+        Data data = BenchmarkSetup.getData(dataset, BenchmarkPrivacyModel.K_ANONYMITY);
+        ARXConfiguration config = BenchmarkSetup.getConfiguration(dataset, BenchmarkUtilityMeasure.LOSS, BenchmarkPrivacyModel.K_ANONYMITY, 0.01d);
         ARXAnonymizer anonymizer = new ARXAnonymizer();
         
         // Warmup
@@ -116,8 +112,8 @@ public class BenchmarkExperiment2 {
                                                                       result.getGlobalOptimum().getTransformation(),
                                                                       dataset,
                                                                       BenchmarkUtilityMeasure.LOSS));
-        BENCHMARK.addValue(TOTAL, (int) time);
-        BENCHMARK.addValue(CHECK, (int) ((double) time / (double) getNumChecks(result)));
+        //BENCHMARK.addValue(TOTAL, (int) time);
+        //BENCHMARK.addValue(CHECK, (int) ((double) time / (double) getNumChecks(result)));
     }
     
     /**
