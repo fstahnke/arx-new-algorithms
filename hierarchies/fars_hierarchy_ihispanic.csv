@@ -1,0 +1,10 @@
+Not a fatal(N/A);0-3;*
+Mexican;0-3;*
+Puerto Rican;0-3;*
+Cuban;0-3;*
+Central/So Amer;4-6;*
+Other/unk Hisp;4-7;*
+No specified/Oth;4-6;*
+Non-Hispanic;7-9;*
+#NV;7-9;*
+Unknown;99;*

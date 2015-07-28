@@ -1,0 +1,10 @@
+No;0-1;*
+Possible;0-1;*
+Non Incapacity;1-2;*
+Incapacitating;1-2;*
+Fatal Injury;2-3;*
+Inj, Sev Unk;2-3;*
+Died Prior to;4-5;*
+7;4-5;*
+8;6-7;*
+Unknown;6-7;*

@@ -1,0 +1,10 @@
+NIU;ukn.;*
+Married - Spouse present;spouse present;*
+Married - Spouse not in household;spouse not present;*
+Married - Spouse in household unknown;ukn.;*
+Widowed;spouse not present;*
+Divorced;spouse not present;*
+Separated;spouse not present;*
+Never married;spouse not present;*
+Unknown marital status;ukn.;*
+Married;spouse present;*
