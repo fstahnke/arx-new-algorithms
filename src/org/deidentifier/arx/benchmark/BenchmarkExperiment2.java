@@ -29,6 +29,10 @@ import org.deidentifier.arx.Data;
 import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkDataset;
 import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkPrivacyModel;
 import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkUtilityMeasure;
+import org.deidentifier.arx.recursive.RecursiveAlgorithm;
+import org.deidentifier.arx.utility.AggregateFunction;
+import org.deidentifier.arx.utility.DataConverter;
+import org.deidentifier.arx.utility.UtilityMeasureLoss;
 
 import de.linearbits.subframe.Benchmark;
 import de.linearbits.subframe.analyzer.ValueBuffer;
@@ -46,16 +50,13 @@ public class BenchmarkExperiment2 {
     private static final Benchmark BENCHMARK   = new Benchmark(new String[] { "Dataset", "UtilityMeasure", "Algorithm", "Suppression" });
 
     /** TOTAL */
-    //public static final int        TOTAL       = BENCHMARK.addMeasure("Total");
-
-    /** CHECK */
-    //public static final int        CHECK       = BENCHMARK.addMeasure("Check");
+    public static final int        TOTAL       = BENCHMARK.addMeasure("Total");
 
     /** UTILITY */
     public static final int        UTILITY     = BENCHMARK.addMeasure("Utility");
 
     /** Repetitions */
-    private static final int       REPETITIONS = 2;
+    private static final int       REPETITIONS = 1;
 
     /**
      * Main entry point
@@ -68,15 +69,14 @@ public class BenchmarkExperiment2 {
         // Init
         BENCHMARK.addAnalyzer(UTILITY, new BufferedArithmeticMeanAnalyzer());
         BENCHMARK.addAnalyzer(UTILITY, new BufferedStandardDeviationAnalyzer());
-        //BENCHMARK.addAnalyzer(TOTAL, new ValueBuffer());
-        //BENCHMARK.addAnalyzer(CHECK, new ValueBuffer());
+        BENCHMARK.addAnalyzer(TOTAL, new ValueBuffer());
         
         // Repeat for each data set
         for (BenchmarkDataset data : BenchmarkSetup.getDatasets()) {
 
             // New run
             BENCHMARK.addRun(data.toString(), BenchmarkPrivacyModel.K_ANONYMITY, "RGR", 0.3d);
-            anonymize(data, false);
+            anonymize(data);
 
             // Write after each experiment
             BENCHMARK.getResults().write(new File("results/experiment2.csv"));
@@ -89,14 +89,18 @@ public class BenchmarkExperiment2 {
      * @param dataset
      * @throws IOException
      */
-    private static void anonymize(BenchmarkDataset dataset, boolean usePolygamma) throws IOException {
+    private static void anonymize(BenchmarkDataset dataset) throws IOException {
         
         Data data = BenchmarkSetup.getData(dataset, BenchmarkPrivacyModel.K_ANONYMITY);
         ARXConfiguration config = BenchmarkSetup.getConfiguration(dataset, BenchmarkUtilityMeasure.LOSS, BenchmarkPrivacyModel.K_ANONYMITY, 0.01d);
         ARXAnonymizer anonymizer = new ARXAnonymizer();
+        RecursiveAlgorithm rgr = new RecursiveAlgorithm();
         
         // Warmup
-        ARXResult result = anonymizer.anonymize(data, config);
+        //ARXResult result = anonymizer.anonymize(data, config);
+        
+        String[][] result = rgr.execute(data, config, anonymizer);
+        
         data.getHandle().release();
         
         // Benchmark
@@ -104,31 +108,14 @@ public class BenchmarkExperiment2 {
         for (int i = 0; i < REPETITIONS; i++) {
             System.out.println(" - Run-1 " + (i + 1) + " of " + REPETITIONS);
             data.getHandle().release();
-            result = anonymizer.anonymize(data, config);
+            result = rgr.execute(data, config, anonymizer);
         }
         time = System.currentTimeMillis() - time;
-        BENCHMARK.addValue(UTILITY, BenchmarkMetadata.getRelativeLoss(data.getHandle(),
-                                                                      result.getOutput(),
-                                                                      result.getGlobalOptimum().getTransformation(),
-                                                                      dataset,
-                                                                      BenchmarkUtilityMeasure.LOSS));
-        //BENCHMARK.addValue(TOTAL, (int) time);
-        //BENCHMARK.addValue(CHECK, (int) ((double) time / (double) getNumChecks(result)));
-    }
-    
-    /**
-     * Returns the number of checks
-     * @param result
-     * @return
-     */
-    private static int getNumChecks(ARXResult result) {
-        int checks = 0;
-        ARXLattice lattice = result.getLattice();
-        for (ARXNode[] level : lattice.getLevels()) {
-            for (ARXNode node : level) {
-                checks += node.isChecked() ? 1 : 0;
-            }
-        }
-        return checks;
+
+        DataConverter converter = new DataConverter();
+        double outputLoss = new UtilityMeasureLoss<Double>(converter.getHeader(data.getHandle()), converter.toMap(data.getDefinition()), AggregateFunction.GEOMETRIC_MEAN).evaluate(result).getUtility();
+        
+        BENCHMARK.addValue(UTILITY, outputLoss);
+        BENCHMARK.addValue(TOTAL, (int) time);
     }
 }

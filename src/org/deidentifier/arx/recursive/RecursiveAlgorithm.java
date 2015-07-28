@@ -22,8 +22,10 @@ import org.deidentifier.arx.utility.UtilityMeasureNonUniformEntropy;
 import org.deidentifier.arx.utility.UtilityMeasurePrecision;
 
 public class RecursiveAlgorithm {
+	
+	
 
-    public void execute(final Data data, final ARXConfiguration config, final ARXAnonymizer anonymizer) throws IOException
+    public String[][] execute(final Data data, final ARXConfiguration config, final ARXAnonymizer anonymizer) throws IOException
     {
         // Execute the first anonymization
         ARXResult result = anonymizer.anonymize(data, config);
@@ -87,5 +89,7 @@ public class RecursiveAlgorithm {
                 }
             }
         }
+        
+        return output;
     }
 }
