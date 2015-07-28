@@ -42,7 +42,7 @@ import de.linearbits.subframe.render.PlotGroup;
  * Example benchmark
  * @author Fabian Prasser
  */
-public class BenchmarkAnalysis2 {
+public class BenchmarkAnalysis {
 
 	/**
 	 * Main
@@ -52,10 +52,10 @@ public class BenchmarkAnalysis2 {
 	 */
     public static void main(String[] args) throws IOException, ParseException {
         
-        CSVFile file = new CSVFile(new File("results/experiment2.csv"));
+        CSVFile file = new CSVFile(new File("results/experiment.csv"));
         List<PlotGroup> groups = new ArrayList<PlotGroup>();
         groups.add(analyze(file));
-        LaTeX.plot(groups, "results/experiment2");
+        LaTeX.plot(groups, "results/experiment");
         
     }
     

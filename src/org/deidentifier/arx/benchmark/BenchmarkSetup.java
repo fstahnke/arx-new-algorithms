@@ -141,7 +141,7 @@ public class BenchmarkSetup {
             throw new IllegalArgumentException("");
         }
         
-        config.setMaxOutliers(1.0d);
+        config.setMaxOutliers(0.3d);
         
         switch (criterion) {
         case UNIQUENESS_DANKAR:

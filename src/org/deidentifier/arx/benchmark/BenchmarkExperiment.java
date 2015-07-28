@@ -44,7 +44,7 @@ import de.linearbits.subframe.analyzer.buffered.BufferedStandardDeviationAnalyze
  * 
  * @author Fabian Prasser
  */
-public class BenchmarkExperiment2 {
+public class BenchmarkExperiment {
 
     /** The benchmark instance */
     private static final Benchmark BENCHMARK   = new Benchmark(new String[] { "Dataset", "UtilityMeasure", "Algorithm", "Suppression" });
@@ -79,7 +79,9 @@ public class BenchmarkExperiment2 {
             anonymize(data);
 
             // Write after each experiment
-            BENCHMARK.getResults().write(new File("results/experiment2.csv"));
+            File resultFile = new File("results/experiment.csv");
+            resultFile.mkdirs();
+            BENCHMARK.getResults().write(resultFile);
         }
     }
     

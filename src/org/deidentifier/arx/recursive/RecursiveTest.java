@@ -33,7 +33,7 @@ public class RecursiveTest {
         final ARXConfiguration config = ARXConfiguration.create();
         
 
-        config.addCriterion(new KAnonymity(2));
+        config.addCriterion(new KAnonymity(5));
         config.setMaxOutliers(0.3d);
         
         recursiveInstance.execute(data, config, anonymizer);
