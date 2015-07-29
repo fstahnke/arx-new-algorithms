@@ -30,8 +30,8 @@ import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkPrivacyModel;
 import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkUtilityMeasure;
 import org.deidentifier.arx.utility.AggregateFunction;
 import org.deidentifier.arx.utility.DataConverter;
+import org.deidentifier.arx.utility.UtilityMeasureDiscernibility;
 import org.deidentifier.arx.utility.UtilityMeasureLoss;
-import org.deidentifier.arx.utility.UtilityMeasureNonUniformEntropyWithLowerBound;
 
 /**
  * Bounds on utility
@@ -87,7 +87,7 @@ public class BenchmarkMetadataUtility {
      */
     private void computeLowerBounds(BenchmarkDataset dataset) throws IOException {
         // Prepare
-        Data data = BenchmarkSetup.getData(dataset, BenchmarkPrivacyModel.K_ANONYMITY);
+        Data data = BenchmarkSetup.getData(dataset, BenchmarkPrivacyModel.FIVE_ANONYMITY);
         DataDefinition definition = data.getDefinition();
         DataHandle inputHandle = data.getHandle();
 
@@ -103,14 +103,14 @@ public class BenchmarkMetadataUtility {
         // Compute metrics
         double outputLoss = new UtilityMeasureLoss<Double>(header, hierarchies, AggregateFunction.GEOMETRIC_MEAN).evaluate(output)
                                                                                                                  .getUtility();
-        double outputEntropy = new UtilityMeasureNonUniformEntropyWithLowerBound<Double>(header, input, hierarchies).evaluate(output, transformation).getUtility();
+        double outputDiscernibility = new UtilityMeasureDiscernibility().evaluate(output).getUtility();
 
         // Store results
         if (!lower.containsKey(dataset)) {
             lower.put(dataset, new HashMap<BenchmarkUtilityMeasure, Double>());
         }
         lower.get(dataset).put(BenchmarkUtilityMeasure.LOSS, outputLoss);
-        lower.get(dataset).put(BenchmarkUtilityMeasure.ENTROPY, outputEntropy);
+        lower.get(dataset).put(BenchmarkUtilityMeasure.DISCERNIBILITY, outputDiscernibility);
     }
 
     /**
@@ -120,13 +120,12 @@ public class BenchmarkMetadataUtility {
      */
     private void computeUpperBounds(BenchmarkDataset dataset) throws IOException {
         // Prepare
-        Data data = BenchmarkSetup.getData(dataset, BenchmarkPrivacyModel.K_ANONYMITY);
+        Data data = BenchmarkSetup.getData(dataset, BenchmarkPrivacyModel.FIVE_ANONYMITY);
         DataDefinition definition = data.getDefinition();
         DataHandle inputHandle = data.getHandle();
 
         // Convert to completely suppressed output data
         DataConverter converter = new DataConverter();
-        String[][] input = converter.toArray(inputHandle);
         String[][] output = new String[inputHandle.getNumRows()][inputHandle.getNumColumns()];
         for (int i = 0; i < inputHandle.getNumRows(); i++) {
             Arrays.fill(output[i], "*");
@@ -141,13 +140,13 @@ public class BenchmarkMetadataUtility {
 
         // Compute metrics
         double outputLoss = new UtilityMeasureLoss<Double>(header, hierarchies, AggregateFunction.GEOMETRIC_MEAN).evaluate(output).getUtility();
-        double outputEntropy = new UtilityMeasureNonUniformEntropyWithLowerBound<Double>(header, input, hierarchies).evaluate(output, transformation).getUtility();
+        double outputDiscernibility = new UtilityMeasureDiscernibility().evaluate(output).getUtility();
 
         // Store results
         if (!upper.containsKey(dataset)) {
             upper.put(dataset, new HashMap<BenchmarkUtilityMeasure, Double>());
         }
         upper.get(dataset).put(BenchmarkUtilityMeasure.LOSS, outputLoss);
-        upper.get(dataset).put(BenchmarkUtilityMeasure.ENTROPY, outputEntropy);
+        upper.get(dataset).put(BenchmarkUtilityMeasure.DISCERNIBILITY, outputDiscernibility);
     }
 }

@@ -6,7 +6,6 @@ import java.util.concurrent.TimeUnit;
 import org.deidentifier.arx.ARXAnonymizer;
 import org.deidentifier.arx.ARXConfiguration;
 import org.deidentifier.arx.Data;
-import org.deidentifier.arx.AttributeType.Hierarchy;
 import org.deidentifier.arx.benchmark.BenchmarkSetup;
 import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkDataset;
 import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkPrivacyModel;
@@ -17,10 +16,19 @@ import org.deidentifier.arx.metric.Metric.AggregateFunction;
 public class RecursiveTest {
     
     public static void main(String[] args) throws IOException {
+    	
+    	BenchmarkAlgorithmListener listener = new BenchmarkAlgorithmListener() {
+
+			@Override
+			public void updated(long timestamp, String[][] output) {
+				System.out.println("Iteration");
+			}
+    		
+    	};
         
-        RecursiveAlgorithm recursiveInstance = new RecursiveAlgorithm();
+        BenchmarkAlgorithmRGR recursiveInstance = new BenchmarkAlgorithmRGR(listener);
         
-        Data data = BenchmarkSetup.getData(BenchmarkDataset.IHIS, BenchmarkPrivacyModel.K_ANONYMITY);
+        Data data = BenchmarkSetup.getData(BenchmarkDataset.ADULT, BenchmarkPrivacyModel.FIVE_ANONYMITY);
         
         final ARXAnonymizer anonymizer = new ARXAnonymizer();
         
@@ -29,7 +37,7 @@ public class RecursiveTest {
 
         config.addCriterion(new KAnonymity(5));
         config.setMaxOutliers(1d);
-        //config.setMetric(Metric.createLossMetric(AggregateFunction.GEOMETRIC_MEAN));
+        config.setMetric(Metric.createLossMetric(AggregateFunction.GEOMETRIC_MEAN));
         
         long time = System.nanoTime();
         recursiveInstance.execute(data, config, anonymizer);

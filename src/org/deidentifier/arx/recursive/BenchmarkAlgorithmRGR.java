@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.deidentifier.arx.ARXAnonymizer;
 import org.deidentifier.arx.ARXConfiguration;
@@ -16,16 +15,18 @@ import org.deidentifier.arx.criteria.DPresence;
 import org.deidentifier.arx.criteria.KAnonymity;
 import org.deidentifier.arx.criteria.LDiversity;
 import org.deidentifier.arx.criteria.TCloseness;
-import org.deidentifier.arx.utility.AggregateFunction;
 import org.deidentifier.arx.utility.DataConverter;
-import org.deidentifier.arx.utility.UtilityMeasureLoss;
 
-public class RecursiveAlgorithm {
+public class BenchmarkAlgorithmRGR extends BenchmarkAlgorithm {
 	
-	
+	public BenchmarkAlgorithmRGR(BenchmarkAlgorithmListener listener) {
+		super(listener);
+	}
 
     public String[][] execute(final Data data, final ARXConfiguration config, final ARXAnonymizer anonymizer) throws IOException
     {
+    	super.start();
+    	
         // Execute the first anonymization
         ARXResult result = anonymizer.anonymize(data, config);
         
@@ -36,7 +37,6 @@ public class RecursiveAlgorithm {
         // Convert input and output to array of string arrays
         DataConverter converter = new DataConverter();
         String[][] output = converter.toArray(outHandle);
-        Map<String, String[][]> hierarchies = converter.toMap(data.getDefinition());
         String[] header = converter.getHeader(inHandle);
         
         // Prepare input for next step
@@ -59,10 +59,6 @@ public class RecursiveAlgorithm {
         outHandle.release();
         inHandle.release();
 
-        // Calculate and print the current loss of the output and the number of suppressed entries
-        double outputLoss = new UtilityMeasureLoss<Double>(header, hierarchies, AggregateFunction.GEOMETRIC_MEAN).evaluate(output).getUtility();
-        System.out.println("Inital anonymization: Suppressed entries: " + numOutliers + ", Information Loss: " + outputLoss);
-        
         // TODO: This works for k-anonymity and l-diversity, only. Implement for t-closeness and d-presence
         if (config.containsCriterion(TCloseness.class)) {
         	throw new IllegalArgumentException("T-Closeness is not supported");
@@ -71,7 +67,9 @@ public class RecursiveAlgorithm {
         }
         
         // Prepare initial class size
-        int minimalClassSize = getMinimalClassSize(config);         
+        int minimalClassSize = getMinimalClassSize(config);     
+        
+        super.updated(output);
 
         // Repeat while possible
         while (numOutliers >= minimalClassSize) {
@@ -115,9 +113,7 @@ public class RecursiveAlgorithm {
             outHandle.release();
             inHandle.release();
             
-            // Calculate and print the current loss of the output and the number of suppressed entries
-            outputLoss = new UtilityMeasureLoss<Double>(header, hierarchies, AggregateFunction.GEOMETRIC_MEAN).evaluate(output).getUtility();
-            System.out.println("Next iteration: Suppressed entries: " + numOutliers + ", Information Loss: " + outputLoss);
+            super.updated(output);
             
         }
         

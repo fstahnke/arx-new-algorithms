@@ -20,16 +20,11 @@ package org.deidentifier.arx.benchmark;
 import java.io.IOException;
 
 import org.deidentifier.arx.ARXConfiguration;
-import org.deidentifier.arx.ARXPopulationModel;
-import org.deidentifier.arx.ARXPopulationModel.Region;
-import org.deidentifier.arx.ARXSolverConfiguration;
 import org.deidentifier.arx.AttributeType.Hierarchy;
 import org.deidentifier.arx.Data;
 import org.deidentifier.arx.criteria.KAnonymity;
-import org.deidentifier.arx.criteria.PopulationUniqueness;
 import org.deidentifier.arx.metric.Metric;
 import org.deidentifier.arx.metric.Metric.AggregateFunction;
-import org.deidentifier.arx.risk.RiskModelPopulationUniqueness.PopulationUniquenessModel;
 
 /**
  * This class encapsulates most of the parameters of a benchmark run
@@ -71,43 +66,28 @@ public class BenchmarkSetup {
     }
     
     public static enum BenchmarkPrivacyModel {
-        K_ANONYMITY {
+        FIVE_ANONYMITY {
             @Override
             public String toString() {
-                return "k-anonymity";
+                return "5-anonymity";
             }
-        },
-        UNIQUENESS_DANKAR {
+        }
+    }
+
+    public static enum BenchmarkAlgorithm {
+        RECURSIVE_GLOBAL_RECODING {
             @Override
             public String toString() {
-                return "p-uniqueness (dankar)";
+                return "RGR";
             }
-        },
-        UNIQUENESS_PITMAN {
-            @Override
-            public String toString() {
-                return "p-uniqueness (pitman)";
-            }
-        },
-        UNIQUENESS_SNB {
-            @Override
-            public String toString() {
-                return "p-uniqueness (snb)";
-            }
-        },
-        UNIQUENESS_ZAYATZ {
-            @Override
-            public String toString() {
-                return "p-uniqueness (zayatz)";
-            }
-        },
+        }
     }
     
     public static enum BenchmarkUtilityMeasure {
-        ENTROPY {
+        DISCERNIBILITY {
             @Override
             public String toString() {
-                return "Entropy";
+                return "Discernibility";
             }
         },
         LOSS {
@@ -118,21 +98,19 @@ public class BenchmarkSetup {
         },
     }
     
-    private static final double[][] SOLVER_START_VALUES = getSolverStartValues();
-    
     /**
      * Returns a configuration for the ARX framework
      * @param dataset
+     * @param suppression 
      * @param criteria
-     * @param uniqueness
      * @return
      * @throws IOException
      */
-    public static ARXConfiguration getConfiguration(BenchmarkDataset dataset, BenchmarkUtilityMeasure utility, BenchmarkPrivacyModel criterion, double uniqueness) throws IOException {
+    public static ARXConfiguration getConfiguration(BenchmarkDataset dataset, BenchmarkUtilityMeasure utility, BenchmarkPrivacyModel criterion, double suppression) throws IOException {
         ARXConfiguration config = ARXConfiguration.create();
         switch (utility) {
-        case ENTROPY:
-            config.setMetric(Metric.createEntropyMetric(false, AggregateFunction.SUM));
+        case DISCERNIBILITY:
+            config.setMetric(Metric.createDiscernabilityMetric(false));
             break;
         case LOSS:
             config.setMetric(Metric.createLossMetric(AggregateFunction.GEOMETRIC_MEAN));
@@ -141,10 +119,10 @@ public class BenchmarkSetup {
             throw new IllegalArgumentException("");
         }
         
-        config.setMaxOutliers(1d);
+        config.setMaxOutliers(suppression);
         
         switch (criterion) {
-        case K_ANONYMITY:
+        case FIVE_ANONYMITY:
             config.addCriterion(new KAnonymity(5));
             break;
         default:
@@ -196,11 +174,11 @@ public class BenchmarkSetup {
      */
     public static BenchmarkDataset[] getDatasets() {
         return new BenchmarkDataset[] {
-//                BenchmarkDataset.ADULT,
+                BenchmarkDataset.ADULT,
 //                BenchmarkDataset.CUP,
 //                BenchmarkDataset.FARS,
 //                BenchmarkDataset.ATUS,
-                BenchmarkDataset.IHIS
+//                BenchmarkDataset.IHIS
         };
     }
     
@@ -293,23 +271,24 @@ public class BenchmarkSetup {
      * @return
      */
     public static BenchmarkUtilityMeasure[] getUtilityMeasures() {
-        return new BenchmarkUtilityMeasure[]{BenchmarkUtilityMeasure.ENTROPY,
+        return new BenchmarkUtilityMeasure[]{//BenchmarkUtilityMeasure.ENTROPY,
                                              BenchmarkUtilityMeasure.LOSS};
     }
 
-    /**
-     * Creates start values for the solver
-     * @return
-     */
-    private static double[][] getSolverStartValues() {
-        double[][] result = new double[121][];
-        int index = 0;
-        for (double d1 = -1d; d1 <= +1d; d1 += 0.2d) {
-            for (double d2 = -1d; d2 <= +1d; d2 += 0.2d) {
-                result[index++] = new double[] { d1, d2 };
-            }
-        }
-        return result;
-    }
+	public static BenchmarkPrivacyModel[] getPrivacyModels() {
+		return new BenchmarkPrivacyModel[]{
+				BenchmarkPrivacyModel.FIVE_ANONYMITY
+		};
+	}
 
+	public static double[] getSuppressionLimits() {
+		return new double[]{0.02d, 0.05d, 0.1d, 1.0d};
+	}
+	
+	public static BenchmarkAlgorithm[] getAlgorithms() {
+		return new BenchmarkAlgorithm[]{
+			BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING	
+		};
+		
+	}
 }
