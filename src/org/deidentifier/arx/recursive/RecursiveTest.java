@@ -28,7 +28,7 @@ public class RecursiveTest {
         
         BenchmarkAlgorithmRGR recursiveInstance = new BenchmarkAlgorithmRGR(listener);
         
-        Data data = BenchmarkSetup.getData(BenchmarkDataset.ADULT, BenchmarkPrivacyModel.FIVE_ANONYMITY);
+        Data data = BenchmarkSetup.getData(BenchmarkDataset.IHIS, BenchmarkPrivacyModel.FIVE_ANONYMITY);
         
         final ARXAnonymizer anonymizer = new ARXAnonymizer();
         
@@ -40,6 +40,7 @@ public class RecursiveTest {
         config.setMetric(Metric.createLossMetric(AggregateFunction.GEOMETRIC_MEAN));
         
         long time = System.nanoTime();
+        System.out.println("Maximum heap size: " + (Runtime.getRuntime().maxMemory() >> 20) + " MB");
         recursiveInstance.execute(data, config, anonymizer);
         
         time = System.nanoTime() - time;

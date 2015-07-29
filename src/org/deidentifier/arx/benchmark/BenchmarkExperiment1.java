@@ -77,24 +77,23 @@ public class BenchmarkExperiment1 {
     	BenchmarkMetadataUtility metadata = new BenchmarkMetadataUtility();
         
         // Repeat for each data set
-        for (BenchmarkDataset data : BenchmarkSetup.getDatasets()) {
-        	for (BenchmarkUtilityMeasure measure : BenchmarkSetup.getUtilityMeasures()) {
-        		for (BenchmarkPrivacyModel model : BenchmarkSetup.getPrivacyModels()) {
-        			for (double suppression : BenchmarkSetup.getSuppressionLimits()) {
-        				for (BenchmarkAlgorithm algorithm : BenchmarkSetup.getAlgorithms()) {
-        					
-        					System.out.println("Performing run: " + data +"/"+ measure +"/"+ model +"/"+ algorithm +"/"+ suppression);
-			
-				            // New run
-				            performExperiment(metadata, data, measure, model, algorithm, suppression);
-				
-				            // Write after each experiment
-				            BENCHMARK.getResults().write(resultFile);
-        				}
-        			}
-        		}
-        	}
-        }
+    	for (BenchmarkAlgorithm algorithm : BenchmarkSetup.getAlgorithms()) {
+    	    for (BenchmarkDataset data : BenchmarkSetup.getDatasets()) {        					
+    	        for (BenchmarkPrivacyModel model : BenchmarkSetup.getPrivacyModels()) {
+    	            for (BenchmarkUtilityMeasure measure : BenchmarkSetup.getUtilityMeasures()) {
+    	                for (double suppression : BenchmarkSetup.getSuppressionLimits()) {
+    	                    System.out.println("Performing run: " + data +"/"+ measure +"/"+ model +"/"+ algorithm +"/"+ suppression);
+
+    	                    // New run
+    	                    performExperiment(metadata, data, measure, model, algorithm, suppression);
+
+    	                    // Write after each experiment
+    	                    BENCHMARK.getResults().write(resultFile);
+    	                }
+    	            }
+    	        }
+    	    }
+    	}
     }
     
     /**

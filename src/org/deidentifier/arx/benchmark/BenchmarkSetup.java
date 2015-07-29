@@ -175,10 +175,10 @@ public class BenchmarkSetup {
     public static BenchmarkDataset[] getDatasets() {
         return new BenchmarkDataset[] {
                 BenchmarkDataset.ADULT,
-//                BenchmarkDataset.CUP,
-//                BenchmarkDataset.FARS,
-//                BenchmarkDataset.ATUS,
-//                BenchmarkDataset.IHIS
+                BenchmarkDataset.CUP,
+                BenchmarkDataset.FARS,
+                BenchmarkDataset.ATUS,
+                BenchmarkDataset.IHIS
         };
     }
     
