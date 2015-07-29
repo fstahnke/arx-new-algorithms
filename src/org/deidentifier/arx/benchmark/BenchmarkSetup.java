@@ -141,7 +141,7 @@ public class BenchmarkSetup {
             throw new IllegalArgumentException("");
         }
         
-        config.setMaxOutliers(0.3d);
+        config.setMaxOutliers(1d);
         
         switch (criterion) {
         case UNIQUENESS_DANKAR:
@@ -220,10 +220,10 @@ public class BenchmarkSetup {
      */
     public static BenchmarkDataset[] getDatasets() {
         return new BenchmarkDataset[] {
-                BenchmarkDataset.ADULT,
-                BenchmarkDataset.CUP,
-                BenchmarkDataset.FARS,
-                BenchmarkDataset.ATUS,
+//                BenchmarkDataset.ADULT,
+//                BenchmarkDataset.CUP,
+//                BenchmarkDataset.FARS,
+//                BenchmarkDataset.ATUS,
                 BenchmarkDataset.IHIS
         };
     }

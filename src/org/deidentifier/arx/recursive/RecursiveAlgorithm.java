@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 import org.deidentifier.arx.ARXAnonymizer;
@@ -13,6 +12,10 @@ import org.deidentifier.arx.ARXResult;
 import org.deidentifier.arx.Data;
 import org.deidentifier.arx.Data.DefaultData;
 import org.deidentifier.arx.DataHandle;
+import org.deidentifier.arx.criteria.DPresence;
+import org.deidentifier.arx.criteria.KAnonymity;
+import org.deidentifier.arx.criteria.LDiversity;
+import org.deidentifier.arx.criteria.TCloseness;
 import org.deidentifier.arx.utility.AggregateFunction;
 import org.deidentifier.arx.utility.DataConverter;
 import org.deidentifier.arx.utility.UtilityMeasureLoss;
@@ -25,6 +28,7 @@ public class RecursiveAlgorithm {
     {
         // Execute the first anonymization
         ARXResult result = anonymizer.anonymize(data, config);
+        
         // Get handle for input data and result
         DataHandle inHandle = data.getHandle();
         DataHandle outHandle = result.getOutput(false);
@@ -34,60 +38,105 @@ public class RecursiveAlgorithm {
         String[][] output = converter.toArray(outHandle);
         Map<String, String[][]> hierarchies = converter.toMap(data.getDefinition());
         String[] header = converter.getHeader(inHandle);
-        // FIXME: This does not give me the correct k-anonymity
-        final int kAnon = config.getCriteria().iterator().next().getRequirements();
         
-        int numOutliers = -1;
+        // Prepare input for next step
+        DefaultData outliers = Data.create();
+        outliers.getDefinition().read(data.getDefinition());
+        outliers.add(header); // add header
         
-        while ((numOutliers >= kAnon && numOutliers > 1)|| numOutliers == -1) {
-        //for (int i = 0; i < 3; i++) {
-            
-            // Create new data object for next anonymization step
-            DefaultData outliers = Data.create();
-            outliers.getDefinition().read(data.getDefinition());
-            outliers.add(header); // add header to outlier object
-            // Declare list of rows that are currently suppressed
-            // Be careful to always consider the header and skip it if necessary
-            List<Integer> rows = new ArrayList<Integer>();
-            // Create iterator for string arrays to iterate rows
-            Iterator<String[]> rowIter = inHandle.iterator();
-            rowIter.next(); // Skip header
-            
-            /* Iterate all rows of the input
-             * if a row is suppressed (an outlier), add it to the new data object
-             * and add the number of the row to the list
-             */
-            for (int j = 0; j < outHandle.getNumRows(); j++) {
-                if (outHandle.isOutlier(j)) {
-                    outliers.add(rowIter.next());
-                    rows.add(j);
-                }
-            }
-            
-            // Calculate and print the current loss of the output and the number of suppressed entries
-            double outputLoss = new UtilityMeasureLoss<Double>(header, hierarchies, AggregateFunction.GEOMETRIC_MEAN).evaluate(output).getUtility();
-            numOutliers = rows.size();
-            System.out.println("Suppressed entries: " + numOutliers + ", Information Loss: " + outputLoss);
-            
-            if (numOutliers > 1) {
-             // Anonymize the outliers and get the handle for the result
-                result = anonymizer.anonymize(outliers, config);
-                inHandle = outliers.getHandle();
-                outHandle = result.getOutput(false);
-                
-                // Iterate over result and write all non-outliers to the output
-                rowIter = outHandle.iterator();
-                rowIter.next(); // skip header
-                ListIterator<Integer> intIter = rows.listIterator();
-                for (int j = 0; j < outHandle.getNumRows(); j++) {
-                    int k = intIter.next();
-                    if (!outHandle.isOutlier(j)) {
-                        output[k] = rowIter.next();
-                    }
-                }
+        // Collect input and row indices
+        List<Integer> indexes = new ArrayList<Integer>();
+        Iterator<String[]> rowIter = inHandle.iterator();
+        rowIter.next(); // Skip header
+        for (int j = 0; j < outHandle.getNumRows(); j++) {
+        	String[] row = rowIter.next();
+            if (outHandle.isOutlier(j)) {
+                outliers.add(row);
+                indexes.add(j);
             }
         }
+        int numOutliers = indexes.size();
+        outHandle.release();
+        inHandle.release();
+
+        // Calculate and print the current loss of the output and the number of suppressed entries
+        double outputLoss = new UtilityMeasureLoss<Double>(header, hierarchies, AggregateFunction.GEOMETRIC_MEAN).evaluate(output).getUtility();
+        System.out.println("Inital anonymization: Suppressed entries: " + numOutliers + ", Information Loss: " + outputLoss);
+        
+        // TODO: This works for k-anonymity and l-diversity, only. Implement for t-closeness and d-presence
+        if (config.containsCriterion(TCloseness.class)) {
+        	throw new IllegalArgumentException("T-Closeness is not supported");
+        } else if (config.containsCriterion(DPresence.class)) {
+        	throw new IllegalArgumentException("D-Presence is not supported");
+        }
+        
+        // Prepare initial class size
+        int minimalClassSize = getMinimalClassSize(config);         
+
+        // Repeat while possible
+        while (numOutliers >= minimalClassSize) {
+
+			// Anonymize the outliers and get the handle for the result
+			result = anonymizer.anonymize(outliers, config);
+			inHandle = outliers.getHandle();
+			outHandle = result.getOutput(false);
+
+			// Iterate over result and write all non-outliers to the output
+			rowIter = outHandle.iterator();
+			rowIter.next(); // skip header
+			Iterator<Integer> indexIterator = indexes.iterator();
+			for (int j = 0; j < outHandle.getNumRows(); j++) {
+				int sourceIndex = indexIterator.next();
+				String[] row = rowIter.next();
+				if (!outHandle.isOutlier(j)) {
+					output[sourceIndex] = row;
+				}
+			}
+
+            // Prepare input for next step
+            outliers = Data.create();
+            outliers.getDefinition().read(data.getDefinition());
+            outliers.add(header); // add header
+            
+            // Collect input and row indices
+            indexIterator = indexes.iterator();
+            rowIter = inHandle.iterator();
+            rowIter.next(); // Skip header
+            for (int j = 0; j < outHandle.getNumRows(); j++) {
+            	String[] row = rowIter.next();
+            	indexIterator.next();
+                if (outHandle.isOutlier(j)) {
+                    outliers.add(row);
+                } else {
+                	indexIterator.remove();
+                }
+            }
+            numOutliers = indexes.size();
+            outHandle.release();
+            inHandle.release();
+            
+            // Calculate and print the current loss of the output and the number of suppressed entries
+            outputLoss = new UtilityMeasureLoss<Double>(header, hierarchies, AggregateFunction.GEOMETRIC_MEAN).evaluate(output).getUtility();
+            System.out.println("Next iteration: Suppressed entries: " + numOutliers + ", Information Loss: " + outputLoss);
+            
+        }
+        
+
         
         return output;
     }
+
+	private int getMinimalClassSize(ARXConfiguration config) {
+		int result = Integer.MIN_VALUE;
+		if (config.containsCriterion(KAnonymity.class)) {
+			result = Math.max(result, config.getCriterion(KAnonymity.class).getK());
+		}
+		for (LDiversity c : config.getCriteria(LDiversity.class)) {
+			result = Math.max(result, (int)Math.ceil(c.getL()));
+		}
+		if (result == Integer.MIN_VALUE) {
+			throw new IllegalStateException("Invalid minimal class size");
+		}
+		return result;
+	}
 }
