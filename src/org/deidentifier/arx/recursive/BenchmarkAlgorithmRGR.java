@@ -29,6 +29,7 @@ public class BenchmarkAlgorithmRGR extends BenchmarkAlgorithm {
     	
         // Execute the first anonymization
         ARXResult result = anonymizer.anonymize(data, config);
+        int[] transformation = result.getGlobalOptimum().getTransformation();
         
         // Get handle for input data and result
         DataHandle inHandle = data.getHandle();
@@ -69,7 +70,7 @@ public class BenchmarkAlgorithmRGR extends BenchmarkAlgorithm {
         // Prepare initial class size
         int minimalClassSize = getMinimalClassSize(config);     
         
-        super.updated(output);
+        super.updated(output, transformation);
 
         // Repeat while possible
         while (numOutliers >= minimalClassSize) {
@@ -78,6 +79,7 @@ public class BenchmarkAlgorithmRGR extends BenchmarkAlgorithm {
 			result = anonymizer.anonymize(outliers, config);
 			inHandle = outliers.getHandle();
 			outHandle = result.getOutput(false);
+			transformation = result.getGlobalOptimum().getTransformation();
 
 			// Iterate over result and write all non-outliers to the output
 			rowIter = outHandle.iterator();
@@ -100,6 +102,7 @@ public class BenchmarkAlgorithmRGR extends BenchmarkAlgorithm {
             indexIterator = indexes.iterator();
             rowIter = inHandle.iterator();
             rowIter.next(); // Skip header
+            boolean anythingChanged = false;
             for (int j = 0; j < outHandle.getNumRows(); j++) {
             	String[] row = rowIter.next();
             	indexIterator.next();
@@ -107,18 +110,21 @@ public class BenchmarkAlgorithmRGR extends BenchmarkAlgorithm {
                     outliers.add(row);
                 } else {
                 	indexIterator.remove();
+                	anythingChanged = true;
                 }
             }
             numOutliers = indexes.size();
             outHandle.release();
             inHandle.release();
             
-            super.updated(output);
+            // Prevent endless loops
+            if (!anythingChanged) {
+                break;
+            }
+            
+            super.updated(output, transformation);
             
         }
-        
-
-        
         return output;
     }
 

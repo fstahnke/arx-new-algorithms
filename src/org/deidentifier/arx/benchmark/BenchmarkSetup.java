@@ -178,7 +178,7 @@ public class BenchmarkSetup {
                 BenchmarkDataset.CUP,
                 BenchmarkDataset.FARS,
                 BenchmarkDataset.ATUS,
-                BenchmarkDataset.IHIS
+//                BenchmarkDataset.IHIS
         };
     }
     
@@ -271,8 +271,9 @@ public class BenchmarkSetup {
      * @return
      */
     public static BenchmarkUtilityMeasure[] getUtilityMeasures() {
-        return new BenchmarkUtilityMeasure[]{//BenchmarkUtilityMeasure.ENTROPY,
-                                             BenchmarkUtilityMeasure.LOSS};
+        return new BenchmarkUtilityMeasure[]{
+//                BenchmarkUtilityMeasure.DISCERNIBILITY,
+                BenchmarkUtilityMeasure.LOSS};
     }
 
 	public static BenchmarkPrivacyModel[] getPrivacyModels() {
@@ -282,7 +283,12 @@ public class BenchmarkSetup {
 	}
 
 	public static double[] getSuppressionLimits() {
-		return new double[]{0.02d, 0.05d, 0.1d, 1.0d};
+		return new double[]{
+		        0.02d,
+		        0.05d,
+		        0.1d,
+		        1.0d
+		};
 	}
 	
 	public static BenchmarkAlgorithm[] getAlgorithms() {

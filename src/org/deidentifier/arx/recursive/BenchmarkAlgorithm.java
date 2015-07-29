@@ -13,7 +13,7 @@ public class BenchmarkAlgorithm {
 		this.start = System.currentTimeMillis();
 	}
 
-	protected void updated(String[][] data) {
-		listener.updated(System.currentTimeMillis() - start, data);
+	protected void updated(String[][] data, int[] transformation) {
+		listener.updated(System.currentTimeMillis() - start, data, transformation);
 	}
 }

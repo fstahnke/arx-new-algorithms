@@ -20,7 +20,7 @@ public class RecursiveTest {
     	BenchmarkAlgorithmListener listener = new BenchmarkAlgorithmListener() {
 
 			@Override
-			public void updated(long timestamp, String[][] output) {
+			public void updated(long timestamp, String[][] output, int[] transformation) {
 				System.out.println("Iteration");
 			}
     		

@@ -125,7 +125,7 @@ public class BenchmarkExperiment1 {
         	BenchmarkAlgorithmListener listener = new BenchmarkAlgorithmListener() {
 
 				@Override
-				public void updated(long timestamp, String[][] output) {
+				public void updated(long timestamp, String[][] output, int[] transformation) {
 					
 					// Obtain utility
 					double utility = 0d;
