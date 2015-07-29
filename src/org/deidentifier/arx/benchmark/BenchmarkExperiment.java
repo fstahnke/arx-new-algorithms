@@ -22,9 +22,6 @@ import java.io.IOException;
 
 import org.deidentifier.arx.ARXAnonymizer;
 import org.deidentifier.arx.ARXConfiguration;
-import org.deidentifier.arx.ARXLattice;
-import org.deidentifier.arx.ARXLattice.ARXNode;
-import org.deidentifier.arx.ARXResult;
 import org.deidentifier.arx.Data;
 import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkDataset;
 import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkPrivacyModel;
@@ -80,7 +77,7 @@ public class BenchmarkExperiment {
 
             // Write after each experiment
             File resultFile = new File("results/experiment.csv");
-            resultFile.mkdirs();
+        	resultFile.getParentFile().mkdirs();
             BENCHMARK.getResults().write(resultFile);
         }
     }

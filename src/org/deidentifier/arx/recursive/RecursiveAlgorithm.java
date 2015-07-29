@@ -15,11 +15,7 @@ import org.deidentifier.arx.Data.DefaultData;
 import org.deidentifier.arx.DataHandle;
 import org.deidentifier.arx.utility.AggregateFunction;
 import org.deidentifier.arx.utility.DataConverter;
-import org.deidentifier.arx.utility.UtilityMeasureAECS;
-import org.deidentifier.arx.utility.UtilityMeasureDiscernibility;
 import org.deidentifier.arx.utility.UtilityMeasureLoss;
-import org.deidentifier.arx.utility.UtilityMeasureNonUniformEntropy;
-import org.deidentifier.arx.utility.UtilityMeasurePrecision;
 
 public class RecursiveAlgorithm {
 	
@@ -38,10 +34,12 @@ public class RecursiveAlgorithm {
         String[][] output = converter.toArray(outHandle);
         Map<String, String[][]> hierarchies = converter.toMap(data.getDefinition());
         String[] header = converter.getHeader(inHandle);
+        // FIXME: This does not give me the correct k-anonymity
+        final int kAnon = config.getCriteria().iterator().next().getRequirements();
         
         int numOutliers = -1;
         
-        while (numOutliers > 1 || numOutliers == -1) {
+        while ((numOutliers >= kAnon && numOutliers > 1)|| numOutliers == -1) {
         //for (int i = 0; i < 3; i++) {
             
             // Create new data object for next anonymization step
