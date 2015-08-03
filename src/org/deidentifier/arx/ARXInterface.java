@@ -131,6 +131,15 @@ public class ARXInterface {
     public int[][] getBuffer() {
         return buffer;
     }
+    
+    /**
+     * Returns the output as generalized strings
+     * 
+     * @return the generalized output
+     */
+    public String[][] getOutputGeneralized() {
+    	throw new UnsupportedOperationException();
+    }
 
     /**
      * Returns the hierarchy for the attribute at the given index.

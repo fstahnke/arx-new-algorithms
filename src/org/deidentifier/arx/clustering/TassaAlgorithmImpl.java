@@ -7,9 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.deidentifier.arx.ARXConfiguration;
 import org.deidentifier.arx.ARXInterface;
-import org.deidentifier.arx.Data;
 
 public class TassaAlgorithmImpl {
     
@@ -21,23 +19,29 @@ public class TassaAlgorithmImpl {
     }
     
     private double finalInformationLoss;
+	private TassaClusterSet tassaClustering;
+	private final int[][] outputBuffer;
 
-    public double getFinalInformationLoss() {
+    public int[][] getOutputBuffer() {
+		return outputBuffer;
+	}
+
+	public double getFinalInformationLoss() {
         return finalInformationLoss;
     }
 
-    public TassaAlgorithmImpl(Data data, ARXConfiguration config) throws IOException {
-        iface = new ARXInterface(data, config);
+    public TassaAlgorithmImpl(ARXInterface iface) throws IOException {
+        this.iface = iface;
+		outputBuffer = iface.getBuffer();
     }
     
     /**
      * 
      * @param alpha modifier for the initial size of clusters. has to be 0 < alpha <= 1
      * @param omega modifier for the maximum size of clusters. has to be 1 < omega <= 2
-     * @return a list of clusters with the local optimum for generalization cost
      */
     
-    public TassaClusterSet execute(double alpha, double omega, TassaClusterSet input) {
+    public void execute(double alpha, double omega, TassaClusterSet input) {
 
 
         // check for correct arguments
@@ -65,28 +69,25 @@ public class TassaAlgorithmImpl {
         final int k_0 = (int) Math.floor(alpha * k) > 0 ? (int) Math.floor(alpha * k) : 1;
         final int n = dataSet.size();
         
-        // Output variable: Collection of clusters
-        // initialized with random partition of data records with the cluster size alpha*k
-        final TassaClusterSet output;
         if (input == null) {
-            output = new TassaClusterSet(dataSet, k_0, iface.getGeneralizationManager());
+            tassaClustering = new TassaClusterSet(dataSet, k_0, iface.getGeneralizationManager());
         }
         else {
-            output = input;
+            tassaClustering = input;
         }
         
-        double lastIL = getAverageGeneralizationCost(output);
+        double lastIL = getAverageGeneralizationCost(tassaClustering);
         inititalInformationLoss = lastIL;
         
         if (iface.logging) {
-            System.out.println("Initial average information loss: " + inititalInformationLoss + ", Initial cluster count: " + output.size());
+            System.out.println("Initial average information loss: " + inititalInformationLoss + ", Initial cluster count: " + tassaClustering.size());
         }
         
         // Helper variable to check, if records were changed
         boolean recordsChanged = true;
         int recordChangeCount = 0;
 
-        HashSet<TassaCluster> tempOutput = new HashSet<>(output);
+        HashSet<TassaCluster> tempOutput = new HashSet<>(tassaClustering);
         HashSet<TassaCluster> modifiedClusters = new HashSet<>(tempOutput);
         
         while (recordsChanged) {
@@ -256,8 +257,8 @@ public class TassaAlgorithmImpl {
         int mergeNumber = 1;
         
         // Add temporary clustering to output and merge clusters < k
-        output.clear();
-        output.addAll(tempOutput);
+        tassaClustering.clear();
+        tassaClustering.addAll(tempOutput);
         
         while (smallClusters.size() > 1) {
 
@@ -271,7 +272,7 @@ public class TassaAlgorithmImpl {
             final TassaCluster mergedCluster = smallClusters.mergeClosestPair();
             
             if (mergedCluster.size() >= k) {
-                output.add(mergedCluster);
+                tassaClustering.add(mergedCluster);
                 smallClusters.remove(mergedCluster);
             }
         }
@@ -284,35 +285,34 @@ public class TassaAlgorithmImpl {
                 startTime = stopTime;
             }
             
-            output.mergeClosestPair(smallClusters.iterator().next());
+            tassaClustering.mergeClosestPair(smallClusters.iterator().next());
         }
         
-        finalInformationLoss = getAverageGeneralizationCost(output);
+        finalInformationLoss = getAverageGeneralizationCost(tassaClustering);
         
         if (iface.logging) {
             System.out.println("Final average information loss: " + finalInformationLoss);
         }
         
-        final int[][] buffer = iface.getBuffer();
         ListIterator<TassaRecord> itr = dataSet.listIterator();
         
-        if (buffer.length != dataSet.size()) {
+        if (outputBuffer.length != dataSet.size()) {
             throw new RuntimeException("Something is wrong! The buffer length and the number of elements in our dataset don't match.");
         }
         
         
-        for (int i = 0; i < buffer.length; i++) {
+        for (int i = 0; i < outputBuffer.length; i++) {
             final TassaRecord record = itr.next();
-            buffer[i] = record.getAssignedCluster().getTransformation();
+            outputBuffer[i] = record.getAssignedCluster().getTransformation();
             //System.out.println(Arrays.toString(buffer[i]));
         }
-        
-        
-        return output;
-        
     }
     
-    private double getChangeOfInformationLoss(TassaRecord movedRecord, TassaCluster targetCluster, int n) {
+    public TassaClusterSet getTassaClustering() {
+		return tassaClustering;
+	}
+
+	private double getChangeOfInformationLoss(TassaRecord movedRecord, TassaCluster targetCluster, int n) {
         
         final TassaCluster sourceCluster = movedRecord.getAssignedCluster();
         

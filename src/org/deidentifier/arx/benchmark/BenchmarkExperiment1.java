@@ -172,6 +172,8 @@ public class BenchmarkExperiment1 {
 	        BenchmarkAlgorithmRGR implementation = new BenchmarkAlgorithmRGR(listener);
 	        implementation.execute(data, config, anonymizer);
 	        
+        } else if (algorithm == BenchmarkAlgorithm.TASSA) {
+        	 
         } else {
         	throw new UnsupportedOperationException("TODO: Implement");
         }

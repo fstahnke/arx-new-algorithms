@@ -28,7 +28,7 @@ public class RecursiveTest {
         
         BenchmarkAlgorithmRGR recursiveInstance = new BenchmarkAlgorithmRGR(listener);
         
-        Data data = BenchmarkSetup.getData(BenchmarkDataset.IHIS, BenchmarkPrivacyModel.FIVE_ANONYMITY);
+        Data data = BenchmarkSetup.getData(BenchmarkDataset.IHIS_SUBSET, BenchmarkPrivacyModel.FIVE_ANONYMITY);
         
         final ARXAnonymizer anonymizer = new ARXAnonymizer();
         

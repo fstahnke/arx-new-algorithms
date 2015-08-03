@@ -6,14 +6,17 @@ import org.deidentifier.arx.ARXConfiguration;
 import org.deidentifier.arx.AttributeType.Hierarchy;
 import org.deidentifier.arx.Data;
 import org.deidentifier.arx.criteria.KAnonymity;
+import org.deidentifier.arx.utility.AggregateFunction;
+import org.deidentifier.arx.utility.DataConverter;
+import org.deidentifier.arx.utility.UtilityMeasureLoss;
 
 public class TassaTest {
     
     public static void main(String[] args) throws IOException {
         
     	
-        //final Data data = Data.create("data/adult_subset.csv", ';');
-        final Data data = Data.create("data/adult.csv", ';');
+        final Data data = Data.create("data/adult_subset.csv", ';');
+//        final Data data = Data.create("data/adult.csv", ';');
         data.getDefinition().setAttributeType("age", Hierarchy.create("hierarchies/adult_hierarchy_age.csv", ';'));
         data.getDefinition().setAttributeType("education", Hierarchy.create("hierarchies/adult_hierarchy_education.csv", ';'));
         data.getDefinition().setAttributeType("marital-status", Hierarchy.create("hierarchies/adult_hierarchy_marital-status.csv", ';'));
@@ -28,22 +31,29 @@ public class TassaTest {
         final ARXConfiguration config = ARXConfiguration.create();
         config.addCriterion(new KAnonymity(8));
         config.setMaxOutliers(0d);
+        
+        final TassaAlgorithm tassaAlgo = new TassaAlgorithm(data, config);
+        
+        String[][] outputGeneralized = tassaAlgo.execute();
+        
+        double utility = new UtilityMeasureLoss<Double>(new DataConverter().getHeader(data.getHandle()), new DataConverter().toMap(data.getDefinition()), AggregateFunction.GEOMETRIC_MEAN).evaluate(outputGeneralized).getUtility();
 
-        final TassaAlgorithmImpl tassa = new TassaAlgorithmImpl(data, config);
+        System.out.println("Information Loss by Tassa: " + tassaAlgo.getImpl().getFinalInformationLoss() + ", Information Loss by ARX: " + utility);
+        
+        final TassaAlgorithmImpl tassa = tassaAlgo.getImpl();
         
         //final TassaClusterSet clusterList = tassa.execute(0.5, 1.5);
 
-        TassaClusterSet output = null;
-        double lastDeltaIL = -Double.MAX_VALUE;
-
-        
-        long initTime = System.nanoTime();
-        output = tassa.execute(0.5, 1.5, output);
-        long stopTime = System.nanoTime();
-        double initialInformationLoss = tassa.getInititalInformationLoss();
-        double finalInformationLoss = tassa.getFinalInformationLoss();
-        lastDeltaIL = finalInformationLoss - initialInformationLoss;
-        System.out.println("Total runtime: " + Math.round((stopTime-initTime) / 1000000000.0) + " s, Initial Information Loss: " + initialInformationLoss + ", Final Information Loss: " + finalInformationLoss);
+//        double lastDeltaIL = -Double.MAX_VALUE;
+//
+//        
+//        long initTime = System.nanoTime();
+//        tassa.execute(0.5, 1.5, tassa.getTassaClustering());
+//        long stopTime = System.nanoTime();
+//        double initialInformationLoss = tassa.getInititalInformationLoss();
+//        double finalInformationLoss = tassa.getFinalInformationLoss();
+//        lastDeltaIL = finalInformationLoss - initialInformationLoss;
+//        System.out.println("Total runtime: " + Math.round((stopTime-initTime) / 1000000000.0) + " s, Initial Information Loss: " + initialInformationLoss + ", Final Information Loss: " + finalInformationLoss);
         
         
         /*
@@ -58,24 +68,25 @@ public class TassaTest {
         }
         */
 
-        final int exp = 8;
-        for (int i = 0; i < exp; i++) {
-
-            // Configuration
-            final ARXConfiguration configTmp = ARXConfiguration.create();
-            configTmp.addCriterion(new KAnonymity((int)(Math.pow(2, exp-i))));
-            System.out.println("K-Anonymity: " + (Math.pow(2, exp-i)));
-            configTmp.setMaxOutliers(0d);
-
-            final TassaAlgorithmImpl tassaTmp = new TassaAlgorithmImpl(data, configTmp);
-            
-            initTime = System.nanoTime();
-            tassaTmp.execute(0.5, 1.5, null);
-            stopTime = System.nanoTime();
-            initialInformationLoss = tassaTmp.getInititalInformationLoss();
-            finalInformationLoss = tassaTmp.getFinalInformationLoss();
-            System.out.println("#: " + i + ", Total runtime: " + ((stopTime-initTime) / 1000000000.0) + " s, Initial Information Loss: " + initialInformationLoss + ", Final Information Loss: " + finalInformationLoss);
-        }
+//        final int exp = 8;
+//        for (int i = 0; i < exp; i++) {
+//
+//            // Configuration
+//            final ARXConfiguration configTmp = ARXConfiguration.create();
+//            configTmp.addCriterion(new KAnonymity((int)(Math.pow(2, exp-i))));
+//            System.out.println("K-Anonymity: " + (Math.pow(2, exp-i)));
+//            configTmp.setMaxOutliers(0d);
+//            
+//            final TassaAlgorithm tassaAlgoTmp = new TassaAlgorithm(data, config);
+//            final TassaAlgorithmImpl tassaTmp = tassaAlgoTmp.getImpl();
+//            
+//            initTime = System.nanoTime();
+//            tassaTmp.execute(0.5, 1.5, null);
+//            stopTime = System.nanoTime();
+//            initialInformationLoss = tassaTmp.getInititalInformationLoss();
+//            finalInformationLoss = tassaTmp.getFinalInformationLoss();
+//            System.out.println("#: " + i + ", Total runtime: " + ((stopTime-initTime) / 1000000000.0) + " s, Initial Information Loss: " + initialInformationLoss + ", Final Information Loss: " + finalInformationLoss);
+//        }
         
         
     }
