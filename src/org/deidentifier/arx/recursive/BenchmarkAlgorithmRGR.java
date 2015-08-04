@@ -11,6 +11,8 @@ import org.deidentifier.arx.ARXResult;
 import org.deidentifier.arx.Data;
 import org.deidentifier.arx.Data.DefaultData;
 import org.deidentifier.arx.DataHandle;
+import org.deidentifier.arx.benchmark.BenchmarkAlgorithm;
+import org.deidentifier.arx.benchmark.IBenchmarkObserver;
 import org.deidentifier.arx.criteria.DPresence;
 import org.deidentifier.arx.criteria.KAnonymity;
 import org.deidentifier.arx.criteria.LDiversity;
@@ -18,12 +20,19 @@ import org.deidentifier.arx.criteria.TCloseness;
 import org.deidentifier.arx.utility.DataConverter;
 
 public class BenchmarkAlgorithmRGR extends BenchmarkAlgorithm {
+    
+    private final Data data;
+    private final ARXConfiguration config;
+    private final ARXAnonymizer anonymizer;
 	
-	public BenchmarkAlgorithmRGR(BenchmarkAlgorithmListener listener) {
-		super(listener);
+	public BenchmarkAlgorithmRGR(IBenchmarkObserver listener, final Data data, final ARXConfiguration config) {
+        super(listener);
+        anonymizer = new ARXAnonymizer();
+        this.data = data;
+        this.config = config;
 	}
 
-    public String[][] execute(final Data data, final ARXConfiguration config, final ARXAnonymizer anonymizer) throws IOException
+    public String[][] execute() throws IOException
     {
     	super.start();
     	

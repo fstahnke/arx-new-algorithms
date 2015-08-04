@@ -87,7 +87,7 @@ public class BenchmarkMetadataUtility {
      */
     private void computeLowerBounds(BenchmarkDataset dataset) throws IOException {
         // Prepare
-        Data data = BenchmarkSetup.getData(dataset, BenchmarkPrivacyModel.FIVE_ANONYMITY);
+        Data data = BenchmarkSetup.getData(dataset, BenchmarkPrivacyModel.K5_ANONYMITY);
         DataDefinition definition = data.getDefinition();
         DataHandle inputHandle = data.getHandle();
 
@@ -120,7 +120,7 @@ public class BenchmarkMetadataUtility {
      */
     private void computeUpperBounds(BenchmarkDataset dataset) throws IOException {
         // Prepare
-        Data data = BenchmarkSetup.getData(dataset, BenchmarkPrivacyModel.FIVE_ANONYMITY);
+        Data data = BenchmarkSetup.getData(dataset, BenchmarkPrivacyModel.K5_ANONYMITY);
         DataDefinition definition = data.getDefinition();
         DataHandle inputHandle = data.getHandle();
 

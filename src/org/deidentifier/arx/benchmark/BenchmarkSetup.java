@@ -96,10 +96,15 @@ public class BenchmarkSetup {
     }
     
     public static enum BenchmarkPrivacyModel {
-        FIVE_ANONYMITY {
+        K5_ANONYMITY {
             @Override
             public String toString() {
                 return "5-anonymity";
+            }
+        }, K20_ANONYMITY {
+            @Override
+            public String toString() {
+                return "20-anonymity";
             }
         }
     }
@@ -157,8 +162,11 @@ public class BenchmarkSetup {
         config.setMaxOutliers(suppression);
         
         switch (criterion) {
-        case FIVE_ANONYMITY:
+        case K5_ANONYMITY:
             config.addCriterion(new KAnonymity(5));
+            break;
+        case K20_ANONYMITY:
+            config.addCriterion(new KAnonymity(20));
             break;
         default:
             throw new RuntimeException("Invalid criterion");
@@ -224,8 +232,8 @@ public class BenchmarkSetup {
      */
     public static BenchmarkDataset[] getDatasets() {
         return new BenchmarkDataset[] {
-        		BenchmarkDataset.ADULT_SUBSET
-//                BenchmarkDataset.ADULT,
+//        		BenchmarkDataset.ADULT_SUBSET
+                BenchmarkDataset.ADULT,
 //                BenchmarkDataset.CUP,
 //                BenchmarkDataset.FARS,
 //                BenchmarkDataset.ATUS,
@@ -339,7 +347,8 @@ public class BenchmarkSetup {
 
 	public static BenchmarkPrivacyModel[] getPrivacyModels() {
 		return new BenchmarkPrivacyModel[]{
-				BenchmarkPrivacyModel.FIVE_ANONYMITY
+//				BenchmarkPrivacyModel.K5_ANONYMITY,
+				BenchmarkPrivacyModel.K20_ANONYMITY
 		};
 	}
 

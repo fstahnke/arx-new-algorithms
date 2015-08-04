@@ -50,9 +50,9 @@ public class ARXInterface {
 	/** Turn logging on or off. */
     public final boolean logging = true;
     /** The number of records that is processed between each logging tick. */
-    public final int logNumberOfRecords = 1000;
+    public final int logNumberOfRecords = 10000;
     /** The number of clusters that is processed between each logging tick. */
-    public final int logNumberOfClusters = 100;
+    public final int logNumberOfClusters = 1000;
 
     /**
      * Creates a new interface to the internal ARX data structures.

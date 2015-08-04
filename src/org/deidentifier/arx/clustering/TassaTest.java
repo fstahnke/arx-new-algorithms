@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.deidentifier.arx.ARXConfiguration;
 import org.deidentifier.arx.AttributeType.Hierarchy;
 import org.deidentifier.arx.Data;
+import org.deidentifier.arx.benchmark.IBenchmarkObserver;
 import org.deidentifier.arx.criteria.KAnonymity;
 import org.deidentifier.arx.utility.AggregateFunction;
 import org.deidentifier.arx.utility.DataConverter;
@@ -13,6 +14,17 @@ import org.deidentifier.arx.utility.UtilityMeasureLoss;
 public class TassaTest {
     
     public static void main(String[] args) throws IOException {
+        
+        IBenchmarkObserver observer = new IBenchmarkObserver() {
+
+            @Override
+            public void notify(long timestamp, String[][] output,
+                    int[] transformation) {
+                // TODO Auto-generated method stub
+                
+            }
+            
+        };
         
     	
         final Data data = Data.create("data/adult_subset.csv", ';');
@@ -32,15 +44,13 @@ public class TassaTest {
         config.addCriterion(new KAnonymity(8));
         config.setMaxOutliers(0d);
         
-        final TassaAlgorithm tassaAlgo = new TassaAlgorithm(data, config);
+        final TassaAlgorithm tassaAlgo = new TassaAlgorithm(observer, data, config);
         
         String[][] outputGeneralized = tassaAlgo.execute();
         
         double utility = new UtilityMeasureLoss<Double>(new DataConverter().getHeader(data.getHandle()), new DataConverter().toMap(data.getDefinition()), AggregateFunction.GEOMETRIC_MEAN).evaluate(outputGeneralized).getUtility();
 
-        System.out.println("Information Loss by Tassa: " + tassaAlgo.getImpl().getFinalInformationLoss() + ", Information Loss by ARX: " + utility);
-        
-        final TassaAlgorithmImpl tassa = tassaAlgo.getImpl();
+        System.out.println("Information Loss by Tassa: " + tassaAlgo.getInformationLoss() + ", Information Loss by ARX: " + utility);
         
         //final TassaClusterSet clusterList = tassa.execute(0.5, 1.5);
 
