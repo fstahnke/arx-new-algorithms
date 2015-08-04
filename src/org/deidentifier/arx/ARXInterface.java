@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.deidentifier.arx.clustering.DomainShare;
 import org.deidentifier.arx.clustering.GeneralizationManager;
 import org.deidentifier.arx.criteria.KAnonymity;
 import org.deidentifier.arx.criteria.LDiversity;
@@ -25,35 +26,25 @@ public class ARXInterface {
     /**  The data manager. */
     private final DataManager      manager;
     
-    /**
-     * Gets the data manager for the current data set.
-     *
-     * @return the data manager
-     */
-    public DataManager getDataManager()
-    {
-    	return this.manager;
-    }
-    
     /**  The buffer. */
     private final int[][]          buffer;
     
     /**  The config. */
     private final ARXConfiguration config;
+    
     /** The generalization manager. */
     private final GeneralizationManager generalizationManager;
+    /** Turn logging on or off. */
+    private boolean logging = true;
     
-    public GeneralizationManager getGeneralizationManager() {
-		return generalizationManager;
-	}
-
-	/** Turn logging on or off. */
-    public final boolean logging = true;
     /** The number of records that is processed between each logging tick. */
-    public final int logNumberOfRecords = 10000;
-    /** The number of clusters that is processed between each logging tick. */
-    public final int logNumberOfClusters = 1000;
+    private int logNumberOfRecords = 10000;
 
+	/** The number of clusters that is processed between each logging tick. */
+    private int logNumberOfClusters = 1000;
+
+    private DomainShare[]               shares;
+    
     /**
      * Creates a new interface to the internal ARX data structures.
      *
@@ -110,46 +101,26 @@ public class ARXInterface {
             buffer[i] = new int[array[0].length];
         }
         
+        shares = new DomainShare[array[0].length];
+        for (int i = 0; i < shares.length; i++) {
+            shares[i] = new DomainShare(handle.getDefinition().getHierarchy(header[i]), 
+                                                    manager.getDataGeneralized().getDictionary().getMapping()[i],
+                                                    manager.getHierarchies()[i].getArray());
+        }
+        
         // Create generalization manager
-        generalizationManager = new GeneralizationManager(manager);
-    }
-
-    /**
-     * Returns the input data array (quasi-identifiers).
-     *
-     * @return the data qi
-     */
-    public int[][] getDataQI() {
-        return manager.getDataGeneralized().getArray();
-    }
-
-    /**
-     * Returns the output buffer.
-     *
-     * @return the buffer
-     */
-    public int[][] getBuffer() {
-        return buffer;
+        generalizationManager = new GeneralizationManager(this);
     }
     
     /**
-     * Returns the output as generalized strings
-     * 
-     * @return the generalized output
+     * Domain shares
+     * @return
      */
-    public String[][] getOutputGeneralized() {
-    	throw new UnsupportedOperationException();
+    public DomainShare[] getDomainShares() {
+        return shares;
     }
 
-    /**
-     * Returns the hierarchy for the attribute at the given index.
-     *
-     * @param index the index
-     * @return the hierarchy
-     */
-    public int[][] getHierarchy(int index) {
-        return manager.getHierarchies()[index].getArray();
-    }
+
 
     /**
      * Returns the name of the attribute at the given index.
@@ -162,12 +133,45 @@ public class ARXInterface {
     }
 
     /**
-     * Returns the number of quasi-identifying attributes.
+     * Returns the output buffer.
      *
-     * @return the num attributes
+     * @return the buffer
      */
-    public int getNumAttributes() {
-        return buffer[0].length;
+    public int[][] getBuffer() {
+        return buffer;
+    }
+
+    /**
+     * Gets the data manager for the current data set.
+     *
+     * @return the data manager
+     */
+    public DataManager getDataManager()
+    {
+    	return this.manager;
+    }
+
+    /**
+     * Returns the input data array (quasi-identifiers).
+     *
+     * @return the data qi
+     */
+    public int[][] getDataQI() {
+        return manager.getDataGeneralized().getArray();
+    }
+
+    public GeneralizationManager getGeneralizationManager() {
+		return generalizationManager;
+	}
+
+    /**
+     * Returns the hierarchy for the attribute at the given index.
+     *
+     * @param index the index
+     * @return the hierarchy
+     */
+    public int[][] getHierarchy(int index) {
+        return manager.getHierarchies()[index].getArray();
     }
 
     /**
@@ -177,6 +181,48 @@ public class ARXInterface {
      */
     public int getK() {
         return config.getMinimalGroupSize();
+    }
+
+    public int getLogNumberOfClusters() {
+        return logNumberOfClusters;
+    }
+
+    public int getLogNumberOfRecords() {
+        return logNumberOfRecords;
+    }
+
+    /**
+     * Returns the number of quasi-identifying attributes.
+     *
+     * @return the num attributes
+     */
+    public int getNumAttributes() {
+        return buffer[0].length;
+    }
+    
+    /**
+     * Returns the output as generalized strings
+     * 
+     * @return the generalized output
+     */
+    public String[][] getOutputGeneralized() {
+    	throw new UnsupportedOperationException();
+    }
+
+    public boolean isLogging() {
+        return logging;
+    }
+
+    public void setLogging(boolean logging) {
+        this.logging = logging;
+    }
+
+    public void setLogNumberOfClusters(int logNumberOfClusters) {
+        this.logNumberOfClusters = logNumberOfClusters;
+    }
+
+    public void setLogNumberOfRecords(int logNumberOfRecords) {
+        this.logNumberOfRecords = logNumberOfRecords;
     }
 
     /**

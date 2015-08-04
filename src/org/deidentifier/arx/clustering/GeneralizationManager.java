@@ -1,96 +1,243 @@
 package org.deidentifier.arx.clustering;
 
-import org.deidentifier.arx.framework.data.DataManager;
+import org.deidentifier.arx.ARXInterface;
 import org.deidentifier.arx.framework.data.GeneralizationHierarchy;
 
 public class GeneralizationManager {
     
-    private final GeneralizationTree[] generalizationTrees;
-    private final int numAtt;
+    private final DomainShare[] shares;
+    private final int           numAttributes;
+    private final int[][][]     hierarchies;
+    private final int[][]       data;
+
     public int getNumAttributes() {
-        return numAtt;
+        return numAttributes;
     }
 
-    public GeneralizationManager(DataManager manager) {
-        GeneralizationHierarchy[] hierarchies = manager.getHierarchies();
-        numAtt = hierarchies.length;
-        generalizationTrees = new GeneralizationTree[numAtt];
-        for (int i = 0; i < hierarchies.length; i++)
-        {
-            generalizationTrees[i] = new GeneralizationTree(hierarchies[i]);
+    public GeneralizationManager(ARXInterface arxInterface) {
+        GeneralizationHierarchy[] generalizationHierarchies = arxInterface.getDataManager().getHierarchies();
+        this.numAttributes = generalizationHierarchies.length;
+        this.shares = new DomainShare[numAttributes];
+        this.hierarchies = new int[numAttributes][][];
+        this.data = arxInterface.getDataQI();
+        for (int i = 0; i < generalizationHierarchies.length; i++) {
+            this.shares[i] = arxInterface.getDomainShares()[i];
+            this.hierarchies[i] = generalizationHierarchies[i].getArray();
         }
     }
     
-    //TODO: Design flaw!
-    public double calculateGeneralizationCost(IGeneralizable generalizeObject, int[] generalizationLevels) {
-        return calculateGeneralizationCost_LossMetric(generalizeObject.getValues(), generalizationLevels);
+    public double getDomainShare(int dimension, int level, int value) {
+        return shares[dimension].getShare(value, level);
     }
     
-    // Calculate generalization levels for set of values from scratch
-    public int[] calculateGeneralizationLevels(int[][] records) {
-        
-        final int[][] valuesByAttribute = new int[numAtt][records.length];
-        for (int i = 0; i < records.length; i++)
-        {
-            for (int j = 0; j < numAtt; j++) {
-                valuesByAttribute[j][i] = records[i][j];
+    public double getDomainSize(int dimension) {
+        return shares[dimension].getDomainSize();
+    }
+
+
+    public int getGeneralizationLevel(int dimension, int[] records) {
+        return getGeneralizationLevel(dimension, records, 0);
+    }
+    
+    /**
+     * Cluster
+     * @param records
+     * @return
+     */
+    public int getGeneralizationLevel(int dimension, int[] records, int lvl) {
+
+        int[][] hierarchy = hierarchies[dimension];
+        int val = hierarchy[data[records[0]][dimension]][lvl];
+        for (int i = 1; i < records.length && lvl != hierarchy[0].length - 1; i++) {
+            while (hierarchy[data[records[i]][dimension]][lvl] != val) {
+                val = hierarchy[data[records[i - 1]][dimension]][++lvl];
             }
         }
-        
-        
-        final int[] result = new int[numAtt];
-        
-        for (int i = 0; i < numAtt; i++) {
-            result[i] = generalizationTrees[i].getGeneralizationLevel(valuesByAttribute[i], 0);
-        }
-        
-        return result;
-    }
-    
-    // Calculate generalization levels for two objects with initial generalization levels
-    public int[] calculateGeneralizationLevels(final int[] firstValues, final int[] secondValues, int[] currentGeneralizationLevels) {
-        final int[] result = new int[numAtt];
-        
-        for (int i = 0; i < numAtt; i++) {
-            result[i] = generalizationTrees[i].getGeneralizationLevel(firstValues[i], secondValues[i], currentGeneralizationLevels[i]);
-        }
-        
-        return result;
-    }
-    
-    // Calculate generalization levels for two objects with initial generalization levels
-    public int[] calculateGeneralizationLevels(IGeneralizable firstObject, IGeneralizable secondObject, int[] currentGeneralizationLevels) {
-        final int[] result = new int[numAtt];
-        final int[] firstValues = firstObject.getValues();
-        final int[] secondValues = secondObject.getValues();
-        
-        for (int i = 0; i < numAtt; i++) {
-            result[i] = generalizationTrees[i].getGeneralizationLevel(firstValues[i], secondValues[i], currentGeneralizationLevels[i]);
-        }
-        
-        return result;
+        return lvl;
     }
 
-	public int[] calculateTransformation(IGeneralizable generalizeObject, int[] generalizationLevels) {
-        final int[] values = generalizeObject.getValues();
-        int[] result = new int[numAtt];
-        for (int i = 0; i < numAtt; i++) {
-            result[i] = generalizationTrees[i].getTransformation(values[i], generalizationLevels[i]);
+    /**
+     * Two clusters
+     */
+    public int getGeneralizationLevel(int dimension, int[] records1, int[] records2, int lvl) {
+
+        int[][] hierarchy = hierarchies[dimension];
+        int val = hierarchy[data[records1[0]][dimension]][lvl];
+        for (int i = 1; i < records1.length && lvl != hierarchy[0].length - 1; i++) {
+            while (hierarchy[data[records1[i]][dimension]][lvl] != val) {
+                val = hierarchy[data[records1[i - 1]][dimension]][++lvl];
+            }
+        }
+        for (int i = 1; i < records2.length && lvl != hierarchy[0].length - 1; i++) {
+            while (hierarchy[data[records2[i]][dimension]][lvl] != val) {
+                val = hierarchy[data[records2[i - 1]][dimension]][++lvl];
+            }
+        }
+        return lvl;
+    }
+
+    /**
+     * Cluster and record
+     */
+    public int getGeneralizationLevel(int dimension, int[] records1, int record, int lvl) {
+
+        int[][] hierarchy = hierarchies[dimension];
+        int val = hierarchy[data[records1[0]][dimension]][lvl];
+        for (int i = 1; i < records1.length && lvl != hierarchy[0].length - 1; i++) {
+            while (hierarchy[data[records1[i]][dimension]][lvl] != val) {
+                val = hierarchy[data[records1[i - 1]][dimension]][++lvl];
+            }
+        }
+        while (hierarchy[data[record][dimension]][lvl] != val) { // TODO: Is this correct?
+                val = hierarchy[data[record][dimension]][++lvl];
+            }
+        return lvl;
+    }
+
+    /**
+     * Cluster and record
+     */
+    public int getGeneralizationLevelWithoutRecord(int dimension, int[] records1, int record, int lvl) {
+
+        int[][] hierarchy = hierarchies[dimension];
+        
+        int val = 0;
+        int start = 0;
+        if (records1[0] != record) {
+            val = hierarchy[data[records1[0]][dimension]][lvl];
+        } else {
+            if (records1.length == 1) {
+                return 0;
+            }
+            val = hierarchy[data[records1[1]][dimension]][lvl];
+            start = 1;
+        }
+        for (int i = start + 1; i < records1.length && lvl != hierarchy[0].length - 1; i++) {
+            if (records1[i] != record) {
+                while (hierarchy[data[records1[i]][dimension]][lvl] != val) {
+                    val = hierarchy[data[records1[i - 1]][dimension]][++lvl];
+                }
+            }
+        }
+        return lvl;
+    }
+    
+    /**
+     * Once cluster
+     */
+    public double getGeneralizationCost(int[] records, int[] generalization) {
+        
+        double cost = 0d;
+        for (int recordId : records) {
+            int[] record = data[recordId];
+            for (int i = 0; i < record.length; i++) {
+                int[][] hierarchy = hierarchies[i];
+                int value = hierarchy[record[i]][generalization[i]];
+                cost += getDomainShare(i, generalization[i], value);
+            }
+        }
+        cost /= (double)records.length;
+        cost /= (double)numAttributes;
+        return cost;
+    }
+    
+    /**
+     * Two clusters
+     */
+    public double getGeneralizationCost(int[] records1, int[] generalization1, int[] records2, int[] generalization2) {
+        
+        int[] generalization = new int[numAttributes];
+        for (int i = 0; i <generalization.length; i++) {
+            generalization[i] = getGeneralizationLevel(i, records1, records2, Math.max(generalization1[i], generalization2[i]));
+        }
+        
+        double cost = 0d;
+        for (int recordId : records1) {
+            int[] record = data[recordId];
+            for (int i = 0; i < record.length; i++) {
+                int[][] hierarchy = hierarchies[i];
+                int value = hierarchy[record[i]][generalization[i]];
+                cost += getDomainShare(i, generalization[i], value);
+            }
+        }
+        for (int recordId : records2) {
+            int[] record = data[recordId];
+            for (int i = 0; i < record.length; i++) {
+                int[][] hierarchy = hierarchies[i];
+                int value = hierarchy[record[i]][generalization[i]];
+                cost += getDomainShare(i, generalization[i], value);
+            }
+        }
+        cost /= (double) (records1.length + records2.length);
+        cost /= (double) numAttributes;
+        return cost;
+    }
+
+    /**
+     * Cluster and record
+     */
+    public double getGeneralizationCost(int[] records1, int[] generalization1, int record2) {
+        
+        int[] generalization = new int[numAttributes];
+        for (int i = 0; i <generalization.length; i++) {
+            generalization[i] = getGeneralizationLevel(i, records1, record2, generalization1[i]);
+        }
+        
+        double cost = 0d;
+        for (int recordId : records1) {
+            int[] record = data[recordId];
+            for (int i = 0; i < record.length; i++) {
+                int[][] hierarchy = hierarchies[i];
+                int value = hierarchy[record[i]][generalization[i]];
+                cost += getDomainShare(i, generalization[i], value);
+            }
+        }
+        int[] record = data[record2];
+        for (int i = 0; i < record.length; i++) {
+            int[][] hierarchy = hierarchies[i];
+            int value = hierarchy[record[i]][generalization[i]];
+            cost += getDomainShare(i, generalization[i], value);
+        }
+        cost /= (double) (records1.length + 1);
+        cost /= (double) numAttributes;
+        return cost;
+    }
+    
+
+    /**
+     * Cluster without record
+     */
+    public double getGeneralizationCostWithoutRecord(int[] records1, int[] generalization1, int record2) {
+
+        int[] generalization = new int[numAttributes];
+        for (int i = 0; i <generalization.length; i++) {
+            generalization[i] = getGeneralizationLevelWithoutRecord(i, records1, record2, 0);
+        }
+        
+        double cost = 0d;
+        for (int recordId : records1) {
+            if (recordId != record2) {
+                int[] record = data[recordId];
+                for (int i = 0; i < record.length; i++) {
+                    int[][] hierarchy = hierarchies[i];
+                    int value = hierarchy[record[i]][generalization[i]];
+                    cost += getDomainShare(i, generalization[i], value);
+                }
+            }
+        }
+        cost /= (double)records1.length - 1d;
+        cost /= (double)numAttributes;
+        return cost;
+    }
+    
+    /**
+     * Returns the transformed record
+     */
+    public int[] getTransformation(int record, int[] generalization) {
+        int[] result = new int[generalization.length];
+        for (int i=0; i<result.length; i++) {
+            result[i] = hierarchies[i][data[record][i]][generalization[i]];
         }
         return result;
-	}
-    
-    private double calculateGeneralizationCost_LossMetric(final int[] record, final int[] generalizationLevels) {
-        
-        double gc = 0d;
-        for (int i = 0; i < numAtt; i++) {
-            // Important: Don't use integers here. Otherwise the division will result in 0.0 because it's performed as integer division.
-            final double recordCardinality = generalizationTrees[i].getCardinality(record[i], generalizationLevels[i]);
-            final double attributeCardinality = generalizationTrees[i].getAttributeCardinality();
-            
-            gc += (recordCardinality - 1) / (attributeCardinality - 1);
-        }
-        
-        return gc / numAtt;
     }
 }
