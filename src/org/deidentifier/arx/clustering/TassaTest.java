@@ -46,24 +46,24 @@ public class TassaTest {
         
         final TassaAlgorithm tassaAlgo = new TassaAlgorithm(observer, data, config);
         
-        String[][] outputGeneralized = tassaAlgo.execute();
-        
-        double utility = new UtilityMeasureLoss<Double>(new DataConverter().getHeader(data.getHandle()), new DataConverter().toMap(data.getDefinition()), AggregateFunction.GEOMETRIC_MEAN).evaluate(outputGeneralized).getUtility();
-
-        System.out.println("Information Loss by Tassa: " + tassaAlgo.getInformationLoss() + ", Information Loss by ARX: " + utility);
+//        String[][] outputGeneralized = tassaAlgo.execute();
+//        
+//        double utility = new UtilityMeasureLoss<Double>(new DataConverter().getHeader(data.getHandle()), new DataConverter().toMap(data.getDefinition()), AggregateFunction.GEOMETRIC_MEAN).evaluate(outputGeneralized).getUtility();
+//
+//        System.out.println("Information Loss by Tassa: " + tassaAlgo.getInformationLoss() + ", Information Loss by ARX: " + utility);
         
         //final TassaClusterSet clusterList = tassa.execute(0.5, 1.5);
 
 //        double lastDeltaIL = -Double.MAX_VALUE;
 //
 //        
-//        long initTime = System.nanoTime();
-//        tassa.execute(0.5, 1.5, tassa.getTassaClustering());
-//        long stopTime = System.nanoTime();
-//        double initialInformationLoss = tassa.getInititalInformationLoss();
-//        double finalInformationLoss = tassa.getFinalInformationLoss();
+        long initTime = System.nanoTime();
+        tassaAlgo.execute();
+        long stopTime = System.nanoTime();
+        double initialInformationLoss = tassaAlgo.getInitialInformationLoss();
+        double finalInformationLoss = tassaAlgo.getInformationLoss();
 //        lastDeltaIL = finalInformationLoss - initialInformationLoss;
-//        System.out.println("Total runtime: " + Math.round((stopTime-initTime) / 1000000000.0) + " s, Initial Information Loss: " + initialInformationLoss + ", Final Information Loss: " + finalInformationLoss);
+        System.out.println("Total runtime: " + Math.round((stopTime-initTime) / 1000000000.0) + " s, Initial Information Loss: " + initialInformationLoss + ", Final Information Loss: " + finalInformationLoss);
         
         
         /*

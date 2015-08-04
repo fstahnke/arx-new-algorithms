@@ -12,6 +12,7 @@ public class TassaCluster extends LinkedList<TassaRecord> implements IGeneraliza
     
     /** The number of attributes. */
     private final int                          numAtt;
+    private int[]                              records;
     
     private int[]                              generalizationLevels;
     private int[]                              transformation;
