@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.deidentifier.arx.clustering.DomainShare;
 import org.deidentifier.arx.clustering.GeneralizationManager;
 import org.deidentifier.arx.criteria.KAnonymity;
 import org.deidentifier.arx.criteria.LDiversity;
@@ -14,6 +13,7 @@ import org.deidentifier.arx.framework.check.distribution.DistributionAggregateFu
 import org.deidentifier.arx.framework.data.DataManager;
 import org.deidentifier.arx.framework.data.Dictionary;
 import org.deidentifier.arx.framework.data.GeneralizationHierarchy;
+import org.deidentifier.arx.metric.v2.DomainShareMaterialized;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -43,7 +43,8 @@ public class ARXInterface {
 	/** The number of clusters that is processed between each logging tick. */
     private int logNumberOfClusters = 1000;
 
-    private DomainShare[]               shares;
+    /** Domain share*/
+    private DomainShareMaterialized[]               shares;
     
     /**
      * Creates a new interface to the internal ARX data structures.
@@ -101,9 +102,9 @@ public class ARXInterface {
             buffer[i] = new int[array[0].length];
         }
         
-        shares = new DomainShare[array[0].length];
+        shares = new DomainShareMaterialized[array[0].length];
         for (int i = 0; i < shares.length; i++) {
-            shares[i] = new DomainShare(handle.getDefinition().getHierarchy(header[i]), 
+            shares[i] = new DomainShareMaterialized(handle.getDefinition().getHierarchy(header[i]), 
                                                     manager.getDataGeneralized().getDictionary().getMapping()[i],
                                                     manager.getHierarchies()[i].getArray());
         }
@@ -116,7 +117,7 @@ public class ARXInterface {
      * Domain shares
      * @return
      */
-    public DomainShare[] getDomainShares() {
+    public DomainShareMaterialized[] getDomainShares() {
         return shares;
     }
 

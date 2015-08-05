@@ -2,10 +2,11 @@ package org.deidentifier.arx.clustering;
 
 import org.deidentifier.arx.ARXInterface;
 import org.deidentifier.arx.framework.data.GeneralizationHierarchy;
+import org.deidentifier.arx.metric.v2.DomainShareMaterialized;
 
 public class GeneralizationManager {
     
-    private final DomainShare[] shares;
+    private final DomainShareMaterialized[] shares;
     private final int           numAttributes;
     private final int[][][]     hierarchies;
     private final int[][]       data;
@@ -17,7 +18,7 @@ public class GeneralizationManager {
     public GeneralizationManager(ARXInterface arxInterface) {
         GeneralizationHierarchy[] generalizationHierarchies = arxInterface.getDataManager().getHierarchies();
         this.numAttributes = generalizationHierarchies.length;
-        this.shares = new DomainShare[numAttributes];
+        this.shares = new DomainShareMaterialized[numAttributes];
         this.hierarchies = new int[numAttributes][][];
         this.data = arxInterface.getDataQI();
         for (int i = 0; i < generalizationHierarchies.length; i++) {
