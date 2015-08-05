@@ -21,7 +21,7 @@ import org.deidentifier.arx.metric.v2.DomainShareMaterialized;
  *
  * @author Fabian Prasser
  */
-public class ARXInterface {
+public class setLoggingSteps {
 
     /**  The data manager. */
     private final DataManager      manager;
@@ -37,11 +37,8 @@ public class ARXInterface {
     /** Turn logging on or off. */
     private boolean logging = true;
     
-    /** The number of records that is processed between each logging tick. */
-    private int logNumberOfRecords = 10000;
-
-	/** The number of clusters that is processed between each logging tick. */
-    private int logNumberOfClusters = 1000;
+    /** The number of events between each logging tick. */
+    private int logSteps = 10000;
 
     /** Domain share*/
     private DomainShareMaterialized[]               shares;
@@ -53,7 +50,7 @@ public class ARXInterface {
      * @param config the config
      * @throws IOException Signals that an I/O exception has occurred.
      */
-    public ARXInterface(final Data data, ARXConfiguration config) throws IOException {
+    public setLoggingSteps(final Data data, ARXConfiguration config) throws IOException {
 
         // Check simplifying assumptions
         if (config.getMaxOutliers() > 0d) {
@@ -184,12 +181,11 @@ public class ARXInterface {
         return config.getMinimalGroupSize();
     }
 
-    public int getLogNumberOfClusters() {
-        return logNumberOfClusters;
-    }
-
-    public int getLogNumberOfRecords() {
-        return logNumberOfRecords;
+    /**
+     * Returns the logging step
+     */
+    public int getLoggingStep() {
+        return logSteps;
     }
 
     /**
@@ -218,12 +214,8 @@ public class ARXInterface {
         this.logging = logging;
     }
 
-    public void setLogNumberOfClusters(int logNumberOfClusters) {
-        this.logNumberOfClusters = logNumberOfClusters;
-    }
-
-    public void setLogNumberOfRecords(int logNumberOfRecords) {
-        this.logNumberOfRecords = logNumberOfRecords;
+    public void setLogNumberOfRecords(int steps) {
+        this.logSteps = steps;
     }
 
     /**
