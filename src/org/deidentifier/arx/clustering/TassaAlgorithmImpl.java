@@ -62,7 +62,7 @@ class TassaAlgorithmImpl {
     }
     
     /**
-     * Returns a transformed clustering in which all clusters have a given size
+     * Modifies the clustering to ensure that all clusters have a given minimal size
      * @param clustering
      * @param clusterSize
      * @return
