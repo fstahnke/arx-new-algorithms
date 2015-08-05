@@ -48,35 +48,6 @@ class TassaAlgorithmImpl {
     }
     
 	/**
-     * Logging
-     * @param clustering
-     */
-    public void log(String phase, Set<TassaCluster> clustering, boolean forceOutput) {
-                
-        // Tick
-        this.logTick ++;
-        
-        // Print
-        if (forceOutput || (logTick % arxinterface.getLoggingStep() == 0 && logTimeStart != -1)) {
-            int clusters = clustering.size();
-            double averageCost = getAverageGeneralizationCost(clustering);
-            long time = System.currentTimeMillis();
-            System.out.println("Phase: " + phase + ", Events since last logging: " + (logTick - logTickLast));
-            System.out.print(" - Clusters: " + clusters + ", Cost: " + averageCost);
-            if (forceOutput) {
-                System.out.println("");
-            } else {
-                System.out.println(", Time: " + (time - logTimeLast) +"[ms], Total: " + (time - logTimeStart)+"[ms]");
-            }
-            logTickLast = logTick;
-            this.logTimeLast = System.currentTimeMillis();
-            if (this.logTimeStart == -1) {
-                this.logTimeStart = this.logTimeLast;
-            }
-        }
-    }
-    
-    /**
      * Checks the given parameters
      * @param alpha
      * @param omega
@@ -89,7 +60,7 @@ class TassaAlgorithmImpl {
             throw new IllegalArgumentException("Argument 'omega' is out of bounds: " + omega);
         }
     }
-
+    
     /**
      * Returns a transformed clustering in which all clusters have a given size
      * @param clustering
@@ -155,7 +126,7 @@ class TassaAlgorithmImpl {
         clustering.clear();
         clustering.addAll(largeClusters);
     }
-    
+
     /**
      * Returns the average costs of all clusters in the clustering
      * @param clustering
@@ -171,7 +142,7 @@ class TassaAlgorithmImpl {
         return result / numRecords;
         
     }
-
+    
     /**
      * Returns the cluster which is closest to the given one
      * @param clustering
@@ -327,6 +298,35 @@ class TassaAlgorithmImpl {
         
         // Return
         return result;
+    }
+
+    /**
+     * Logging
+     * @param clustering
+     */
+    private void log(String phase, Set<TassaCluster> clustering, boolean forceOutput) {
+                
+        // Tick
+        this.logTick ++;
+        
+        // Print
+        if (forceOutput || (logTick % arxinterface.getLoggingStep() == 0 && logTimeStart != -1)) {
+            int clusters = clustering.size();
+            double averageCost = getAverageGeneralizationCost(clustering);
+            long time = System.currentTimeMillis();
+            System.out.println("Phase: " + phase + ", Events since last logging: " + (logTick - logTickLast));
+            System.out.print(" - Clusters: " + clusters + ", Cost: " + averageCost);
+            if (forceOutput) {
+                System.out.println("");
+            } else {
+                System.out.println(", Time: " + (time - logTimeLast) +"[ms], Total: " + (time - logTimeStart)+"[ms]");
+            }
+            logTickLast = logTick;
+            this.logTimeLast = System.currentTimeMillis();
+            if (this.logTimeStart == -1) {
+                this.logTimeStart = this.logTimeLast;
+            }
+        }
     }
 
     /**
