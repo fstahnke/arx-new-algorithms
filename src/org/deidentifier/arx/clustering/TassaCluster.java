@@ -28,13 +28,6 @@ public class TassaCluster {
         this.update();
     }
     
-    public void addRecord(int recordId) {
-        // TODO: Use array list?
-        this.recordIdentifiers = Arrays.copyOf(recordIdentifiers, recordIdentifiers.length + 1);
-        this.recordIdentifiers[recordIdentifiers.length - 1] = recordId;
-        this.update();
-    }
-    
     public void addCluster(TassaCluster cluster) {
         int offset = recordIdentifiers.length;
         this.recordIdentifiers = Arrays.copyOf(recordIdentifiers, recordIdentifiers.length + cluster.recordIdentifiers.length);
@@ -42,6 +35,42 @@ public class TassaCluster {
         this.update();
     }
     
+    public void addRecord(int recordId) {
+        // TODO: Use array list?
+        this.recordIdentifiers = Arrays.copyOf(recordIdentifiers, recordIdentifiers.length + 1);
+        this.recordIdentifiers[recordIdentifiers.length - 1] = recordId;
+        this.update();
+    }
+    
+    public double getCost() {
+        return this.generalizationCost;
+    }
+
+    public double getCostWhenAddingCluster(TassaCluster cluster) {
+        return generalizationManager.getGeneralizationCost(this.recordIdentifiers, this.generalizationLevels, 
+                                                           cluster.recordIdentifiers, cluster.generalizationLevels);
+    }
+    
+    public double getCostWhenAddingRecord(int record) {
+        return generalizationManager.getGeneralizationCost(this.recordIdentifiers, this.generalizationLevels, record);
+    }
+    
+    public double getCostWhenRemovingRecord(int record) {
+        return generalizationManager.getGeneralizationCostWithoutRecord(this.recordIdentifiers, this.generalizationLevels, record);
+    }
+    
+    public int[] getRecords() {
+        return this.recordIdentifiers;
+    }
+    
+    public int getSize() {
+        return this.recordIdentifiers.length;
+    }
+
+    public int[] getTransformation() {
+        return generalizationManager.getTransformation(recordIdentifiers[0], generalizationLevels);
+    }
+
     public void removeRecord(int recordId) {
         int[] newRecordIdentifiers = new int[recordIdentifiers.length - 1];
         int idx = 0;
@@ -54,23 +83,6 @@ public class TassaCluster {
         this.update();
     }
 
-    public double getCostWhenAddingRecord(int record) {
-        return generalizationManager.getGeneralizationCost(this.recordIdentifiers, this.generalizationLevels, record);
-    }
-    
-    public double getCostWhenAddingCluster(TassaCluster cluster) {
-        return generalizationManager.getGeneralizationCost(this.recordIdentifiers, this.generalizationLevels, 
-                                                           cluster.recordIdentifiers, cluster.generalizationLevels);
-    }
-    
-    public double getCostWhenRemovingRecord(int record) {
-        return generalizationManager.getGeneralizationCostWithoutRecord(this.recordIdentifiers, this.generalizationLevels, record);
-    }
-    
-    public int[] getTransformation() {
-        return generalizationManager.getTransformation(recordIdentifiers[0], generalizationLevels);
-    }
-    
     /**
      * Splits this cluster into a new cluster
      * @return
@@ -99,17 +111,5 @@ public class TassaCluster {
             this.generalizationLevels[i] = generalizationManager.getGeneralizationLevel(i, this.recordIdentifiers);
         }
         this.generalizationCost = generalizationManager.getGeneralizationCost(this.recordIdentifiers, this.generalizationLevels);
-    }
-
-    public double getCost() {
-        return this.generalizationCost;
-    }
-
-    public int getSize() {
-        return this.recordIdentifiers.length;
-    }
-
-    public int[] getRecords() {
-        return this.recordIdentifiers;
     }
 }

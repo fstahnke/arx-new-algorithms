@@ -124,14 +124,22 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
     }
 	
 	/**
+     * Enables/disables logging
+     * @param logging
+     */
+    public void setLoggin(boolean logging) {
+        this.arxInterface.setLogging(logging);
+    }
+
+	/**
 	 * Sets omage
 	 * @param omega
 	 */
 	public void setOmega(double omega) {
         this.omega = omega;
     }
-
-	/**
+    
+    /**
 	 * Helper
 	 * @param buffer
 	 * @return
@@ -150,12 +158,4 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
 
 		return result;
 	}
-    
-    /**
-     * Enables/disables logging
-     * @param logging
-     */
-    public void setLoggin(boolean logging) {
-        this.arxInterface.setLogging(logging);
-    }
 }

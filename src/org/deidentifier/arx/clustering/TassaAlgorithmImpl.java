@@ -20,11 +20,136 @@ class TassaAlgorithmImpl {
     private TassaCluster[]     recordToCluster;
     private int                numRecords;
 
-	TassaAlgorithmImpl(ARXInterface iface) throws IOException {
+	private Random random = new Random();
+
+    TassaAlgorithmImpl(ARXInterface iface) throws IOException {
         this.arxinterface = iface;
         this.outputBuffer = iface.getBuffer();
         this.recordToCluster = new TassaCluster[arxinterface.getDataQI().length];
         this.numRecords = iface.getDataQI().length;
+    }
+
+    private double getAverageGeneralizationCost(Set<TassaCluster> clusters) {
+        double result = 0.0;
+        int numRecords = 0;
+        for (final TassaCluster c : clusters) {
+            numRecords += c.getSize();
+            result += c.getCost() * c.getSize();
+        }
+        return result / numRecords;
+        
+    }
+
+    private double getChangeOfInformationLoss(int movedRecord, TassaCluster targetCluster, int n) {
+        
+        final TassaCluster sourceCluster = getCluster(movedRecord);
+        
+        double removedGC = sourceCluster.getCostWhenRemovingRecord(movedRecord);
+        double sourceGC = sourceCluster.getCost();
+        double targetGC = targetCluster.getCost();
+        if (removedGC >= sourceGC && removedGC > 0 && targetGC >= sourceGC ) {
+            return 1.0;
+        }
+        
+        
+        double deltaIL = (removedGC * (sourceCluster.getSize() - 1)
+                  + targetCluster.getCostWhenAddingRecord(movedRecord) * (targetCluster.getSize() + 1))
+                  - (sourceGC * sourceCluster.getSize()
+                  + targetGC * targetCluster.getSize());
+        deltaIL /= n;
+        
+        return deltaIL;
+    }
+    
+    private TassaCluster getClosestCluster(Set<TassaCluster> clusters, TassaCluster cluster1) {
+
+        double loss = Double.MAX_VALUE;
+        TassaCluster result = null;
+
+        for (TassaCluster cluster2 : clusters) {
+            if (cluster1 != cluster2) {
+                double value = cluster1.getCostWhenAddingCluster(cluster2);
+                if (value < loss) {
+                    loss = value;
+                    result = cluster2;
+                }
+            }
+        }
+        if (result == null) { throw new IllegalStateException("Should not happen!"); }
+        return result;
+    }
+    
+    private Set<TassaCluster> getClosestTwoClusters(Set<TassaCluster> clusters) {
+        
+        double loss = Double.MAX_VALUE;
+        Set<TassaCluster> result = new HashSet<TassaCluster>();
+        
+        for (TassaCluster cluster1 : clusters) {
+            for (TassaCluster cluster2 : clusters) {
+                if (cluster1 != cluster2) {
+                    double value = cluster1.getCostWhenAddingCluster(cluster2);
+                    if (value < loss) {
+                        loss = value;
+                        result.clear();
+                        result.add(cluster1);
+                        result.add(cluster2);
+                    }
+                }
+            }
+        }
+        if (result.isEmpty()) {
+            throw new IllegalStateException("Should not happen!");
+        }
+        return result;
+    }
+
+	private TassaCluster getCluster(int recordId) {
+        return this.recordToCluster[recordId];
+    }
+    
+    private Set<TassaCluster> getRandomPartitioning(GeneralizationManager manager, int records, int k) {
+
+        // Prepare
+        int[] recordIds = new int[records];
+        for (int i = 0; i < records; i++) {
+            recordIds[i] = i;
+        }
+        shuffle(recordIds);
+        int offset = 0;
+        
+        // Calculate
+        final int numberOfClusters = (int) Math.floor(records / k);
+        final int additionalRecords = records % k;
+        
+        // Build
+        Set<TassaCluster> result = new HashSet<TassaCluster>();
+        for (int i = 0; i<numberOfClusters; i++) {
+            int clusterSize = i < additionalRecords ? k + 1 : k;
+            TassaCluster cluster = new TassaCluster(manager, Arrays.copyOfRange(recordIds, offset, offset + clusterSize));
+            result.add(cluster);
+            offset += clusterSize;
+        }
+        
+        // Return
+        return result;
+    }
+    
+    
+    private void setCluster(int recordId, TassaCluster cluster) {
+        this.recordToCluster[recordId] = cluster;
+    }
+
+    private void shuffle(int[] array) {
+        int count = array.length;
+        for (int i = count; i > 1; i--) {
+            swap(array, i - 1, random.nextInt(i));
+        }
+    }
+    
+    private void swap(int[] array, int i, int j) {
+        int temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
     }
 
     /**
@@ -317,17 +442,6 @@ class TassaAlgorithmImpl {
         }
     }
 
-    private double getAverageGeneralizationCost(Set<TassaCluster> clusters) {
-        double result = 0.0;
-        int numRecords = 0;
-        for (final TassaCluster c : clusters) {
-            numRecords += c.getSize();
-            result += c.getCost() * c.getSize();
-        }
-        return result / numRecords;
-        
-    }
-
     double getFinalInformationLoss() {
         return finalInformationLoss;
     }
@@ -339,122 +453,8 @@ class TassaAlgorithmImpl {
     int[][] getOutputBuffer() {
 		return outputBuffer;
 	}
-
-	Set<TassaCluster> getTassaClustering() {
+    
+    Set<TassaCluster> getTassaClustering() {
 		return result;
 	}
-    
-    private double getChangeOfInformationLoss(int movedRecord, TassaCluster targetCluster, int n) {
-        
-        final TassaCluster sourceCluster = getCluster(movedRecord);
-        
-        double removedGC = sourceCluster.getCostWhenRemovingRecord(movedRecord);
-        double sourceGC = sourceCluster.getCost();
-        double targetGC = targetCluster.getCost();
-        if (removedGC >= sourceGC && removedGC > 0 && targetGC >= sourceGC ) {
-            return 1.0;
-        }
-        
-        
-        double deltaIL = (removedGC * (sourceCluster.getSize() - 1)
-                  + targetCluster.getCostWhenAddingRecord(movedRecord) * (targetCluster.getSize() + 1))
-                  - (sourceGC * sourceCluster.getSize()
-                  + targetGC * targetCluster.getSize());
-        deltaIL /= n;
-        
-        return deltaIL;
-    }
-    
-    
-    private Random random = new Random();
-
-    private Set<TassaCluster> getRandomPartitioning(GeneralizationManager manager, int records, int k) {
-
-        // Prepare
-        int[] recordIds = new int[records];
-        for (int i = 0; i < records; i++) {
-            recordIds[i] = i;
-        }
-        shuffle(recordIds);
-        int offset = 0;
-        
-        // Calculate
-        final int numberOfClusters = (int) Math.floor(records / k);
-        final int additionalRecords = records % k;
-        
-        // Build
-        Set<TassaCluster> result = new HashSet<TassaCluster>();
-        for (int i = 0; i<numberOfClusters; i++) {
-            int clusterSize = i < additionalRecords ? k + 1 : k;
-            TassaCluster cluster = new TassaCluster(manager, Arrays.copyOfRange(recordIds, offset, offset + clusterSize));
-            result.add(cluster);
-            offset += clusterSize;
-        }
-        
-        // Return
-        return result;
-    }
-    
-    private void shuffle(int[] array) {
-        int count = array.length;
-        for (int i = count; i > 1; i--) {
-            swap(array, i - 1, random.nextInt(i));
-        }
-    }
-
-    private void swap(int[] array, int i, int j) {
-        int temp = array[i];
-        array[i] = array[j];
-        array[j] = temp;
-    }
-
-    private TassaCluster getClosestCluster(Set<TassaCluster> clusters, TassaCluster cluster1) {
-
-        double loss = Double.MAX_VALUE;
-        TassaCluster result = null;
-
-        for (TassaCluster cluster2 : clusters) {
-            if (cluster1 != cluster2) {
-                double value = cluster1.getCostWhenAddingCluster(cluster2);
-                if (value < loss) {
-                    loss = value;
-                    result = cluster2;
-                }
-            }
-        }
-        if (result == null) { throw new IllegalStateException("Should not happen!"); }
-        return result;
-    }
-    
-    private Set<TassaCluster> getClosestTwoClusters(Set<TassaCluster> clusters) {
-        
-        double loss = Double.MAX_VALUE;
-        Set<TassaCluster> result = new HashSet<TassaCluster>();
-        
-        for (TassaCluster cluster1 : clusters) {
-            for (TassaCluster cluster2 : clusters) {
-                if (cluster1 != cluster2) {
-                    double value = cluster1.getCostWhenAddingCluster(cluster2);
-                    if (value < loss) {
-                        loss = value;
-                        result.clear();
-                        result.add(cluster1);
-                        result.add(cluster2);
-                    }
-                }
-            }
-        }
-        if (result.isEmpty()) {
-            throw new IllegalStateException("Should not happen!");
-        }
-        return result;
-    }
-    
-    private void setCluster(int recordId, TassaCluster cluster) {
-        this.recordToCluster[recordId] = cluster;
-    }
-    
-    private TassaCluster getCluster(int recordId) {
-        return this.recordToCluster[recordId];
-    }
 }
