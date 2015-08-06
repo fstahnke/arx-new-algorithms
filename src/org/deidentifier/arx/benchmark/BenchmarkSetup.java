@@ -234,10 +234,10 @@ public class BenchmarkSetup {
         return new BenchmarkDataset[] {
 //        		BenchmarkDataset.ADULT_SUBSET
                 BenchmarkDataset.ADULT,
-//                BenchmarkDataset.CUP,
-//                BenchmarkDataset.FARS,
-//                BenchmarkDataset.ATUS,
-//                BenchmarkDataset.IHIS
+                BenchmarkDataset.CUP,
+                BenchmarkDataset.FARS,
+                BenchmarkDataset.ATUS,
+                BenchmarkDataset.IHIS
         };
     }
     
@@ -341,14 +341,14 @@ public class BenchmarkSetup {
      */
     public static BenchmarkUtilityMeasure[] getUtilityMeasures() {
         return new BenchmarkUtilityMeasure[]{
-//                BenchmarkUtilityMeasure.DISCERNIBILITY,
+                BenchmarkUtilityMeasure.DISCERNIBILITY,
                 BenchmarkUtilityMeasure.LOSS};
     }
 
 	public static BenchmarkPrivacyModel[] getPrivacyModels() {
 		return new BenchmarkPrivacyModel[]{
-//				BenchmarkPrivacyModel.K5_ANONYMITY,
-				BenchmarkPrivacyModel.K20_ANONYMITY
+				BenchmarkPrivacyModel.K5_ANONYMITY,
+//				BenchmarkPrivacyModel.K20_ANONYMITY
 		};
 	}
 
@@ -363,8 +363,8 @@ public class BenchmarkSetup {
 	
 	public static BenchmarkAlgorithm[] getAlgorithms() {
 		return new BenchmarkAlgorithm[]{
-//			BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING,
-			BenchmarkAlgorithm.TASSA
+			BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING,
+//			BenchmarkAlgorithm.TASSA
 		};
 		
 	}
