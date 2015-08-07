@@ -73,10 +73,13 @@ public class TassaCluster {
 
     public void removeRecord(int recordId) {
         int[] newRecordIdentifiers = new int[recordIdentifiers.length - 1];
-        int idx = 0;
-        for (int id : this.recordIdentifiers) {
-            if (id != recordId) {
-                newRecordIdentifiers[idx++] = id;
+        // if cluster is not empty, add all remaining recordIDs to the array
+        if (newRecordIdentifiers.length > 0) {
+            int idx = 0;
+            for (int id : this.recordIdentifiers) {
+                if (id != recordId) {
+                    newRecordIdentifiers[idx++] = id;
+                }
             }
         }
         this.recordIdentifiers = newRecordIdentifiers;
@@ -107,9 +110,12 @@ public class TassaCluster {
      * - the removedGC cache
      */
     private void update() {
-        for (int i = 0; i < numbAttributes; i++) {
-            this.generalizationLevels[i] = generalizationManager.getGeneralizationLevel(i, this.recordIdentifiers);
-        }
-        this.generalizationCost = generalizationManager.getGeneralizationCost(this.recordIdentifiers, this.generalizationLevels);
+    	// if cluster is not empty, update generalization levels and cost
+    	if (this.getSize() > 0) {
+    		for (int i = 0; i < numbAttributes; i++) {
+    			this.generalizationLevels[i] = generalizationManager.getGeneralizationLevel(i, this.recordIdentifiers);
+    		}
+    		this.generalizationCost = generalizationManager.getGeneralizationCost(this.recordIdentifiers, this.generalizationLevels);
+    	}
     }
 }

@@ -348,13 +348,13 @@ class TassaAlgorithmImpl {
             // Find closest cluster
             TassaCluster sourceCluster = getCluster(record);
             TassaPair<TassaCluster, Double> targetCluster = getClosestCluster(clustering, sourceCluster, record);
+
+            // Check if it improves the overall costs. Take cluster sizes into account.
+            double inputGC = sourceCluster.getCost() * sourceCluster.getSize() + targetCluster.first.getCost() * targetCluster.first.getSize();
+            double outputGC = sourceCluster.getCostWhenRemovingRecord(record) * (sourceCluster.getSize() - 1) + targetCluster.second * (targetCluster.first.getSize() + 1);
             
-            // Check if it improves the overall costs
-            double inputGC = sourceCluster.getCost() + targetCluster.first.getCost();
-            double outputGC = sourceCluster.getCostWhenRemovingRecord(record) + targetCluster.second;
-            
-            // If yes, move
-            if (outputGC < inputGC) {
+            // If yes or if source cluster is singleton, move
+            if (outputGC < inputGC || sourceCluster.getSize() == 1) {
                 
                 // Move
                 targetCluster.first.addRecord(record);
