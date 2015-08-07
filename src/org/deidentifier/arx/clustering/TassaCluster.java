@@ -56,7 +56,13 @@ public class TassaCluster {
     }
     
     public double getCostWhenRemovingRecord(int record) {
-        return generalizationManager.getGeneralizationCostWithoutRecord(this.recordIdentifiers, this.generalizationLevels, record);
+    	// if this is the last record, return 0. otherwise calculate generalization cost.
+    	// TODO: why is this called for clusters with size 0 during runtime? should be able to only check for "== 1"
+    	if (this.getSize() < 2) {
+    		return 0;
+    	} else {
+    		return generalizationManager.getGeneralizationCostWithoutRecord(this.recordIdentifiers, this.generalizationLevels, record);
+    	}
     }
     
     public int[] getRecords() {
