@@ -21,7 +21,7 @@ import org.deidentifier.arx.metric.v2.DomainShareMaterialized;
  *
  * @author Fabian Prasser
  */
-public class setLoggingSteps {
+public class ARXInterface {
 
     /**  The data manager. */
     private final DataManager      manager;
@@ -50,7 +50,7 @@ public class setLoggingSteps {
      * @param config the config
      * @throws IOException Signals that an I/O exception has occurred.
      */
-    public setLoggingSteps(final Data data, ARXConfiguration config) throws IOException {
+    public ARXInterface(final Data data, ARXConfiguration config) throws IOException {
 
         // Check simplifying assumptions
         if (config.getMaxOutliers() > 0d) {

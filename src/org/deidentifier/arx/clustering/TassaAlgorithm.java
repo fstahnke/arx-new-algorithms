@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Set;
 
 import org.deidentifier.arx.ARXConfiguration;
-import org.deidentifier.arx.setLoggingSteps;
+import org.deidentifier.arx.ARXInterface;
 import org.deidentifier.arx.Data;
 import org.deidentifier.arx.benchmark.BenchmarkAlgorithm;
 import org.deidentifier.arx.benchmark.IBenchmarkObserver;
@@ -12,7 +12,7 @@ import org.deidentifier.arx.benchmark.IBenchmarkObserver;
 public class TassaAlgorithm extends BenchmarkAlgorithm {
 
     /** Interface */
-    private setLoggingSteps arxInterface;
+    private ARXInterface arxInterface;
     /** TODO */
     private double       alpha                  = 0.5;
     /** TODO */
@@ -51,7 +51,7 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
                           ARXConfiguration config,
                           double threshold) throws IOException {
 	    super(observer);
-		this.arxInterface = new setLoggingSteps(data, config);
+		this.arxInterface = new ARXInterface(data, config);
 		this.threshold = threshold;
 	}
 

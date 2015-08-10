@@ -1,6 +1,6 @@
 package org.deidentifier.arx.clustering;
 
-import org.deidentifier.arx.setLoggingSteps;
+import org.deidentifier.arx.ARXInterface;
 import org.deidentifier.arx.framework.data.GeneralizationHierarchy;
 import org.deidentifier.arx.metric.v2.DomainShareMaterialized;
 
@@ -19,7 +19,7 @@ public class GeneralizationManager {
      * Creates a new instance
      * @param arxInterface
      */
-    public GeneralizationManager(setLoggingSteps arxInterface) {
+    public GeneralizationManager(ARXInterface arxInterface) {
         GeneralizationHierarchy[] generalizationHierarchies = arxInterface.getDataManager().getHierarchies();
         this.numAttributes = generalizationHierarchies.length;
         this.shares = new DomainShareMaterialized[numAttributes];

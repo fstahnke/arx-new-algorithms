@@ -6,18 +6,21 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
-import org.deidentifier.arx.setLoggingSteps;
+import org.deidentifier.arx.ARXInterface;
+import org.deidentifier.arx.helper.Logger;
+import org.deidentifier.arx.helper.Logger.TassaStep;
 
-class TassaAlgorithmImpl {
+public class TassaAlgorithmImpl {
 
+	private final Logger logger;
     /** TODO */
-    private final setLoggingSteps arxinterface;
+    private final ARXInterface arxinterface;
     /** TODO */
     private double                inititalInformationLoss;
     /** TODO */
     private double                finalInformationLoss;
     /** TODO */
-    private Set<TassaCluster>     result;
+    private Set<TassaCluster>     currentClustering;
     /** TODO */
     private final int[][]         outputBuffer;
     /** TODO */
@@ -26,22 +29,15 @@ class TassaAlgorithmImpl {
     private int                   numRecords;
     /** TODO */
     private Random                random       = new Random();
-    /** TODO */
-    private long                  logTimeStart = -1;
-    /** TODO */
-    private long                  logTimeLast  = -1;
-    /** TODO */
-    private int                   logTick;
-    /** TODO */
-    private int                   logTickLast  = -1;
 
     /**
 	 * Creates a new instance
 	 * @param iface
 	 * @throws IOException
 	 */
-    TassaAlgorithmImpl(setLoggingSteps iface) throws IOException {
+    TassaAlgorithmImpl(ARXInterface iface) throws IOException {
         this.arxinterface = iface;
+        this.logger = new Logger(this);
         this.outputBuffer = iface.getBuffer();
         this.recordToCluster = new TassaCluster[arxinterface.getDataQI().length];
         this.numRecords = iface.getDataQI().length;
@@ -70,7 +66,7 @@ class TassaAlgorithmImpl {
     private void ensureClustersHaveSize(Set<TassaCluster> clustering, int clusterSize) {
 
         // Log
-        log("Merging clusters", result, true);
+        logger.log();
         
         // Prepare
         Set<TassaCluster> smallClusters = new HashSet<TassaCluster>();
@@ -90,7 +86,7 @@ class TassaAlgorithmImpl {
         while (smallClusters.size() > 1) {
 
             // Log
-            log ("Merging clusters", this.result, false);
+            logger.log ();
             
             // Merge closest pair
             TassaPair<TassaCluster, TassaCluster> pair = getClosestTwoClusters(smallClusters);
@@ -110,7 +106,7 @@ class TassaAlgorithmImpl {
         if (smallClusters.size() == 1) {
 
             // Log
-            log ("Merging final cluster", this.result, true);
+            logger.log ();
             
             // Perform
             TassaCluster cluster1 = smallClusters.iterator().next();
@@ -129,15 +125,17 @@ class TassaAlgorithmImpl {
 
     /**
      * Returns the average costs of all clusters in the clustering
-     * @param clustering
      * @return
      */
-    private double getAverageGeneralizationCost(Set<TassaCluster> clustering) {
+    public double getAverageGeneralizationCost() {
         double result = 0.0;
         int numRecords = 0;
-        for (TassaCluster cluster : clustering) {
+        if (this.currentClustering == null) {
+            return 0;
+        }
+        for (TassaCluster cluster : this.currentClustering) {
             numRecords += cluster.getSize();
-            result += cluster.getCost() * cluster.getSize();
+            result += cluster.getWeightedCost();
         }
         return result / numRecords;
         
@@ -156,7 +154,8 @@ class TassaAlgorithmImpl {
 
         for (TassaCluster cluster2 : clustering) {
             if (cluster != cluster2) {
-                double value = cluster.getCostWhenAddingCluster(cluster2);
+            	// Calculate weighted cost.
+                double value = cluster.getCostWhenAddingCluster(cluster2) * (cluster.getSize() + cluster2.getSize());
                 if (value < loss) {
                     loss = value;
                     result = cluster2;
@@ -181,7 +180,8 @@ class TassaAlgorithmImpl {
 
         for (TassaCluster cluster : clustering) {
             if (cluster != source) {
-                double value = cluster.getCostWhenAddingRecord(record);
+            	// Calculate weighted cost.
+                double value = cluster.getCostWhenAddingRecord(record) * (cluster.getSize() + 1);
                 if (value < loss) {
                     loss = value;
                     result = cluster;
@@ -205,7 +205,8 @@ class TassaAlgorithmImpl {
         for (TassaCluster cluster1 : clustering) {
             for (TassaCluster cluster2 : clustering) {
                 if (cluster1 != cluster2) {
-                    double value = cluster1.getCostWhenAddingCluster(cluster2);
+                	// Calculate weighted cost.
+                    double value = cluster1.getCostWhenAddingCluster(cluster2) * (cluster1.getSize() + cluster2.getSize());
                     if (value < loss) {
                         loss = value;
                         result = new TassaPair<TassaCluster, TassaCluster>(cluster1, cluster2);
@@ -301,35 +302,6 @@ class TassaAlgorithmImpl {
     }
 
     /**
-     * Logging
-     * @param clustering
-     */
-    private void log(String phase, Set<TassaCluster> clustering, boolean forceOutput) {
-                
-        // Tick
-        this.logTick ++;
-        
-        // Print
-        if (forceOutput || (logTick % arxinterface.getLoggingStep() == 0 && logTimeStart != -1)) {
-            int clusters = clustering.size();
-            double averageCost = getAverageGeneralizationCost(clustering);
-            long time = System.currentTimeMillis();
-            System.out.println("Phase: " + phase + ", Events since last logging: " + (logTick - logTickLast));
-            System.out.print(" - Clusters: " + clusters + ", Cost: " + averageCost);
-            if (forceOutput) {
-                System.out.println("");
-            } else {
-                System.out.println(", Time: " + (time - logTimeLast) +"[ms], Total: " + (time - logTimeStart)+"[ms]");
-            }
-            logTickLast = logTick;
-            this.logTimeLast = System.currentTimeMillis();
-            if (this.logTimeStart == -1) {
-                this.logTimeStart = this.logTimeLast;
-            }
-        }
-    }
-
-    /**
      * Moves all records within the given clustering, if it decreases the average information loss
      * @param clustering
      * @return
@@ -343,15 +315,15 @@ class TassaAlgorithmImpl {
         for (int record = 0; record < numRecords; record++) {
             
             // Log
-            log("Move records", clustering, false);
+            //logger.log(false);
             
             // Find closest cluster
             TassaCluster sourceCluster = getCluster(record);
             TassaPair<TassaCluster, Double> targetCluster = getClosestCluster(clustering, sourceCluster, record);
 
             // Check if it improves the overall costs. Take cluster sizes into account.
-            double inputGC = sourceCluster.getCost() * sourceCluster.getSize() + targetCluster.first.getCost() * targetCluster.first.getSize();
-            double outputGC = sourceCluster.getCostWhenRemovingRecord(record) * (sourceCluster.getSize() - 1) + targetCluster.second * (targetCluster.first.getSize() + 1);
+            double inputGC = sourceCluster.getWeightedCost() * sourceCluster.getSize() + targetCluster.first.getWeightedCost() * targetCluster.first.getSize();
+            double outputGC = sourceCluster.getCostWhenRemovingRecord(record) * (sourceCluster.getSize() - 1) + targetCluster.second;
             
             // If yes or if source cluster is singleton, move
             if (outputGC < inputGC || sourceCluster.getSize() == 1) {
@@ -417,7 +389,7 @@ class TassaAlgorithmImpl {
         while (!largeClusters.isEmpty()) {
 
             // Log
-            log("Split clusters", clustering, false);
+            logger.log();
             
             // Split one cluster
             TassaCluster cluster1 = largeClusters.iterator().next();
@@ -459,33 +431,40 @@ class TassaAlgorithmImpl {
      */
     void execute(double alpha, double omega, Set<TassaCluster> input) {
 
+        
         // Check
         this.checkParameters(alpha, omega);
         
         // Initial step: create random clustering
-        this.result = this.getInitialPartitioning(alpha, omega, input);
-        this.inititalInformationLoss =  getAverageGeneralizationCost(result);
+        this.currentClustering = this.getInitialPartitioning(alpha, omega, input);
+        this.inititalInformationLoss =  getAverageGeneralizationCost();
         
         // Log
-        log("Initial", result, true);
+        logger.setCurrentClusteringStep(TassaStep.INITIALIZE);
         
         // Intermediate steps: move and split
         boolean modified = true;
         while (modified) {
             modified = false;
-            modified |= moveRecords(this.result);
-            modified |= splitClusters(this.result, omega);
+            // Log
+            logger.setCurrentClusteringStep(TassaStep.MOVE_RECORDS);
+            modified |= moveRecords(this.currentClustering);
+            // Log
+            logger.setCurrentClusteringStep(TassaStep.SPLIT_CLUSTERS);
+            modified |= splitClusters(this.currentClustering, omega);
         }
-        
-        // Final step: ensure that all clusters have size >= k
-        ensureClustersHaveSize(this.result, this.arxinterface.getK());
-        this.finalInformationLoss = getAverageGeneralizationCost(result);
 
         // Log
-        log("Final", result, true);
+        logger.setCurrentClusteringStep(TassaStep.FINALIZE);
+        // Final step: ensure that all clusters have size >= k
+        ensureClustersHaveSize(this.currentClustering, this.arxinterface.getK());
+        this.finalInformationLoss = getAverageGeneralizationCost();
+
+        // Log
+        logger.log();
         
         // Transform data
-        for (TassaCluster cluster : result) {
+        for (TassaCluster cluster : currentClustering) {
             int[] tuple = cluster.getTransformation();
             for (int record : cluster.getRecords()) {
                 for (int i = 0; i<tuple.length; i++) {
@@ -524,6 +503,15 @@ class TassaAlgorithmImpl {
      * @return
      */
     Set<TassaCluster> getTassaClustering() {
-		return result;
+		return currentClustering;
 	}
+    
+    public int getNumberOfClusters() {
+        if (currentClustering != null) {
+            return currentClustering.size();
+        } else {
+            return 0;
+        }
+    }
+    
 }
