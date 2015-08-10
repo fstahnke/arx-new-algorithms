@@ -56,7 +56,7 @@ public class TassaCluster {
     }
     
     public double getCostWhenRemovingRecord(int record) {
-    	// if this is the last record, return 0. otherwise calculate generalization cost.
+    	// If this is the last record, return 0. otherwise calculate generalization cost.
     	// TODO: why is this called for clusters with size 0 during runtime? should be able to only check for "== 1"
     	if (this.getSize() < 2) {
     		return 0;
@@ -79,7 +79,7 @@ public class TassaCluster {
 
     public void removeRecord(int recordId) {
         int[] newRecordIdentifiers = new int[recordIdentifiers.length - 1];
-        // if cluster is not empty, add all remaining recordIDs to the array
+        // If cluster is not empty, add all remaining recordIDs to the array
         if (newRecordIdentifiers.length > 0) {
             int idx = 0;
             for (int id : this.recordIdentifiers) {
@@ -116,8 +116,11 @@ public class TassaCluster {
      * - the removedGC cache
      */
     private void update() {
-    	// if cluster is not empty, update generalization levels and cost
-    	if (this.getSize() > 0) {
+    	// If cluster is empty
+    	if (this.getSize() == 0) {
+    	    this.generalizationCost = 0d;
+    	// Else, update
+    	} else {
     		for (int i = 0; i < numbAttributes; i++) {
     			this.generalizationLevels[i] = generalizationManager.getGeneralizationLevel(i, this.recordIdentifiers);
     		}
