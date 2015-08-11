@@ -28,7 +28,7 @@ public class TassaAlgorithmImpl {
     /** TODO */
     private int                numRecords;
     /** TODO */
-    private Random             random = new Random();
+    private Random             random = new Random(0xDEADBEEF); // TODO: Remove when not debugging any more
 
     /**
 	 * Creates a new instance
