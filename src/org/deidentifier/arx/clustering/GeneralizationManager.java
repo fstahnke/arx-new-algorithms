@@ -59,18 +59,15 @@ public class GeneralizationManager {
      */
     public double getInformationLoss(int[] cluster, int[] generalization) {
         
-        // TODO: It is enough to include the loss for one record, because the loss for all records is equal 
-        
         double cost = 0d;
-        for (int recordId : cluster) {
-            int[] record = data[recordId];
-            for (int i = 0; i < record.length; i++) {
-                int[][] hierarchy = hierarchies[i];
-                int value = hierarchy[record[i]][generalization[i]];
-                cost += getDomainShare(i, generalization[i], value);
-            }
+        int[] record = data[cluster[0]];
+        for (int i = 0; i < record.length; i++) {
+            int[][] hierarchy = hierarchies[i];
+            int value = hierarchy[record[i]][generalization[i]];
+            cost += getDomainShare(i, generalization[i], value);
         }
-        cost /= (double)numAttributes;
+        cost /= (double) numAttributes;
+        cost *= cluster.length;
         return cost;
     }
 
@@ -84,29 +81,21 @@ public class GeneralizationManager {
      */
     public double getInformationLossWhenAddingRecord(int[] cluster, int[] _generalization, int additionalRecord) {
 
-        // TODO: It is enough to include the loss for one record, because the loss for all records is equal
-        
         int[] generalization = new int[numAttributes];
         for (int i = 0; i <generalization.length; i++) {
             generalization[i] = getGeneralizationLevel(i, cluster, additionalRecord, _generalization[0]);
         }
         
         double cost = 0d;
-        for (int recordId : cluster) {
-            int[] record = data[recordId];
-            for (int i = 0; i < record.length; i++) {
-                int[][] hierarchy = hierarchies[i];
-                int value = hierarchy[record[i]][generalization[i]];
-                cost += getDomainShare(i, generalization[i], value);
-            }
-        }
         int[] record = data[additionalRecord];
         for (int i = 0; i < record.length; i++) {
             int[][] hierarchy = hierarchies[i];
             int value = hierarchy[record[i]][generalization[i]];
             cost += getDomainShare(i, generalization[i], value);
         }
+
         cost /= (double) numAttributes;
+        cost *= (cluster.length + 1);
         return cost;
     }
     
@@ -120,64 +109,57 @@ public class GeneralizationManager {
      */
     public double getInformationLossWhenAddingCluster(int[] cluster1, int[] generalization1, int[] cluster2, int[] generalization2) {
         
-        // TODO: It is enough to include the loss for one record, because the loss for all records is equal
-        
         int[] generalization = new int[numAttributes];
-        for (int i = 0; i <generalization.length; i++) {
+        for (int i = 0; i < generalization.length; i++) {
             generalization[i] = getGeneralizationLevel(i, cluster1, cluster2, Math.max(generalization1[i], generalization2[i]));
         }
-        
+
         double cost = 0d;
-        for (int recordId : cluster1) {
-            int[] record = data[recordId];
-            for (int i = 0; i < record.length; i++) {
-                int[][] hierarchy = hierarchies[i];
-                int value = hierarchy[record[i]][generalization[i]];
-                cost += getDomainShare(i, generalization[i], value);
-            }
+        int[] record = data[cluster1[0]];
+        for (int i = 0; i < record.length; i++) {
+            int[][] hierarchy = hierarchies[i];
+            int value = hierarchy[record[i]][generalization[i]];
+            cost += getDomainShare(i, generalization[i], value);
         }
-        for (int recordId : cluster2) {
-            int[] record = data[recordId];
-            for (int i = 0; i < record.length; i++) {
-                int[][] hierarchy = hierarchies[i];
-                int value = hierarchy[record[i]][generalization[i]];
-                cost += getDomainShare(i, generalization[i], value);
-            }
-        }
+
         cost /= (double) numAttributes;
+        cost *= (cluster1.length + cluster2.length);
         return cost;
     }
 
     /**
      * Cluster without record
-     * @param cluster1
-     * @param record2
+     * @param cluster
+     * @param record
      * @return
      */
-    public double getInformationLossWithoutRecord(int[] cluster1, int record2) {
+    public double getInformationLossWithoutRecord(int[] cluster, int record) {
 
-        // TODO: It is enough to include the loss for one record, because the loss for all records is equal
-        
         int[] generalization = new int[numAttributes];
-        for (int i = 0; i <generalization.length; i++) {
-            generalization[i] = getGeneralizationLevelWithoutRecord(i, cluster1, record2);
+        for (int i = 0; i < generalization.length; i++) {
+            generalization[i] = getGeneralizationLevelWithoutRecord(i, cluster, record);
         }
-        
+
         double cost = 0d;
-        for (int recordId : cluster1) {
-            if (recordId != record2) {
-                int[] record = data[recordId];
-                for (int i = 0; i < record.length; i++) {
-                    int[][] hierarchy = hierarchies[i];
-                    int value = hierarchy[record[i]][generalization[i]];
-                    cost += getDomainShare(i, generalization[i], value);
-                }
-            }
+        int index = cluster[0] != record ? cluster[0] : cluster[1];
+        int[] tuple = data[index];
+        for (int i = 0; i < tuple.length; i++) {
+            int[][] hierarchy = hierarchies[i];
+            int value = hierarchy[tuple[i]][generalization[i]];
+            cost += getDomainShare(i, generalization[i], value);
         }
-        cost /= (double)numAttributes;
+
+        cost /= (double) numAttributes;
+        cost *= (cluster.length - 1);
         return cost;
     }
 
+    /**
+     * Returns a generalization level
+     * @param dimension
+     * @param records
+     * @return
+     */
     public int getGeneralizationLevel(int dimension, int[] records) {
         return getGeneralizationLevel(dimension, records, 0);
     }
