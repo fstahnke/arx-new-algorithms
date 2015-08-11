@@ -117,7 +117,7 @@ public class BenchmarkAnalysis1 {
                                        new Field("PrivacyModel")); // Value
         series.getData().clear();
         for (Point2D point : utility.getData()) {
-            series.getData().add(new Point3D(point.x, "Utility", String.valueOf(1.0d - Double.valueOf(point.y))));
+            series.getData().add(new Point3D(point.x, "Loss", point.y));
         }
         for (Point2D point : suppressed.getData()) {
             series.getData().add(new Point3D(point.x, "Suppression", point.y));
