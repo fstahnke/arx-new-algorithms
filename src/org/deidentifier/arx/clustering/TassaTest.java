@@ -9,7 +9,7 @@ import org.deidentifier.arx.criteria.KAnonymity;
 
 public class TassaTest {
     
-    private static final int REPETITIONS = 5;
+    private static final int REPETITIONS = 1;
     
     public static void main(String[] args) throws IOException {
         

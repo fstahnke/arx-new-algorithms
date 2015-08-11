@@ -3,6 +3,7 @@ package org.deidentifier.arx.clustering;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
 
@@ -28,7 +29,7 @@ public class TassaAlgorithmImpl {
     /** TODO */
     private int                numRecords;
     /** TODO */
-    private Random             random = new Random(0xDEADBEEF); // TODO: Remove when not debugging any more
+    private Random             random = new Random();
 
     /**
 	 * Creates a new instance
@@ -43,7 +44,23 @@ public class TassaAlgorithmImpl {
         this.numRecords = iface.getDataQI().length;
     }
     
-	/**
+	public int getNumberOfClusters() {
+        if (currentClustering != null) {
+            return currentClustering.size();
+        } else {
+            return 0;
+        }
+    }
+    
+    /**
+     * Returns the number of records
+     * @return
+     */
+    public double getNumberOfRecords() {
+        return this.numRecords;
+    }
+
+    /**
      * Returns the total information loss
      * @return
      */
@@ -60,14 +77,6 @@ public class TassaAlgorithmImpl {
         }
     }
     
-    public int getNumberOfClusters() {
-        if (currentClustering != null) {
-            return currentClustering.size();
-        } else {
-            return 0;
-        }
-    }
-
     /**
      * Checks the given parameters
      * @param alpha
@@ -81,7 +90,7 @@ public class TassaAlgorithmImpl {
             throw new IllegalArgumentException("Argument 'omega' is out of bounds: " + omega);
         }
     }
-    
+
     /**
      * Modifies the clustering to ensure that all clusters have a given minimal size
      * @param clustering
@@ -243,7 +252,7 @@ public class TassaAlgorithmImpl {
 	private TassaCluster getCluster(int record) {
         return this.recordToCluster[record];
     }
-
+    
     /**
      * Returns the initial partitioning
      * @param alpha
@@ -281,7 +290,7 @@ public class TassaAlgorithmImpl {
         // Return
         return result;
     }
-
+    
     /**
 	 * Returns an initial random partitioning for the given number of records
 	 * @param manager
@@ -332,21 +341,6 @@ public class TassaAlgorithmImpl {
         // Loop
         for (int record = 0; record < numRecords; record++) {
 
-            //**********************************
-            //**********************************
-            for (TassaCluster DEBUG_cluster : clustering) {
-                if (DEBUG_cluster.getSize() == 0) {
-                    throw new IllegalStateException("Empty clusters must not exist");
-                }
-            }
-            for (int DEBUG_record=0; DEBUG_record<this.numRecords; DEBUG_record++) {
-                if (!clustering.contains(this.getCluster(DEBUG_record))) {
-                    throw new IllegalStateException("This cluster is not contained in the overall set of clusters");
-                }
-            }
-            //**********************************
-            //**********************************
-
             // Log
             logger.log();
             
@@ -358,19 +352,8 @@ public class TassaAlgorithmImpl {
             double inputGC = sourceCluster.getInformationLoss() + targetCluster.first.getInformationLoss();
             double outputGC = sourceCluster.getInformationLossWhenRemoving(record) + targetCluster.second;
             
-            //**********************************
-            //**********************************
-            boolean DEBUG_singleton = sourceCluster.getSize() == 1;
-            double DEBUG_before = this.getTotalInformationLoss();
-            String DEBUG_clusterBefore1 = this.getClusterAsString(sourceCluster);
-            String DEBUG_clusterBefore2 = this.getClusterAsString(targetCluster.first);
-            double DEBUG_input1 = sourceCluster.getInformationLossWhenRemoving(record);
-            double DEBUG_input2 = targetCluster.second;
-            //**********************************
-            //**********************************
-            
             // If yes or if source cluster is singleton, move
-            if (outputGC < inputGC || sourceCluster.getSize() == 1) {
+            if (outputGC - inputGC < -0.00000000001d || sourceCluster.getSize() == 1) {
                 
                 // Move
                 targetCluster.first.addRecord(record);
@@ -385,35 +368,12 @@ public class TassaAlgorithmImpl {
                 // State
                 modified = true;
             }
-            
-            //**********************************
-            //**********************************
-            double DEBUG_after = this.getTotalInformationLoss();
-            String DEBUG_clusterAfter1 = this.getClusterAsString(sourceCluster);
-            String DEBUG_clusterAfter2 = this.getClusterAsString(targetCluster.first);
-            double DEBUG_output1 = sourceCluster.getInformationLoss();
-            double DEBUG_output2 = targetCluster.first.getInformationLoss();
-            if (DEBUG_before < DEBUG_after && !DEBUG_singleton) {
-                System.out.println("Before: " + DEBUG_before);
-                System.out.println("After: " + DEBUG_after);
-                System.out.println("Size: " + sourceCluster.getSize());
-                System.out.println("Size: " + targetCluster.first.getSize());
-                System.out.println(DEBUG_clusterBefore1);
-                System.out.println(DEBUG_clusterBefore2);
-                System.out.println(DEBUG_clusterAfter1);
-                System.out.println(DEBUG_clusterAfter2);
-                System.out.println("Input:" + DEBUG_input1+"+"+DEBUG_input2);
-                System.out.println("Output:" + DEBUG_output1+"+"+DEBUG_output2);
-                throw new IllegalStateException("Information loss increased, but this was not a singleton");
-            }
-            //**********************************
-            //**********************************
         }
         
         // Return
         return modified;
     }
-    
+
     /**
      * Assigns the given record to the given cluster
      * @param record
@@ -422,7 +382,6 @@ public class TassaAlgorithmImpl {
     private void setCluster(int record, TassaCluster cluster) {
         this.recordToCluster[record] = cluster;
     }
-    
     /**
      * Helper: shuffles the given array
      * @param array
@@ -433,7 +392,7 @@ public class TassaAlgorithmImpl {
             swap(array, i - 1, random.nextInt(i));
         }
     }
-
+    
     /**
      * Splits all clusters
      * @param clustering
@@ -446,9 +405,12 @@ public class TassaAlgorithmImpl {
 
         // Collect clusters with size > w*k 
         Set<TassaCluster> largeClusters = new HashSet<TassaCluster>();
-        for (TassaCluster cluster : clustering) {
+        Iterator<TassaCluster> iter = clustering.iterator();
+        while (iter.hasNext()) {
+            TassaCluster cluster = iter.next();
             if (cluster.getSize() > omega * arxinterface.getK()) {
                 largeClusters.add(cluster);
+                iter.remove();
             }
         }
         
@@ -466,50 +428,27 @@ public class TassaAlgorithmImpl {
             // Check first cluster
             if (cluster1.getSize() <= omega * arxinterface.getK()) {
                 largeClusters.remove(cluster1);
+                clustering.add(cluster1);
+                for (int record : cluster1.getRecords()) {
+                    this.setCluster(record, cluster1);
+                }
             }
             
             // Check second cluster
             if (cluster2.getSize() <= omega * arxinterface.getK()) {
                 clustering.add(cluster2);
+                for (int record : cluster2.getRecords()) {
+                    this.setCluster(record, cluster2);
+                }
             } else {
                 largeClusters.add(cluster2);
             }
-
-            //**********************************
-            //**********************************
-            for (TassaCluster DEBUG_cluster : clustering) {
-                if (DEBUG_cluster.getSize() == 0) {
-                    throw new IllegalStateException("Empty clusters must not exist");
-                }
-            }
-            for (int DEBUG_record=0; DEBUG_record<this.numRecords; DEBUG_record++) {
-                if (!clustering.contains(this.getCluster(DEBUG_record))) {
-                    throw new IllegalStateException("This cluster is not contained in the overall set of clusters");
-                }
-            }
-            //**********************************
-            //**********************************
-
         }
-
-        //**********************************
-        //**********************************
-        for (TassaCluster DEBUG_cluster : clustering) {
-            if (DEBUG_cluster.getSize() == 0) {
-                throw new IllegalStateException("Empty clusters must not exist");
-            }
-        }
-        for (int DEBUG_record=0; DEBUG_record<this.numRecords; DEBUG_record++) {
-            if (!clustering.contains(this.getCluster(DEBUG_record))) {
-                throw new IllegalStateException("This cluster is not contained in the overall set of clusters");
-            }
-        }
-        //**********************************
-        //**********************************
 
         // Return 
         return modified;
     }
+    
     /**
      * Helper: swaps elements in the given array
      * @param array
@@ -521,27 +460,7 @@ public class TassaAlgorithmImpl {
         array[i] = array[j];
         array[j] = temp;
     }
-    
-    /**
-     * Method for debugging purposes
-     * @param cluster
-     */
-    private String getClusterAsString(TassaCluster cluster) {
-        
-        StringBuilder builder = new StringBuilder();
-        builder.append("Printing cluster:").append("\n");
-        builder.append(" - Input:").append("\n");
-        for (int id : cluster.getRecords()) {
-            builder.append("  * " + Arrays.toString(arxinterface.getDataQI()[id])).append("\n");
-        }
-        builder.append(" - Output:\n");
-        for (int i = 0; i < cluster.getRecords().length; i++) {
-            builder.append("  * " + Arrays.toString(cluster.getTransformation())).append("\n");
-        }
-        builder.append(" - Loss:" + cluster.getInformationLoss()).append("\n");
-        return builder.toString();
-    }
-    
+
     /**
      * 
      * @param alpha modifier for the initial size of clusters. has to be 0 < alpha <= 1
@@ -574,6 +493,7 @@ public class TassaAlgorithmImpl {
 
         // Log
         logger.next(TassaStep.FINALIZE);
+        
         // Final step: ensure that all clusters have size >= k
         ensureClustersHaveSize(this.currentClustering, this.arxinterface.getK());
         this.finalInformationLoss = getTotalInformationLoss();
@@ -607,7 +527,7 @@ public class TassaAlgorithmImpl {
     double getInititalInformationLoss() {
         return inititalInformationLoss;
     }
-
+    
     /**
      * Return TODO
      * @return
@@ -615,7 +535,7 @@ public class TassaAlgorithmImpl {
     int[][] getOutputBuffer() {
 		return outputBuffer;
 	}
-    
+
     /**
      * Return TODO
      * @return

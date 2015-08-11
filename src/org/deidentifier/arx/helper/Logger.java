@@ -61,7 +61,7 @@ public class Logger {
         if (this.step != null) {
             System.out.println("Step done: " + step);
             System.out.println(" - Ticks: " + ticks + ", Time: " + (System.currentTimeMillis() - time) + ", Total: " + (System.currentTimeMillis() - start));
-            System.out.println(" - Clusters: " + algorithm.getNumberOfClusters() + ", Cost: " + algorithm.getTotalInformationLoss());
+            System.out.println(" - Clusters: " + algorithm.getNumberOfClusters() + ", Information Loss: " + algorithm.getTotalInformationLoss() / algorithm.getNumberOfRecords());
         }
     }
 
