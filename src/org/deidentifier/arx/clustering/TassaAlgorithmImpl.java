@@ -46,14 +46,6 @@ public class TassaAlgorithmImpl {
     }
     
     /**
-     * Enable/disable logging
-     * @param logging
-     */
-    public void setLogging(boolean logging) {
-        this.logger.setLogging(logging);
-    }
-    
-    /**
      * Checks the given parameters
      * @param alpha
      * @param omega
@@ -139,7 +131,7 @@ public class TassaAlgorithmImpl {
         clustering.clear();
         clustering.addAll(largeClusters);
     }
-
+    
     /**
      * Returns the cluster which is closest to the given one
      * @param clustering
@@ -164,7 +156,7 @@ public class TassaAlgorithmImpl {
         if (result == null) { throw new IllegalStateException("Should not happen!"); }
         return result;
     }
-    
+
     /**
      * Returns the cluster which is closest to the given record
      * @param clustering
@@ -198,7 +190,7 @@ public class TassaAlgorithmImpl {
         }
         return new TassaPair<TassaCluster, Double>(result, loss);
     }
-
+    
     /**
      * Returns the closest two clusters in the given clustering
      * @param clustering
@@ -306,6 +298,18 @@ public class TassaAlgorithmImpl {
         
         // Return
         return result;
+    }
+
+    /**
+     * 
+     * @param oldValue
+     * @param oldScale
+     * @param newValue
+     * @param newScale
+     * @return
+     */
+    private boolean isSignficantlySmaller(double oldValue, double oldScale, double newValue, double newScale) {
+        return newValue / newScale - oldValue / oldScale < -0.0001d;
     }
 
     /**
@@ -583,4 +587,11 @@ public class TassaAlgorithmImpl {
         }
     }
     
+    /**
+     * Enable/disable logging
+     * @param logging
+     */
+    void setLogging(boolean logging) {
+        this.logger.setLogging(logging);
+    }
 }
