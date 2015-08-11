@@ -76,7 +76,7 @@ public class TassaCluster {
         } else if (this.recordIdentifiers.length == 1) {
             return 0;
         } else {
-            return generalizationManager.getInformationLossWithoutRecord(this.recordIdentifiers, this.generalizationLevels, record);
+            return generalizationManager.getInformationLossWithoutRecord(this.recordIdentifiers, record);
         }
     }
     

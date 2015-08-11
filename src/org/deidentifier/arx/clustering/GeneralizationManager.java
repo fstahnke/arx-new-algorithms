@@ -88,7 +88,7 @@ public class GeneralizationManager {
         
         int[] generalization = new int[numAttributes];
         for (int i = 0; i <generalization.length; i++) {
-            generalization[i] = getGeneralizationLevel(i, cluster, additionalRecord, generalization[i]);
+            generalization[i] = getGeneralizationLevel(i, cluster, additionalRecord, _generalization[0]);
         }
         
         double cost = 0d;
@@ -151,11 +151,10 @@ public class GeneralizationManager {
     /**
      * Cluster without record
      * @param cluster1
-     * @param generalization1
      * @param record2
      * @return
      */
-    public double getInformationLossWithoutRecord(int[] cluster1, int[] generalization1, int record2) {
+    public double getInformationLossWithoutRecord(int[] cluster1, int record2) {
 
         // TODO: It is enough to include the loss for one record, because the loss for all records is equal
         

@@ -347,6 +347,10 @@ public class TassaAlgorithmImpl {
             //**********************************
             boolean DEBUG_singleton = sourceCluster.getSize() == 1;
             double DEBUG_before = this.getTotalInformationLoss();
+            String DEBUG_clusterBefore1 = this.getClusterAsString(sourceCluster);
+            String DEBUG_clusterBefore2 = this.getClusterAsString(targetCluster.first);
+            double DEBUG_input1 = sourceCluster.getInformationLossWhenRemoving(record);
+            double DEBUG_input2 = targetCluster.second;
             //**********************************
             //**********************************
             
@@ -370,11 +374,21 @@ public class TassaAlgorithmImpl {
             //**********************************
             //**********************************
             double DEBUG_after = this.getTotalInformationLoss();
+            String DEBUG_clusterAfter1 = this.getClusterAsString(sourceCluster);
+            String DEBUG_clusterAfter2 = this.getClusterAsString(targetCluster.first);
+            double DEBUG_output1 = sourceCluster.getInformationLoss();
+            double DEBUG_output2 = targetCluster.first.getInformationLoss();
             if (DEBUG_before < DEBUG_after && !DEBUG_singleton) {
                 System.out.println("Before: " + DEBUG_before);
                 System.out.println("After: " + DEBUG_after);
                 System.out.println("Size: " + sourceCluster.getSize());
                 System.out.println("Size: " + targetCluster.first.getSize());
+                System.out.println(DEBUG_clusterBefore1);
+                System.out.println(DEBUG_clusterBefore2);
+                System.out.println(DEBUG_clusterAfter1);
+                System.out.println(DEBUG_clusterAfter2);
+                System.out.println("Input:" + DEBUG_input1+"+"+DEBUG_input2);
+                System.out.println("Input:" + DEBUG_output1+"+"+DEBUG_output2);
                 throw new IllegalStateException("Information loss increased, but this was not a singleton");
             }
             //**********************************
@@ -460,6 +474,26 @@ public class TassaAlgorithmImpl {
         int temp = array[i];
         array[i] = array[j];
         array[j] = temp;
+    }
+    
+    /**
+     * Method for debugging purposes
+     * @param cluster
+     */
+    private String getClusterAsString(TassaCluster cluster) {
+        
+        StringBuilder builder = new StringBuilder();
+        builder.append("Printing cluster:").append("\n");
+        builder.append(" - Input:").append("\n");
+        for (int id : cluster.getRecords()) {
+            builder.append("  * " + Arrays.toString(arxinterface.getDataQI()[id])).append("\n");
+        }
+        builder.append(" - Output:\n");
+        for (int i = 0; i < cluster.getRecords().length; i++) {
+            builder.append("  * " + Arrays.toString(cluster.getTransformation())).append("\n");
+        }
+        builder.append(" - Loss:" + cluster.getInformationLoss()).append("\n");
+        return builder.toString();
     }
     
     /**
