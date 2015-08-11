@@ -332,6 +332,21 @@ public class TassaAlgorithmImpl {
         // Loop
         for (int record = 0; record < numRecords; record++) {
 
+            //**********************************
+            //**********************************
+            for (TassaCluster DEBUG_cluster : clustering) {
+                if (DEBUG_cluster.getSize() == 0) {
+                    throw new IllegalStateException("Empty clusters must not exist");
+                }
+            }
+            for (int DEBUG_record=0; DEBUG_record<this.numRecords; DEBUG_record++) {
+                if (!clustering.contains(this.getCluster(DEBUG_record))) {
+                    throw new IllegalStateException("This cluster is not contained in the overall set of clusters");
+                }
+            }
+            //**********************************
+            //**********************************
+
             // Log
             logger.log();
             
@@ -459,8 +474,39 @@ public class TassaAlgorithmImpl {
             } else {
                 largeClusters.add(cluster2);
             }
+
+            //**********************************
+            //**********************************
+            for (TassaCluster DEBUG_cluster : clustering) {
+                if (DEBUG_cluster.getSize() == 0) {
+                    throw new IllegalStateException("Empty clusters must not exist");
+                }
+            }
+            for (int DEBUG_record=0; DEBUG_record<this.numRecords; DEBUG_record++) {
+                if (!clustering.contains(this.getCluster(DEBUG_record))) {
+                    throw new IllegalStateException("This cluster is not contained in the overall set of clusters");
+                }
+            }
+            //**********************************
+            //**********************************
+
         }
-        
+
+        //**********************************
+        //**********************************
+        for (TassaCluster DEBUG_cluster : clustering) {
+            if (DEBUG_cluster.getSize() == 0) {
+                throw new IllegalStateException("Empty clusters must not exist");
+            }
+        }
+        for (int DEBUG_record=0; DEBUG_record<this.numRecords; DEBUG_record++) {
+            if (!clustering.contains(this.getCluster(DEBUG_record))) {
+                throw new IllegalStateException("This cluster is not contained in the overall set of clusters");
+            }
+        }
+        //**********************************
+        //**********************************
+
         // Return 
         return modified;
     }
