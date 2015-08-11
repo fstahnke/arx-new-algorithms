@@ -160,7 +160,7 @@ public class GeneralizationManager {
         
         int[] generalization = new int[numAttributes];
         for (int i = 0; i <generalization.length; i++) {
-            generalization[i] = getGeneralizationLevelWithoutRecord(i, cluster1, record2, 0);
+            generalization[i] = getGeneralizationLevelWithoutRecord(i, cluster1, record2);
         }
         
         double cost = 0d;
@@ -206,14 +206,13 @@ public class GeneralizationManager {
 
         int[][] hierarchy = hierarchies[dimension];
         int val = hierarchy[data[records1[0]][dimension]][lvl];
-        for (int i = 1; i < records1.length && lvl != hierarchy[0].length - 1; i++) {
-            while (hierarchy[data[records1[i]][dimension]][lvl] != val) {
-                val = hierarchy[data[records1[i - 1]][dimension]][++lvl];
+        for (int i = 1; i < records1.length + 1 && lvl != hierarchy[0].length - 1; i++) {
+            int current = i < records1.length ? records1[i] : record;
+            int previous = i < records1.length ? records1[i - 1] : records1[records1.length - 1];
+            while (hierarchy[data[current][dimension]][lvl] != val) {
+                val = hierarchy[data[previous][dimension]][++lvl];
             }
         }
-        while (hierarchy[data[record][dimension]][lvl] != val) { // TODO: Is this correct?
-                val = hierarchy[data[record][dimension]][++lvl];
-            }
         return lvl;
     }
     
@@ -224,14 +223,17 @@ public class GeneralizationManager {
 
         int[][] hierarchy = hierarchies[dimension];
         int val = hierarchy[data[records1[0]][dimension]][lvl];
-        for (int i = 1; i < records1.length && lvl != hierarchy[0].length - 1; i++) {
-            while (hierarchy[data[records1[i]][dimension]][lvl] != val) {
-                val = hierarchy[data[records1[i - 1]][dimension]][++lvl];
-            }
-        }
-        for (int i = 1; i < records2.length && lvl != hierarchy[0].length - 1; i++) {
-            while (hierarchy[data[records2[i]][dimension]][lvl] != val) {
-                val = hierarchy[data[records2[i - 1]][dimension]][++lvl];
+        for (int i = 1; i < records1.length + records2.length && lvl != hierarchy[0].length - 1; i++) {
+            
+            int current = i < records1.length  ? records1[i] : 
+                          i == records1.length ? records2[0] : 
+                                                 records2[i - records1.length];
+            int previous = i < records1.length  ? records1[i - 1] : 
+                           i == records1.length ? records1[records1.length - 1] :
+                                                  records2[i - records1.length - 1];
+            
+            while (hierarchy[data[current][dimension]][lvl] != val) {
+                val = hierarchy[data[previous][dimension]][++lvl];
             }
         }
         return lvl;
@@ -240,26 +242,25 @@ public class GeneralizationManager {
     /**
      * Cluster and record
      */
-    public int getGeneralizationLevelWithoutRecord(int dimension, int[] records1, int record, int lvl) {
+    public int getGeneralizationLevelWithoutRecord(int dimension, int[] records, int record) {
 
+        // Prepare
         int[][] hierarchy = hierarchies[dimension];
+        int lvl = 0;
+        int idx = records[0] == record ? 1 : 0;
+        int val = hierarchy[data[records[idx]][dimension]][lvl];
         
-        int val = 0;
-        int start = 0;
-        if (records1[0] != record) {
-            val = hierarchy[data[records1[0]][dimension]][lvl];
-        } else {
-            if (records1.length == 1) {
-                return 0;
+        for (int i = idx + 1; i < records.length && lvl != hierarchy[0].length - 1; i++) {
+            
+            if (records[i] == record && i == records.length-1) {
+                break;
             }
-            val = hierarchy[data[records1[1]][dimension]][lvl];
-            start = 1;
-        }
-        for (int i = start + 1; i < records1.length && lvl != hierarchy[0].length - 1; i++) {
-            if (records1[i] != record) {
-                while (hierarchy[data[records1[i]][dimension]][lvl] != val) {
-                    val = hierarchy[data[records1[i - 1]][dimension]][++lvl];
-                }
+            
+            int current = records[i] != record ? records[i] : records[i+1];
+            int previous = records[i-1] != record ? records[i-1] : records[i-2];
+            
+            while (hierarchy[data[current][dimension]][lvl] != val) {
+                val = hierarchy[data[previous][dimension]][++lvl];
             }
         }
         return lvl;

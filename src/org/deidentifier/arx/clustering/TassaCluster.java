@@ -52,6 +52,23 @@ public class TassaCluster {
      * @return Weighted generalization cost.
      */
     public double getInformationLossWhenAdding(TassaCluster cluster) {
+//        
+//        // Build
+//        int[] records = new int[this.recordIdentifiers.length + cluster.recordIdentifiers.length];
+//        for (int i=0; i<this.recordIdentifiers.length; i++) {
+//            records[i] = this.recordIdentifiers[i];
+//        }
+//        for (int i=0; i<cluster.recordIdentifiers.length; i++) {
+//            records[i + this.recordIdentifiers.length] = cluster.recordIdentifiers[i];
+//        }
+//        
+//        // Evaluate
+//        int[] levels = new int[generalizationLevels.length];
+//        for (int i = 0; i < numbAttributes; i++) {
+//            levels[i] = generalizationManager.getGeneralizationLevel(i, records);
+//        }
+//        return generalizationManager.getInformationLoss(records, levels); 
+//        
         return generalizationManager.getInformationLossWhenAddingCluster(this.recordIdentifiers, this.generalizationLevels, 
                                                            cluster.recordIdentifiers, cluster.generalizationLevels);
     }
@@ -72,11 +89,29 @@ public class TassaCluster {
      */
     public double getInformationLossWhenRemoving(int record) {
     	if (this.recordIdentifiers.length == 0) {
-            throw new IllegalStateException("This may never happen");
+            throw new IllegalStateException("Cannot remove element from empty cluster");
         } else if (this.recordIdentifiers.length == 1) {
             return 0;
         } else {
-            return generalizationManager.getInformationLossWithoutRecord(this.recordIdentifiers, record);
+            
+//
+//            // Build
+//            int[] records = new int[this.recordIdentifiers.length - 1];
+//            int idx = 0;
+//            for (int i=0; i<this.recordIdentifiers.length; i++) {
+//                if (this.recordIdentifiers[i] != record) {
+//                    records[idx++] = this.recordIdentifiers[i];
+//                }
+//            }
+//            
+//            // Evaluate
+//            int[] levels = new int[generalizationLevels.length];
+//            for (int i = 0; i < numbAttributes; i++) {
+//                levels[i] = generalizationManager.getGeneralizationLevel(i, records);
+//            }
+//            return generalizationManager.getInformationLoss(records, levels);
+//            
+             return generalizationManager.getInformationLossWithoutRecord(this.recordIdentifiers, record);
         }
     }
     
