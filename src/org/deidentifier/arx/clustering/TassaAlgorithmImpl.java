@@ -388,7 +388,7 @@ public class TassaAlgorithmImpl {
                 System.out.println(DEBUG_clusterAfter1);
                 System.out.println(DEBUG_clusterAfter2);
                 System.out.println("Input:" + DEBUG_input1+"+"+DEBUG_input2);
-                System.out.println("Input:" + DEBUG_output1+"+"+DEBUG_output2);
+                System.out.println("Output:" + DEBUG_output1+"+"+DEBUG_output2);
                 throw new IllegalStateException("Information loss increased, but this was not a singleton");
             }
             //**********************************
