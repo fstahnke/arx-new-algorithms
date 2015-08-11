@@ -237,7 +237,7 @@ public class BenchmarkSetup {
                 BenchmarkDataset.CUP,
                 BenchmarkDataset.FARS,
                 BenchmarkDataset.ATUS,
-                BenchmarkDataset.IHIS
+//                BenchmarkDataset.IHIS
         };
     }
     
