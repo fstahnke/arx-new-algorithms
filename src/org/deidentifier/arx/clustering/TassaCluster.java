@@ -11,7 +11,7 @@ public class TassaCluster {
     /** Generalization levels of the cluster*/
     private int[]                              generalizationLevels;
     /** Costs*/
-    private double                             weightedGeneralizationCost;
+    private double                             informationLoss;
     /** Manager*/
     private final GeneralizationManager        generalizationManager;
 
@@ -42,8 +42,8 @@ public class TassaCluster {
         this.update();
     }
     
-    public double getWeightedCost() {
-        return this.weightedGeneralizationCost;
+    public double getInformationLoss() {
+        return this.informationLoss;
     }
     
     /**
@@ -51,10 +51,9 @@ public class TassaCluster {
      * @param Added cluster.
      * @return Weighted generalization cost.
      */
-    public double getCostWhenAddingCluster(TassaCluster cluster) {
-        return generalizationManager.getGeneralizationCost(this.recordIdentifiers, this.generalizationLevels, 
-                                                           cluster.recordIdentifiers, cluster.generalizationLevels)
-                                                           * (this.getSize() + cluster.getSize());
+    public double getInformationLossWhenAdding(TassaCluster cluster) {
+        return generalizationManager.getInformationLossWhenAdding(this.recordIdentifiers, this.generalizationLevels, 
+                                                           cluster.recordIdentifiers, cluster.generalizationLevels);
     }
     
     /**
@@ -62,8 +61,8 @@ public class TassaCluster {
      * @param Added record.
      * @return Weighted generalization cost.
      */
-    public double getCostWhenAddingRecord(int record) {
-        return generalizationManager.getGeneralizationCost(this.recordIdentifiers, this.generalizationLevels, record) * (this.getSize() + 1);
+    public double getInformationLossWhenAdding(int record) {
+        return generalizationManager.getInformationLossWhenAdding(this.recordIdentifiers, this.generalizationLevels, record);
     }
     
     /**
@@ -71,14 +70,14 @@ public class TassaCluster {
      * @param Removed record.
      * @return Weighted generalization cost.
      */
-    public double getCostWhenRemovingRecord(int record) {
-    	// If this is the last record, return 0. otherwise calculate generalization cost.
-    	// TODO: why is this called for clusters with size 0 during runtime? should be able to only check for "== 1"
-    	if (this.getSize() < 2) {
-    		return 0;
-    	} else {
-    		return generalizationManager.getGeneralizationCostWithoutRecord(this.recordIdentifiers, this.generalizationLevels, record) * (this.getSize() - 1);
-    	}
+    public double getInformationLossWhenRemoving(int record) {
+    	if (this.recordIdentifiers.length == 0) {
+            throw new IllegalStateException("This may never happen");
+        } else if (this.recordIdentifiers.length == 1) {
+            return 0;
+        } else {
+            return generalizationManager.getInformationLossWithoutRecord(this.recordIdentifiers, this.generalizationLevels, record);
+        }
     }
     
     public int[] getRecords() {
@@ -134,13 +133,13 @@ public class TassaCluster {
     private void update() {
     	// If cluster is empty
     	if (this.getSize() == 0) {
-    	    this.weightedGeneralizationCost = 0d;
+    	    this.informationLoss = 0d;
     	// Else, update
     	} else {
     		for (int i = 0; i < numbAttributes; i++) {
     			this.generalizationLevels[i] = generalizationManager.getGeneralizationLevel(i, this.recordIdentifiers);
     		}
-    		this.weightedGeneralizationCost = generalizationManager.getGeneralizationCost(this.recordIdentifiers, this.generalizationLevels) * this.getSize();
+    		this.informationLoss = generalizationManager.getInformationLoss(this.recordIdentifiers, this.generalizationLevels);
     	}
     }
 }

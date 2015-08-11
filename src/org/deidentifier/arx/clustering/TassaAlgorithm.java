@@ -127,7 +127,7 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
      * Enables/disables logging
      * @param logging
      */
-    public void setLoggin(boolean logging) {
+    public void setLogging(boolean logging) {
         this.arxInterface.setLogging(logging);
     }
 

@@ -31,7 +31,7 @@ public class TassaTest {
         config.setMaxOutliers(0d);
         
         final TassaAlgorithm algorithm = new TassaAlgorithm(null, data, config);
-        algorithm.setLoggin(true);
+        algorithm.setLogging(true);
         
         // Warmup
         algorithm.execute();
