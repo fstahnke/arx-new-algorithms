@@ -487,11 +487,6 @@ public class TassaAlgorithmImpl {
             logger.next(TassaStep.SPLIT_CLUSTERS);
             modified |= splitClusters(this.currentClustering, omega);
             
-            // Check
-            if (newLoss > previousLoss) {
-                throw new IllegalStateException("Information loss must not increase");
-            }
-            
             // Break
             if (!isSignficantlySmaller(previousLoss, newLoss, this.numRecords)) {
                 break;
