@@ -3,17 +3,19 @@ package org.deidentifier.arx.clustering;
 import java.util.Arrays;
 
 public class TassaCluster {
-    
+
     /** The number of attributes. */
-    private final int                          numbAttributes;
-    /** Identifiers of records*/
-    private int[]                              recordIdentifiers;
-    /** Generalization levels of the cluster*/
-    private int[]                              generalizationLevels;
-    /** Costs*/
-    private double                             informationLoss;
-    /** Manager*/
-    private final GeneralizationManager        generalizationManager;
+    private final int                   numbAttributes;
+    /** Identifiers of records */
+    private int[]                       recordIdentifiers;
+    /** Generalization levels of the cluster */
+    private int[]                       generalizationLevels;
+    /** Costs */
+    private double                      informationLoss;
+    /** Manager */
+    private final GeneralizationManager generalizationManager;
+    /** Id */
+    public int                          id;
 
     /**
      * Creates a new cluster

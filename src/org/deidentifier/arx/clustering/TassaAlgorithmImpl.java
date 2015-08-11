@@ -29,7 +29,7 @@ public class TassaAlgorithmImpl {
     /** TODO */
     private int                numRecords;
     /** TODO */
-    private Random             random     = new Random();
+    private Random             random     = new Random(0xDEADBEEF);
     /** TODO */
     private TassaStatistics    statistics = new TassaStatistics();
 
@@ -80,32 +80,38 @@ public class TassaAlgorithmImpl {
                 largeClusters.add(cluster);
             }
         }
+        
+        TassaClosenessMatrix matrix = new TassaClosenessMatrix(smallClusters);
+        TassaPair<TassaCluster, TassaCluster> pair = matrix.getClosestTwoClusters();
 
         // As long as there are clusters with size < k
         // merge closest two clusters and either
         // if size >= k, add them to output, or
         // if size < k, process them further
-        while (smallClusters.size() > 1) {
+        while (pair != null) {
 
             // Log
             logger.log ();
             
             // Merge closest pair
-            TassaPair<TassaCluster, TassaCluster> pair = getClosestTwoClusters(smallClusters);
             for (int record : pair.second.getRecords()) {
                 setCluster(record, pair.first);
             }
             pair.first.addCluster(pair.second);
             smallClusters.remove(pair.second);
+            matrix.setMerged(pair.first, pair.second);
             
             if (pair.first.getSize() >= clusterSize) {
                 largeClusters.add(pair.first);
                 smallClusters.remove(pair.first);
+                matrix.setRemoved(pair.first);
             }
 
             // Update statistics
             statistics.incClustersMerged();
             
+            // Update
+            pair = matrix.getClosestTwoClusters();
         }
         
         // If there is one cluster left, merge it with the closest cluster from the large clusters
@@ -191,34 +197,6 @@ public class TassaAlgorithmImpl {
         return new TassaPair<TassaCluster, Double>(result, loss);
     }
     
-    /**
-     * Returns the closest two clusters in the given clustering
-     * @param clustering
-     * @return
-     */
-    private TassaPair<TassaCluster, TassaCluster> getClosestTwoClusters(Set<TassaCluster> clustering) {
-        
-        double loss = Double.MAX_VALUE;
-        TassaPair<TassaCluster, TassaCluster> result = null;
-        
-        for (TassaCluster cluster1 : clustering) {
-            for (TassaCluster cluster2 : clustering) {
-                if (cluster1 != cluster2) {
-                	// Calculate weighted cost.
-                    double value = cluster1.getInformationLossWhenAdding(cluster2);
-                    if (value < loss) {
-                        loss = value;
-                        result = new TassaPair<TassaCluster, TassaCluster>(cluster1, cluster2);
-                    }
-                }
-            }
-        }
-        if (result == null) {
-            throw new IllegalStateException("Should not happen!");
-        }
-        return result;
-    }
-
     /**
      * Returns the cluster to which the given record is assigned
      * @param record
