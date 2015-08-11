@@ -27,6 +27,8 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
     private boolean         logging                = false;
     /** TODO */
     private TassaStatistics statistics             = null;
+    /** TODO */
+    private Set<TassaCluster> clustering             = null;
 
     /**
      * Create a new instance
@@ -63,6 +65,7 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
 	public String[][] execute() throws IOException {
         
         this.statistics = null;
+        this.clustering = null;
         
         if (threshold == 0) {
             TassaAlgorithmImpl algorithm = new TassaAlgorithmImpl(arxInterface);
@@ -71,21 +74,21 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
             this.statistics = algorithm.getStatistics();
             this.initialInformationLoss = algorithm.getInititalInformationLoss();
             this.informationLoss = algorithm.getFinalInformationLoss();
+            this.clustering = algorithm.getClustering();
             return getOutputTable(algorithm.getOutputBuffer());
         } else {
             
-            Set<TassaCluster> last = null;
             TassaAlgorithmImpl algorithm = new TassaAlgorithmImpl(arxInterface);
             algorithm.setLogging(this.logging);
             double delta = Double.MAX_VALUE;
             while (delta > threshold) {
-                algorithm.execute(alpha, omega, last);
+                algorithm.execute(alpha, omega, this.clustering);
                 if (this.statistics == null) {
                     this.statistics = algorithm.getStatistics();
                 } else {
                     this.statistics.merge(algorithm.getStatistics());
                 }
-                last = algorithm.getTassaClustering();
+                this.clustering = algorithm.getClustering();
                 final double base = algorithm.getInititalInformationLoss();
                 if (this.initialInformationLoss < 0d) {
                     this.initialInformationLoss = base;
@@ -164,4 +167,12 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
 
 		return result;
 	}
+    
+    /**
+     * Returns the clustering
+     * @return
+     */
+    public Set<TassaCluster> getClustering() {
+        return this.clustering;
+    }
 }

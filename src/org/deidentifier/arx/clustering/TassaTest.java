@@ -9,6 +9,8 @@ import org.deidentifier.arx.criteria.KAnonymity;
 
 public class TassaTest {
     
+    private static final int K = 8;
+    
     public static void main(String[] args) throws IOException {
         
     	// Init
@@ -25,7 +27,7 @@ public class TassaTest {
         
         // Configuration
         final ARXConfiguration config = ARXConfiguration.create();
-        config.addCriterion(new KAnonymity(8));
+        config.addCriterion(new KAnonymity(K));
         config.setMaxOutliers(0d);
         
         final TassaAlgorithm algorithm = new TassaAlgorithm(null, data, config);
@@ -33,6 +35,18 @@ public class TassaTest {
         
         // Execute
         algorithm.execute();
+        
+        // Sanity checks, for testing only
+        int count = 0;
+        for (TassaCluster c : algorithm.getClustering()) {
+            count += c.getSize();
+            if (c.getSize() < K) {
+                throw new IllegalStateException("Privacy guarantees not fulfilled");
+            }
+        }
+        if (count < data.getHandle().getNumRows()) {
+            throw new IllegalStateException("Output dataset misses some records");
+        }
         
         // Print
         System.out.println(algorithm.getStatistics());
