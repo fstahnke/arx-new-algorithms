@@ -303,13 +303,12 @@ public class TassaAlgorithmImpl {
     /**
      * 
      * @param oldValue
-     * @param oldScale
      * @param newValue
-     * @param newScale
+     * @param normalizationFactor
      * @return
      */
-    private boolean isSignficantlySmaller(double oldValue, double oldScale, double newValue, double newScale) {
-        return newValue / newScale - oldValue / oldScale < -0.0001d;
+    private boolean isSignficantlySmaller(double oldValue, double newValue, double normalizationFactor) {
+        return newValue / normalizationFactor - oldValue / normalizationFactor < -0.0001d;
     }
 
     /**
@@ -340,7 +339,7 @@ public class TassaAlgorithmImpl {
             double outputGC = sourceCluster.getInformationLossWhenRemoving(record) + targetCluster.second;
             
             // If yes or if source cluster is singleton, move
-            if (outputGC - inputGC < -0.00000000001d || sourceCluster.getSize() == 1) {
+            if (isSignficantlySmaller(inputGC, outputGC, sourceCluster.getSize() + targetCluster.first.getSize()) || sourceCluster.getSize() == 1) {
                 
                 // Update statistics
                 statistics.incRecordsMoved();
@@ -477,12 +476,26 @@ public class TassaAlgorithmImpl {
         boolean modified = true;
         while (modified) {
             modified = false;
+            
             // Log
+            double previousLoss = getTotalInformationLoss();
             logger.next(TassaStep.MOVE_RECORDS);
             modified |= moveRecords(this.currentClustering);
+            double newLoss = getTotalInformationLoss();
+            
             // Log
             logger.next(TassaStep.SPLIT_CLUSTERS);
             modified |= splitClusters(this.currentClustering, omega);
+            
+            // Check
+            if (newLoss > previousLoss) {
+                throw new IllegalStateException("Information loss must not increase");
+            }
+            
+            // Break
+            if (!isSignficantlySmaller(previousLoss, newLoss, this.numRecords)) {
+                break;
+            }
         }
 
         // Log

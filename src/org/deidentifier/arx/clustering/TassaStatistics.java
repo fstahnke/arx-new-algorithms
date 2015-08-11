@@ -131,10 +131,17 @@ public class TassaStatistics {
 
     @Override
     public String toString() {
-        return "TassaStatistics [recordsMoved=" + recordsMoved + ", clustersSplit=" +
-               clustersSplit + ", clustersMerged=" + clustersMerged + ", initialInformationLoss=" +
-               initialInformationLoss + ", finalInformationLoss=" + finalInformationLoss +
-               ", numberOfClusters=" + numberOfClusters + ", executionTime=" + executionTime + "]";
+        StringBuilder builder = new StringBuilder();
+        builder.append("TassaStatistics [\n");
+        builder.append(" - Records moved: ").append(recordsMoved).append("\n");
+        builder.append(" - Clusters split: ").append(clustersSplit).append("\n");
+        builder.append(" - Clusters merged: ").append(clustersMerged).append("\n");
+        builder.append(" - Initial information loss: ").append(initialInformationLoss).append("\n");
+        builder.append(" - Final information loss: ").append(finalInformationLoss).append("\n");
+        builder.append(" - Number of clusters: ").append(numberOfClusters).append("\n");
+        builder.append(" - Execution time: ").append(executionTime).append("\n");
+        builder.append("]");
+        return builder.toString();
     }
 
     /**
