@@ -12,17 +12,21 @@ import org.deidentifier.arx.benchmark.IBenchmarkObserver;
 public class TassaAlgorithm extends BenchmarkAlgorithm {
 
     /** Interface */
-    private ARXInterface arxInterface;
+    private ARXInterface    arxInterface;
     /** TODO */
-    private double       alpha                  = 0.5;
+    private double          alpha                  = 0.5;
     /** TODO */
-    private double       omega                  = 1.5;
+    private double          omega                  = 1.5;
     /** TODO */
-    private double       initialInformationLoss = -Double.MAX_VALUE;
+    private double          initialInformationLoss = -Double.MAX_VALUE;
     /** TODO */
-    private double       informationLoss        = 0d;
+    private double          informationLoss        = 0d;
     /** Threshold for recursive executions */
-    private double       threshold;
+    private double          threshold;
+    /** TODO */
+    private boolean         logging                = false;
+    /** TODO */
+    private TassaStatistics statistics             = null;
 
     /**
      * Create a new instance
@@ -58,9 +62,13 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
     @Override
 	public String[][] execute() throws IOException {
         
+        this.statistics = null;
+        
         if (threshold == 0) {
             TassaAlgorithmImpl algorithm = new TassaAlgorithmImpl(arxInterface);
+            algorithm.setLogging(this.logging);
             algorithm.execute(alpha, omega, null);
+            this.statistics = algorithm.getStatistics();
             this.initialInformationLoss = algorithm.getInititalInformationLoss();
             this.informationLoss = algorithm.getFinalInformationLoss();
             return getOutputTable(algorithm.getOutputBuffer());
@@ -68,9 +76,15 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
             
             Set<TassaCluster> last = null;
             TassaAlgorithmImpl algorithm = new TassaAlgorithmImpl(arxInterface);
+            algorithm.setLogging(this.logging);
             double delta = Double.MAX_VALUE;
             while (delta > threshold) {
                 algorithm.execute(alpha, omega, last);
+                if (this.statistics == null) {
+                    this.statistics = algorithm.getStatistics();
+                } else {
+                    this.statistics.merge(algorithm.getStatistics());
+                }
                 last = algorithm.getTassaClustering();
                 final double base = algorithm.getInititalInformationLoss();
                 if (this.initialInformationLoss < 0d) {
@@ -95,17 +109,9 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
      * Returns the resulting info loss
      * @return
      */
-    public double getInformationLoss() {
-        return informationLoss;
+    public TassaStatistics getStatistics() {
+        return this.statistics;
     }
-	
-    /**
-     * Returns the initial info loss
-     * @return
-     */
-	public double getInitialInformationLoss() {
-	    return initialInformationLoss;
-	}
 
 	/**
 	 * Returns omega
@@ -128,7 +134,7 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
      * @param logging
      */
     public void setLogging(boolean logging) {
-        this.arxInterface.setLogging(logging);
+        this.logging = logging;
     }
 
 	/**

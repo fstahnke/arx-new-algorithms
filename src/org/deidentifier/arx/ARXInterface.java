@@ -206,18 +206,6 @@ public class ARXInterface {
     	throw new UnsupportedOperationException();
     }
 
-    public boolean isLogging() {
-        return logging;
-    }
-
-    public void setLogging(boolean logging) {
-        this.logging = logging;
-    }
-
-    public void setLogNumberOfRecords(int steps) {
-        this.logSteps = steps;
-    }
-
     /**
      * Performs some sanity checks.
      *

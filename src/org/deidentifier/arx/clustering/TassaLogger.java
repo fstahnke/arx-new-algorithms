@@ -1,14 +1,14 @@
-package org.deidentifier.arx.helper;
+package org.deidentifier.arx.clustering;
 
-import org.deidentifier.arx.clustering.TassaAlgorithmImpl;
 
-public class Logger {
+public class TassaLogger {
 
     /**
      * Tassa step
      *
      */
     public static enum TassaStep {
+        
         INITIALIZE {
             @Override
             public String toString() {
@@ -46,10 +46,13 @@ public class Logger {
     /** TODO */
     private TassaAlgorithmImpl algorithm = null;
 
+    /** TODO */
+    private boolean            logging   = false;
+
     /**
      * @param algorithm
      */
-    public Logger(TassaAlgorithmImpl algorithm) {
+    public TassaLogger(TassaAlgorithmImpl algorithm) {
         this.algorithm = algorithm;
         this.start = System.currentTimeMillis();
     }
@@ -58,7 +61,7 @@ public class Logger {
      * Done
      */
     public void done() {
-        if (this.step != null) {
+        if (this.step != null && logging) {
             System.out.println("Step done: " + step);
             System.out.println(" - Ticks: " + ticks + ", Time: " + (System.currentTimeMillis() - time) + ", Total: " + (System.currentTimeMillis() - start));
             System.out.println(" - Clusters: " + algorithm.getNumberOfClusters() + ", Information Loss: " + algorithm.getTotalInformationLoss() / algorithm.getNumberOfRecords());
@@ -75,13 +78,24 @@ public class Logger {
     }
     
     /**
-     * Next teo
+     * Next step
      * @param step
      */
     public void next(TassaStep step) {
+        if (!logging) {
+            return;
+        }
         done();
         this.step = step;
         this.time = System.currentTimeMillis();
         this.ticks = 0;
+    }
+
+    /**
+     * Enable/disable
+     * @param logging
+     */
+    public void setLogging(boolean logging) {
+        this.logging = logging;
     }
 }

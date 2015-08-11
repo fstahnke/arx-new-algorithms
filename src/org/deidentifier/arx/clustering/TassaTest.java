@@ -9,8 +9,6 @@ import org.deidentifier.arx.criteria.KAnonymity;
 
 public class TassaTest {
     
-    private static final int REPETITIONS = 1;
-    
     public static void main(String[] args) throws IOException {
         
     	// Init
@@ -34,16 +32,9 @@ public class TassaTest {
         algorithm.setLogging(true);
         
         // Execute
-        long time = System.currentTimeMillis();
-        for (int i = 0; i < REPETITIONS; i++) {
-            algorithm.execute();
-        }
+        algorithm.execute();
         
         // Print
-        double initialInformationLoss = algorithm.getInitialInformationLoss();
-        double finalInformationLoss = algorithm.getInformationLoss();
-        System.out.println("Execution time: " + (System.currentTimeMillis() - time) / (1000d * REPETITIONS) +" [s]");
-        System.out.println("Initial Information Loss: " + initialInformationLoss);
-        System.out.println("Final Information Loss: " + finalInformationLoss);
+        System.out.println(algorithm.getStatistics());
     }
 }
