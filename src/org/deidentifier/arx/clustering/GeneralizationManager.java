@@ -82,7 +82,7 @@ public class GeneralizationManager {
      * @param additionalRecord
      * @return
      */
-    public double getInformationLossWhenAdding(int[] cluster, int[] _generalization, int additionalRecord) {
+    public double getInformationLossWhenAddingRecord(int[] cluster, int[] _generalization, int additionalRecord) {
 
         // TODO: It is enough to include the loss for one record, because the loss for all records is equal
         
@@ -118,7 +118,7 @@ public class GeneralizationManager {
      * @param generalization2
      * @return
      */
-    public double getInformationLossWhenAdding(int[] cluster1, int[] generalization1, int[] cluster2, int[] generalization2) {
+    public double getInformationLossWhenAddingCluster(int[] cluster1, int[] generalization1, int[] cluster2, int[] generalization2) {
         
         // TODO: It is enough to include the loss for one record, because the loss for all records is equal
         
