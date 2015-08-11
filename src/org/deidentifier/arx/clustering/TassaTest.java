@@ -33,9 +33,6 @@ public class TassaTest {
         final TassaAlgorithm algorithm = new TassaAlgorithm(null, data, config);
         algorithm.setLogging(true);
         
-        // Warmup
-        algorithm.execute();
-        
         // Execute
         long time = System.currentTimeMillis();
         for (int i = 0; i < REPETITIONS; i++) {
