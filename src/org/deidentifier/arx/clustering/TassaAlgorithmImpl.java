@@ -255,6 +255,8 @@ public class TassaAlgorithmImpl {
         final long initTime = System.nanoTime();
         long startTime = initTime;
         int mergeNumber = 1;
+        int smallClusterCount = smallClusters.size();
+        int resultingMergedClusterCount = 0;
         
         // Add temporary clustering to output and merge clusters < k
         tassaClustering.clear();
@@ -264,7 +266,7 @@ public class TassaAlgorithmImpl {
 
             if (iface.logging && (mergeNumber % iface.logNumberOfClusters == 0 || smallClusters.size() == 2)) {
                 final long stopTime = System.nanoTime();
-                System.out.println("Merged clusters: " + mergeNumber + ", Execution time: " + Math.round((stopTime - startTime) / 1000000.0) + " ms, Average time: " + Math.round((stopTime - initTime) / (mergeNumber * 1000000.0)) + " ms");
+                System.out.println("Small clusters: " + smallClusterCount + ", Resulting clusters: " + resultingMergedClusterCount + ", Merge steps: " + mergeNumber + ", Execution time: " + Math.round((stopTime - startTime) / 1000000.0) + " ms, Average time: " + Math.round((stopTime - initTime) / (mergeNumber * 1000000.0)) + " ms");
                 startTime = stopTime;
             }
             mergeNumber++;
@@ -274,6 +276,7 @@ public class TassaAlgorithmImpl {
             if (mergedCluster.size() >= k) {
                 tassaClustering.add(mergedCluster);
                 smallClusters.remove(mergedCluster);
+                resultingMergedClusterCount++;
             }
         }
         
