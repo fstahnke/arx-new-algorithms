@@ -34,8 +34,6 @@ public class ARXInterface {
     
     /** The generalization manager. */
     private final GeneralizationManager generalizationManager;
-    /** Turn logging on or off. */
-    private boolean logging = true;
     
     /** The number of events between each logging tick. */
     private int logSteps = 10000;
