@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.deidentifier.arx.ARXConfiguration;
 import org.deidentifier.arx.AttributeType.Hierarchy;
 import org.deidentifier.arx.Data;
+import org.deidentifier.arx.benchmark.IBenchmarkObserver;
 import org.deidentifier.arx.criteria.KAnonymity;
 
 public class TassaTest {
@@ -30,7 +31,12 @@ public class TassaTest {
         config.addCriterion(new KAnonymity(K));
         config.setMaxOutliers(0d);
         
-        final TassaAlgorithm algorithm = new TassaAlgorithm(null, data, config);
+        final TassaAlgorithm algorithm = new TassaAlgorithm(new IBenchmarkObserver() {
+            @Override
+            public void notify(long timestamp, String[][] output, int[] transformation) {
+                // Empty by design
+            }
+        }, data, config);
         algorithm.setLogging(false);
         
         // Execute
