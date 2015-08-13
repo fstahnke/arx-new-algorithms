@@ -109,11 +109,11 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
     }
     
     /**
-     * Returns the resulting info loss
+     * Returns the clustering
      * @return
      */
-    public TassaStatistics getStatistics() {
-        return this.statistics;
+    public Set<TassaCluster> getClustering() {
+        return this.clustering;
     }
 
 	/**
@@ -125,13 +125,21 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
     }
 	
 	/**
+     * Returns the resulting info loss
+     * @return
+     */
+    public TassaStatistics getStatistics() {
+        return this.statistics;
+    }
+	
+	/**
 	 * Sets alpha
 	 * @param alpha
 	 */
 	public void setAlpha(double alpha) {
         this.alpha = alpha;
     }
-	
+
 	/**
      * Enables/disables logging
      * @param logging
@@ -139,8 +147,8 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
     public void setLogging(boolean logging) {
         this.logging = logging;
     }
-
-	/**
+    
+    /**
 	 * Sets omage
 	 * @param omega
 	 */
@@ -167,12 +175,4 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
 
 		return result;
 	}
-    
-    /**
-     * Returns the clustering
-     * @return
-     */
-    public Set<TassaCluster> getClustering() {
-        return this.clustering;
-    }
 }

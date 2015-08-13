@@ -54,129 +54,6 @@ public class GeneralizationManager {
     }
     
     /**
-     * Once cluster. This method has two side effects: it updates the generalization and cache arrays
-     * @param cluster
-     * @param generalization
-     * @param cache 
-     * @return
-     */
-    public double getInformationLoss(IntArrayList cluster, int[] generalization, double[] cache) {
-
-        double cost = 0d;
-        int[] record = data[cluster.getQuick(0)];
-        
-        for (int i = 0; i < numAttributes; i++) {
-            int level = getGeneralizationLevel(i, cluster);
-            if (level != generalization[i] || cache[i] == -1d) {
-                generalization[i] = level;
-                int[][] hierarchy = hierarchies[i];
-                int value = hierarchy[record[i]][level];
-                double share = getDomainShare(i, level, value);
-                cost += share;
-                cache[i] = share;
-            } else {
-                cost += cache[i];
-            }
-        }
-        
-        cost /= (double) numAttributes;
-        cost *= cluster.size();
-        return cost;
-    }
-
-
-    /**
-     * Cluster and record
-     * @param cluster
-     * @param generalization
-     * @param additionalRecord
-     * @return
-     */
-    public double getInformationLossWhenAddingRecord(IntArrayList cluster, 
-                                                     int[] generalization, 
-                                                     int additionalRecord,
-                                                     double[] cache) {
-
-        double cost = 0d;
-        int[] record = data[additionalRecord];
-        
-        for (int i = 0; i <numAttributes; i++) {
-            int level = getGeneralizationLevelWhenAddingRecord(i, cluster, additionalRecord, generalization[i]);
-            if (level != generalization[i]) {
-                int[][] hierarchy = hierarchies[i];
-                int value = hierarchy[record[i]][level];
-                cost += getDomainShare(i, level, value);
-            } else {
-                cost += cache[i];
-            }
-        }
-
-        cost /= (double) numAttributes;
-        cost *= (cluster.size() + 1);
-        return cost;
-    }
-    
-    /**
-     * Two clusters
-     * @param cluster1
-     * @param generalization1
-     * @param cluster2
-     * @param generalization2
-     * @return
-     */
-    public double getInformationLossWhenAddingCluster(IntArrayList cluster1, 
-                                                      int[] generalization1,
-                                                      IntArrayList cluster2, 
-                                                      int[] generalization2) {
-        
-        
-
-        double cost = 0d;
-        int[] record = data[cluster1.getQuick(0)];
-
-        for (int i = 0; i < numAttributes; i++) {
-            int level = getGeneralizationLevelWhenAddingCluster(i,
-                                                                cluster1,
-                                                                cluster2,
-                                                                Math.max(generalization1[i],
-                                                                         generalization2[i]));
-            int[][] hierarchy = hierarchies[i];
-            int value = hierarchy[record[i]][level];
-            cost += getDomainShare(i, level, value);
-        }
-
-        cost /= (double) numAttributes;
-        cost *= (cluster1.size() + cluster2.size());
-        return cost;
-    }
-
-    /**
-     * Cluster without record
-     * @param cluster
-     * @param record
-     * @return
-     */
-    public double getInformationLossWhenRemovingRecord(IntArrayList cluster, int record) {
-
-        
-
-        double cost = 0d;
-        int index = cluster.getQuick(0) != record ? cluster.getQuick(0) : cluster.getQuick(1);
-        int[] tuple = data[index];
-        
-        for (int i = 0; i < numAttributes; i++) {
-            int level = getGeneralizationLevelWhenRemovingRecord(i, cluster, record);
-            int[][] hierarchy = hierarchies[i];
-            int value = hierarchy[tuple[i]][level];
-            cost += getDomainShare(i, level, value);
-        }
-
-        cost /= (double) numAttributes;
-        cost *= (cluster.size() - 1);
-        return cost;
-    }
-
-    /**
      * Returns a generalization level
      * @param dimension
      * @param records
@@ -185,6 +62,7 @@ public class GeneralizationManager {
     public int getGeneralizationLevel(int dimension, IntArrayList records) {
         return getGeneralizationLevel(dimension, records, 0);
     }
+
 
     /**
      * Cluster
@@ -199,21 +77,6 @@ public class GeneralizationManager {
             while (hierarchy[data[records.getQuick(i)][dimension]][lvl] != val) {
                 val = hierarchy[data[records.getQuick(i - 1)][dimension]][++lvl];
             }
-        }
-        return lvl;
-    }
-    
-    /**
-     * Cluster and record
-     */
-    public int getGeneralizationLevelWhenAddingRecord(int dimension, IntArrayList records1, int record, int lvl) {
-
-        int[][] hierarchy = hierarchies[dimension];
-        int[] current = hierarchy[data[record][dimension]];
-        int[] previous = hierarchy[data[records1.getQuick(0)][dimension]];
-        int val = previous[lvl];
-        while (current[lvl] != val) {
-            val = previous[++lvl];
         }
         return lvl;
     }
@@ -259,6 +122,137 @@ public class GeneralizationManager {
             }
         }
         return lvl;
+    }
+
+    /**
+     * Once cluster. This method has two side effects: it updates the generalization and cache arrays
+     * @param cluster
+     * @param generalization
+     * @param cache 
+     * @return
+     */
+    public double getInformationLoss(IntArrayList cluster, int[] generalization, double[] cache) {
+
+        double cost = 0d;
+        int[] record = data[cluster.getQuick(0)];
+        
+        for (int i = 0; i < numAttributes; i++) {
+            int level = getGeneralizationLevel(i, cluster);
+            if (level != generalization[i] || cache[i] == -1d) {
+                generalization[i] = level;
+                int[][] hierarchy = hierarchies[i];
+                int value = hierarchy[record[i]][level];
+                double share = getDomainShare(i, level, value);
+                cost += share;
+                cache[i] = share;
+            } else {
+                cost += cache[i];
+            }
+        }
+        
+        cost /= (double) numAttributes;
+        cost *= cluster.size();
+        return cost;
+    }
+
+    /**
+     * Two clusters
+     * @param cluster1
+     * @param generalization1
+     * @param cluster2
+     * @param generalization2
+     * @return
+     */
+    public double getInformationLossWhenAddingCluster(IntArrayList cluster1, 
+                                                      int[] generalization1,
+                                                      IntArrayList cluster2, 
+                                                      int[] generalization2) {
+        
+        
+
+        double cost = 0d;
+        int[] record = data[cluster1.getQuick(0)];
+
+        for (int i = 0; i < numAttributes; i++) {
+            int level = getGeneralizationLevelWhenAddingCluster(i,
+                                                                cluster1,
+                                                                cluster2,
+                                                                Math.max(generalization1[i],
+                                                                         generalization2[i]));
+            int[][] hierarchy = hierarchies[i];
+            int value = hierarchy[record[i]][level];
+            cost += getDomainShare(i, level, value);
+        }
+
+        cost /= (double) numAttributes;
+        cost *= (cluster1.size() + cluster2.size());
+        return cost;
+    }
+    
+    /**
+     * Cluster and record
+     * @param cluster
+     * @param generalization
+     * @param record
+     * @return
+     */
+    public double getInformationLossWhenAddingRecord(IntArrayList cluster, 
+                                                     int[] generalization, 
+                                                     int record,
+                                                     double[] cache) {
+
+        double cost = 0d;
+        int[] tuple = data[record];
+        
+        for (int dimension = 0; dimension <numAttributes; dimension++) {
+            
+            int inputvalue = tuple[dimension];
+            int level = generalization[dimension];
+            int[][] hierarchy = hierarchies[dimension];
+            int[] current = hierarchy[inputvalue];
+            int[] previous = hierarchy[data[cluster.getQuick(0)][dimension]];
+            int tempvalue = previous[level];
+            while (current[level] != tempvalue) {
+                tempvalue = previous[++level];
+            }
+            
+            if (level != generalization[dimension]) {
+                int generalizedvalue = hierarchy[inputvalue][level];
+                cost += getDomainShare(dimension, level, generalizedvalue);
+            } else {
+                cost += cache[dimension];
+            }
+        }
+
+        cost /= (double) numAttributes;
+        cost *= (cluster.size() + 1);
+        return cost;
+    }
+
+    /**
+     * Cluster without record
+     * @param cluster
+     * @param record
+     * @return
+     */
+    public double getInformationLossWhenRemovingRecord(IntArrayList cluster, int record) {
+
+        
+
+        double cost = 0d;
+        int index = cluster.getQuick(0) != record ? cluster.getQuick(0) : cluster.getQuick(1);
+        int[] tuple = data[index];
+        
+        for (int i = 0; i < numAttributes; i++) {
+            int level = getGeneralizationLevelWhenRemovingRecord(i, cluster, record);
+            int[][] hierarchy = hierarchies[i];
+            int value = hierarchy[tuple[i]][level];
+            cost += getDomainShare(i, level, value);
+        }
+
+        cost /= (double) numAttributes;
+        cost *= (cluster.size() - 1);
+        return cost;
     }
     
 

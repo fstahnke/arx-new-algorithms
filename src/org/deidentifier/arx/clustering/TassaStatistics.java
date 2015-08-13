@@ -81,6 +81,34 @@ public class TassaStatistics {
     }
 
     /**
+     * Merge with another instance
+     * @param other
+     */
+    public void merge(TassaStatistics other) {
+        this.finalInformationLoss = other.finalInformationLoss;
+        this.recordsMoved += other.recordsMoved;
+        this.clustersMerged += other.clustersMerged;
+        this.clustersSplit += other.clustersSplit;
+        this.numberOfClusters = other.numberOfClusters;
+        this.executionTime += other.executionTime;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("TassaStatistics [\n");
+        builder.append(" - Records moved: ").append(recordsMoved).append("\n");
+        builder.append(" - Clusters split: ").append(clustersSplit).append("\n");
+        builder.append(" - Clusters merged: ").append(clustersMerged).append("\n");
+        builder.append(" - Initial information loss: ").append(initialInformationLoss).append("\n");
+        builder.append(" - Final information loss: ").append(finalInformationLoss).append("\n");
+        builder.append(" - Number of clusters: ").append(numberOfClusters).append("\n");
+        builder.append(" - Execution time: ").append(executionTime).append("\n");
+        builder.append("]");
+        return builder.toString();
+    }
+
+    /**
      * TODO
      */
     void incClustersMerged() {
@@ -127,33 +155,5 @@ public class TassaStatistics {
      */
     void setNumberOfClusters(int numberOfClusters) {
         this.numberOfClusters = numberOfClusters;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("TassaStatistics [\n");
-        builder.append(" - Records moved: ").append(recordsMoved).append("\n");
-        builder.append(" - Clusters split: ").append(clustersSplit).append("\n");
-        builder.append(" - Clusters merged: ").append(clustersMerged).append("\n");
-        builder.append(" - Initial information loss: ").append(initialInformationLoss).append("\n");
-        builder.append(" - Final information loss: ").append(finalInformationLoss).append("\n");
-        builder.append(" - Number of clusters: ").append(numberOfClusters).append("\n");
-        builder.append(" - Execution time: ").append(executionTime).append("\n");
-        builder.append("]");
-        return builder.toString();
-    }
-
-    /**
-     * Merge with another instance
-     * @param other
-     */
-    public void merge(TassaStatistics other) {
-        this.finalInformationLoss = other.finalInformationLoss;
-        this.recordsMoved += other.recordsMoved;
-        this.clustersMerged += other.clustersMerged;
-        this.clustersSplit += other.clustersSplit;
-        this.numberOfClusters = other.numberOfClusters;
-        this.executionTime += other.executionTime;
     }
 }

@@ -18,14 +18,24 @@ public class TassaModificationManager {
     }
     
     /**
-     * Sets a cluster modified
+     * Returns whether a cluster must be seen as modified
      * @param cluster
+     * @return
      */
-    public void setModified(TassaCluster cluster) {
-        this.current.add(cluster);
-        this.last.add(cluster);
+    public boolean isModified(TassaCluster cluster) {
+        return this.last.contains(cluster);
     }
 
+    /**
+     * Prepare the next iteration
+     */
+    public void prepareNextIteration() {
+        Set<TassaCluster> temp = this.last;
+        this.last = this.current;
+        this.current = temp;
+        this.current.clear();
+    }
+    
     /**
      * Sets a clustering modified
      * @param clustering
@@ -36,21 +46,11 @@ public class TassaModificationManager {
     }
     
     /**
-     * Returns whether a cluster must be seen as modified
+     * Sets a cluster modified
      * @param cluster
-     * @return
      */
-    public boolean isModified(TassaCluster cluster) {
-        return this.last.contains(cluster);
-    }
-    
-    /**
-     * Prepare the next iteration
-     */
-    public void prepareNextIteration() {
-        Set<TassaCluster> temp = this.last;
-        this.last = this.current;
-        this.current = temp;
-        this.current.clear();
+    public void setModified(TassaCluster cluster) {
+        this.current.add(cluster);
+        this.last.add(cluster);
     }
 }

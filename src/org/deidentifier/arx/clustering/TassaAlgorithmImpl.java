@@ -46,6 +46,26 @@ public class TassaAlgorithmImpl {
     }
     
     /**
+     * Assigns all records to the cluster
+     * @param records
+     * @param cluster
+     */
+    private void assignRecordsToCluster(IntArrayList records, TassaCluster cluster) {
+        for (int i = 0; i < records.size(); i++) {
+            assignRecordToCluster(records.getQuick(i), cluster);
+        }
+    }
+    
+    /**
+     * Assigns the given record to the given cluster
+     * @param record
+     * @param cluster
+     */
+    private void assignRecordToCluster(int record, TassaCluster cluster) {
+        this.recordToCluster[record] = cluster;
+    }
+    
+    /**
      * Checks the given parameters
      * @param alpha
      * @param omega
@@ -58,7 +78,7 @@ public class TassaAlgorithmImpl {
             throw new IllegalArgumentException("Argument 'omega' is out of bounds: " + omega);
         }
     }
-    
+
     /**
      * Modifies the clustering to ensure that all clusters have a given minimal size
      * @param clustering
@@ -133,17 +153,6 @@ public class TassaAlgorithmImpl {
         clustering.clear();
         clustering.addAll(largeClusters);
     }
-    
-    /**
-     * Assigns all records to the cluster
-     * @param records
-     * @param cluster
-     */
-    private void assignRecordsToCluster(IntArrayList records, TassaCluster cluster) {
-        for (int i = 0; i < records.size(); i++) {
-            assignRecordToCluster(records.getQuick(i), cluster);
-        }
-    }
 
     /**
      * Returns the cluster which is closest to the given one
@@ -169,7 +178,7 @@ public class TassaAlgorithmImpl {
         if (result == null) { throw new IllegalStateException("Should not happen!"); }
         return result;
     }
-
+    
     /**
      * Returns the cluster which is closest to the given record
      * @param clustering
@@ -203,7 +212,7 @@ public class TassaAlgorithmImpl {
         }
         return new TassaPair<TassaCluster, Double>(result, loss);
     }
-    
+
     /**
      * Returns the cluster to which the given record is assigned
      * @param record
@@ -293,7 +302,7 @@ public class TassaAlgorithmImpl {
     private boolean isSignficantlySmaller(double oldValue, double newValue, double normalizationFactor) {
         return newValue / normalizationFactor - oldValue / normalizationFactor < -0.0001d;
     }
-
+    
     /**
      * Moves all records within the given clustering, if it decreases the average information loss
      * @param clustering
@@ -346,15 +355,6 @@ public class TassaAlgorithmImpl {
         
         // Return
         return modified;
-    }
-    
-    /**
-     * Assigns the given record to the given cluster
-     * @param record
-     * @param cluster
-     */
-    private void assignRecordToCluster(int record, TassaCluster cluster) {
-        this.recordToCluster[record] = cluster;
     }
     
     /**
@@ -491,10 +491,18 @@ public class TassaAlgorithmImpl {
      * Return TODO
      * @return
      */
+    Set<TassaCluster> getClustering() {
+		return currentClustering;
+	}
+    
+    /**
+     * Return TODO
+     * @return
+     */
     double getFinalInformationLoss() {
         return finalInformationLoss / this.numRecords;
     }
-    
+
     /**
      * Return TODO
      * @return
@@ -522,7 +530,7 @@ public class TassaAlgorithmImpl {
     double getNumberOfRecords() {
         return this.numRecords;
     }
-
+    
     /**
      * Return TODO
      * @return
@@ -530,21 +538,13 @@ public class TassaAlgorithmImpl {
     int[][] getOutputBuffer() {
 		return outputBuffer;
 	}
-    
+
     /**
      * Returns statistics
      */
     TassaStatistics getStatistics() {
         return this.statistics;
     }
-
-    /**
-     * Return TODO
-     * @return
-     */
-    Set<TassaCluster> getClustering() {
-		return currentClustering;
-	}
 
     /**
      * Returns the total information loss

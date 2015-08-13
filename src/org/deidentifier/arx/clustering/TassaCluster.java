@@ -52,6 +52,19 @@ public class TassaCluster {
     }
     
     /**
+     * Returns the total (weighted) generalization cost when adding a record.
+     * @param Added record.
+     * @return Weighted generalization cost.
+     */
+    public double getInformationLossWhenAdding(int record) {
+ 
+        return generalizationManager.getInformationLossWhenAddingRecord(this.recordIdentifiers, 
+                                                                             this.generalizationLevels, 
+                                                                             record,
+                                                                             this.cache);
+    }
+    
+    /**
      * Returns the total (weighted) generalization cost when adding another cluster.
      * @param Added cluster.
      * @return Weighted generalization cost.
@@ -59,18 +72,6 @@ public class TassaCluster {
     public double getInformationLossWhenAdding(TassaCluster cluster) {
         return generalizationManager.getInformationLossWhenAddingCluster(this.recordIdentifiers, this.generalizationLevels, 
                                                            cluster.recordIdentifiers, cluster.generalizationLevels);
-    }
-    
-    /**
-     * Returns the total (weighted) generalization cost when adding a record.
-     * @param Added record.
-     * @return Weighted generalization cost.
-     */
-    public double getInformationLossWhenAdding(int record) {
-        return generalizationManager.getInformationLossWhenAddingRecord(this.recordIdentifiers, 
-                                                                        this.generalizationLevels, 
-                                                                        record,
-                                                                        this.cache);
     }
     
     /**
