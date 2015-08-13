@@ -75,7 +75,9 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
             this.initialInformationLoss = algorithm.getInititalInformationLoss();
             this.informationLoss = algorithm.getFinalInformationLoss();
             this.clustering = algorithm.getClustering();
-            return getOutputTable(algorithm.getOutputBuffer());
+            final String[][] outputTable = getOutputTable(algorithm.getOutputBuffer());
+            super.updated(outputTable, new int[outputTable[0].length]);
+            return outputTable;
         } else {
             
             TassaAlgorithmImpl algorithm = new TassaAlgorithmImpl(arxInterface);
@@ -95,6 +97,8 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
                 }
                 this.informationLoss = algorithm.getFinalInformationLoss();
                 delta = Math.abs(informationLoss - base);
+                String[][] outputTable = getOutputTable(algorithm.getOutputBuffer());
+                super.updated(outputTable, new int[outputTable[0].length]);
             }
             return getOutputTable(algorithm.getOutputBuffer());
         }
