@@ -15,7 +15,7 @@ public class TassaTest {
     public static void main(String[] args) throws IOException {
         
     	// Init
-        final Data data = Data.create("data/adult_subset.csv", ';');
+        final Data data = Data.create("data/adult.csv", ';');
         data.getDefinition().setAttributeType("age", Hierarchy.create("hierarchies/adult_hierarchy_age.csv", ';'));
         data.getDefinition().setAttributeType("education", Hierarchy.create("hierarchies/adult_hierarchy_education.csv", ';'));
         data.getDefinition().setAttributeType("marital-status", Hierarchy.create("hierarchies/adult_hierarchy_marital-status.csv", ';'));
@@ -37,10 +37,10 @@ public class TassaTest {
                 // Empty by design
             }
         }, data, config);
-        algorithm.setLogging(false);
+        algorithm.setLogging(true);
         
         // Execute
-        final int REPETITIONS = 10;
+        final int REPETITIONS = 1;
         long time = System.currentTimeMillis();
         for (int i=0; i<REPETITIONS; i++) {
             algorithm.execute();

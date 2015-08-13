@@ -191,10 +191,17 @@ public class TassaAlgorithmImpl {
         double delta = Double.MAX_VALUE;
         double loss = Double.MAX_VALUE;
         TassaCluster result = null;
-
+        
         for (TassaCluster cluster : clustering) {
+            
             if (cluster != source &&  (modificationManager.isModified(source) || modificationManager.isModified(cluster))) {
 
+                // Skip if lower bound is already higher then the current optimum
+                if (delta != Double.MAX_VALUE && cluster.getLowerBoundForAdditionalInformationLoss() > delta) {
+                    continue;
+                }
+                
+                
                 double _loss = cluster.getInformationLossWhenAdding(record);
                 double _delta = _loss - cluster.getInformationLoss();
                 if (_delta < 0d) {
@@ -207,6 +214,7 @@ public class TassaAlgorithmImpl {
                 }
             }
         }
+        
         if (result == null) { 
             throw new IllegalStateException("There may never be no closest cluster"); 
         }
@@ -313,9 +321,9 @@ public class TassaAlgorithmImpl {
         // Log
         logger.log();
         
-        // Prepare
+        // Flag to detect modification
         boolean modified = false;
-
+        
         // Loop
         for (int record = 0; record < numRecords; record++) {
 

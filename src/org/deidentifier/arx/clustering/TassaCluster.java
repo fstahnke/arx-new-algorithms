@@ -9,20 +9,23 @@ public class TassaCluster {
     /** The number of attributes. */
     private final int                   numAttributes;
     /** Identifiers of records */
-    private IntArrayList                recordIdentifiers;
+    private IntArrayList                records;
     /** Generalization levels of the cluster */
     private int[]                       generalizationLevels;
     /** Costs */
     private double                      informationLoss;
+    /** Costs */
+    private double                      lowerBoundForAdditionalInformationLoss;
     /** Manager */
     private final GeneralizationManager generalizationManager;
     /** Id */
     public int                          id;
     /** Cache */
-    private final double[]              cache;
+    private double[]                    cache;
 
     /**
      * Creates a new cluster
+     * 
      * @param manager
      * @param recordIdentifiers
      */
@@ -30,115 +33,130 @@ public class TassaCluster {
         this.generalizationManager = manager;
         this.numAttributes = manager.getNumAttributes();
         this.generalizationLevels = new int[numAttributes];
-        this.recordIdentifiers = recordIdentifiers;
+        this.records = recordIdentifiers;
         this.cache = new double[numAttributes];
         Arrays.fill(this.cache, -1d);
         this.update();
     }
-    
+
     public void addCluster(TassaCluster cluster) {
-        
-        this.recordIdentifiers.addAllOf(cluster.recordIdentifiers);
+
+        this.records.addAllOf(cluster.records);
         this.update();
     }
-    
+
     public void addRecord(int recordId) {
-        this.recordIdentifiers.add(recordId);
+        this.records.add(recordId);
         this.update();
     }
-    
+
     public double getInformationLoss() {
         return this.informationLoss;
     }
-    
+
     /**
      * Returns the total (weighted) generalization cost when adding a record.
-     * @param Added record.
+     * 
+     * @param Added
+     *            record.
      * @return Weighted generalization cost.
      */
     public double getInformationLossWhenAdding(int record) {
- 
-        return generalizationManager.getInformationLossWhenAddingRecord(this.recordIdentifiers, 
-                                                                             this.generalizationLevels, 
-                                                                             record,
-                                                                             this.cache);
+
+        return generalizationManager.getInformationLossWhenAddingRecord(this.records,
+                                                                        this.generalizationLevels,
+                                                                        record,
+                                                                        this.cache);
     }
-    
+
     /**
-     * Returns the total (weighted) generalization cost when adding another cluster.
-     * @param Added cluster.
+     * Returns the total (weighted) generalization cost when adding another
+     * cluster.
+     * 
+     * @param Added
+     *            cluster.
      * @return Weighted generalization cost.
      */
     public double getInformationLossWhenAdding(TassaCluster cluster) {
-        return generalizationManager.getInformationLossWhenAddingCluster(this.recordIdentifiers, this.generalizationLevels, 
-                                                           cluster.recordIdentifiers, cluster.generalizationLevels);
+        return generalizationManager.getInformationLossWhenAddingCluster(this.records,
+                                                                         this.generalizationLevels,
+                                                                         cluster.records,
+                                                                         cluster.generalizationLevels);
     }
-    
+
     /**
-     * Returns the total (weighted) generalization cost when removing a record.    
-     * @param Removed record.
+     * Returns the total (weighted) generalization cost when removing a record.
+     * 
+     * @param Removed
+     *            record.
      * @return Weighted generalization cost.
      */
     public double getInformationLossWhenRemoving(int record) {
-    	if (this.recordIdentifiers.size() == 0) {
+        if (this.records.size() == 0) {
             throw new IllegalStateException("Cannot remove element from empty cluster");
-        } else if (this.recordIdentifiers.size() == 1) {
+        } else if (this.records.size() == 1) {
             return 0;
         } else {
-             return generalizationManager.getInformationLossWhenRemovingRecord(this.recordIdentifiers, record);
+            return generalizationManager.getInformationLossWhenRemovingRecord(this.records,
+                                                                              record);
         }
     }
-    
+
     public IntArrayList getRecords() {
-        return this.recordIdentifiers;
+        return this.records;
     }
-    
+
     public int getSize() {
-        return this.recordIdentifiers.size();
+        return this.records.size();
     }
 
     public int[] getTransformation() {
-        return generalizationManager.getTransformation(recordIdentifiers.getQuick(0), generalizationLevels);
+        return generalizationManager.getTransformation(records.getQuick(0),
+                                                       generalizationLevels);
     }
 
     public void removeRecord(int recordId) {
-        this.recordIdentifiers.remove(this.recordIdentifiers.indexOf(recordId));
+        this.records.remove(this.records.indexOf(recordId));
         this.update();
     }
 
     /**
      * Splits this cluster into a new cluster
+     * 
      * @return
      */
     public TassaCluster splitCluster() {
-        int splitSize = (int)(this.recordIdentifiers.size() / 2d);
+        int splitSize = (int) (this.records.size() / 2d);
         IntArrayList newRecordIdentifiers = new IntArrayList();
-        for (int i=splitSize; i<this.recordIdentifiers.size(); i++) {
-            newRecordIdentifiers.add(this.recordIdentifiers.elements()[i]);
+        for (int i = splitSize; i < this.records.size(); i++) {
+            newRecordIdentifiers.add(this.records.elements()[i]);
         }
-        this.recordIdentifiers.setSize(splitSize);
+        this.records.setSize(splitSize);
         this.update();
-        return new TassaCluster(generalizationManager, newRecordIdentifiers);        
+        return new TassaCluster(generalizationManager, newRecordIdentifiers);
     }
+    
+    /**
+     * Returns a lower bound on the additional information loss
+     */
+    public double getLowerBoundForAdditionalInformationLoss() {
+        return this.lowerBoundForAdditionalInformationLoss;
+    }
+    
 
     /**
-     * 
-     * @param changedObject
-     * 
-     * We want to update:
-     * - generalizationLevels
-     * - generalizationCost
-     * - transformation
-     * - the hash code
-     * - the removedGC cache
+     * Updates the cluster
      */
     private void update() {
-    	// If cluster is empty
-    	if (this.getSize() == 0) {
-    	    this.informationLoss = 0d;
-    	// Else, update
-    	} else {
-    		this.informationLoss = generalizationManager.getInformationLoss(this.recordIdentifiers, this.generalizationLevels, this.cache);
-    	}
+        // If cluster is empty
+        if (this.getSize() == 0) {
+            this.informationLoss = 0d;
+            // Else, update
+        } else {
+            this.informationLoss = generalizationManager.getInformationLoss(this.records,
+                                                                            this.generalizationLevels,
+                                                                            this.cache);
+            this.lowerBoundForAdditionalInformationLoss = this.informationLoss / (double)this.records.size();
+        }
     }
 }
