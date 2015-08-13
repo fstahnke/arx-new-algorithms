@@ -1,14 +1,14 @@
 package org.deidentifier.arx.clustering;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Random;
 import java.util.Set;
 
 import org.deidentifier.arx.ARXInterface;
 import org.deidentifier.arx.clustering.TassaLogger.TassaStep;
+
+import cern.colt.list.IntArrayList;
 
 public class TassaAlgorithmImpl {
 
@@ -28,8 +28,6 @@ public class TassaAlgorithmImpl {
     private TassaCluster[]           recordToCluster;
     /** TODO */
     private int                      numRecords;
-    /** TODO */
-    private Random                   random              = new Random(0xDEADBEEF);
     /** TODO */
     private TassaStatistics          statistics          = new TassaStatistics();
     /** TODO */
@@ -96,9 +94,7 @@ public class TassaAlgorithmImpl {
             logger.log ();
             
             // Merge closest pair
-            for (int record : pair.second.getRecords()) {
-                setCluster(record, pair.first);
-            }
+            assignRecordsToCluster(pair.second.getRecords(), pair.first);
             pair.first.addCluster(pair.second);
             smallClusters.remove(pair.second);
             matrix.setMerged(pair.first, pair.second);
@@ -125,9 +121,7 @@ public class TassaAlgorithmImpl {
             // Perform
             TassaCluster cluster1 = smallClusters.iterator().next();
             TassaCluster cluster2 = getClosestClusterForCluster(largeClusters, cluster1);
-            for (int record : cluster1.getRecords()) {
-                setCluster(record, cluster2);
-            }
+            assignRecordsToCluster(cluster1.getRecords(), cluster2);
             cluster2.addCluster(cluster1);
             smallClusters.remove(cluster1);
 
@@ -140,6 +134,17 @@ public class TassaAlgorithmImpl {
         clustering.addAll(largeClusters);
     }
     
+    /**
+     * Assigns all records to the cluster
+     * @param records
+     * @param cluster
+     */
+    private void assignRecordsToCluster(IntArrayList records, TassaCluster cluster) {
+        for (int i = 0; i < records.size(); i++) {
+            assignRecordToCluster(records.getQuick(i), cluster);
+        }
+    }
+
     /**
      * Returns the cluster which is closest to the given one
      * @param clustering
@@ -237,9 +242,7 @@ public class TassaAlgorithmImpl {
             
         // Update cluster assignments
         for (TassaCluster cluster : result) {
-            for (int recordId : cluster.getRecords()) {
-                this.setCluster(recordId, cluster);
-            }
+            assignRecordsToCluster(cluster.getRecords(), cluster);
         }
         
         // Return
@@ -256,11 +259,11 @@ public class TassaAlgorithmImpl {
     private Set<TassaCluster> getRandomPartitioning(GeneralizationManager manager, int numRecords, int k) {
 
         // Prepare
-        int[] recordIds = new int[numRecords];
+        IntArrayList recordIds = new IntArrayList(numRecords);
         for (int i = 0; i < numRecords; i++) {
-            recordIds[i] = i;
+            recordIds.add(i);
         }
-        shuffle(recordIds);
+        recordIds.shuffle();
         int offset = 0;
         
         // Calculate
@@ -271,7 +274,7 @@ public class TassaAlgorithmImpl {
         Set<TassaCluster> result = new HashSet<TassaCluster>();
         for (int i = 0; i<numberOfClusters; i++) {
             int clusterSize = i < additionalRecords ? k + 1 : k;
-            TassaCluster cluster = new TassaCluster(manager, Arrays.copyOfRange(recordIds, offset, offset + clusterSize));
+            TassaCluster cluster = new TassaCluster(manager, (IntArrayList)recordIds.partFromTo(offset, offset + clusterSize - 1));
             result.add(cluster);
             offset += clusterSize;
         }
@@ -327,7 +330,7 @@ public class TassaAlgorithmImpl {
                 // Move
                 targetCluster.first.addRecord(record);
                 sourceCluster.removeRecord(record);
-                setCluster(record, targetCluster.first);
+                assignRecordToCluster(record, targetCluster.first);
                 
                 // Remove if empty
                 if (sourceCluster.getSize() == 0) {
@@ -350,19 +353,8 @@ public class TassaAlgorithmImpl {
      * @param record
      * @param cluster
      */
-    private void setCluster(int record, TassaCluster cluster) {
+    private void assignRecordToCluster(int record, TassaCluster cluster) {
         this.recordToCluster[record] = cluster;
-    }
-    
-    /**
-     * Helper: shuffles the given array
-     * @param array
-     */
-    private void shuffle(int[] array) {
-        int count = array.length;
-        for (int i = count; i > 1; i--) {
-            swap(array, i - 1, random.nextInt(i));
-        }
     }
     
     /**
@@ -408,17 +400,13 @@ public class TassaAlgorithmImpl {
             if (cluster1.getSize() <= omega * arxinterface.getK()) {
                 largeClusters.remove(cluster1);
                 clustering.add(cluster1);
-                for (int record : cluster1.getRecords()) {
-                    this.setCluster(record, cluster1);
-                }
+                assignRecordsToCluster(cluster1.getRecords(), cluster1);
             }
             
             // Check second cluster
             if (cluster2.getSize() <= omega * arxinterface.getK()) {
                 clustering.add(cluster2);
-                for (int record : cluster2.getRecords()) {
-                    this.setCluster(record, cluster2);
-                }
+                assignRecordsToCluster(cluster2.getRecords(), cluster2);
             } else {
                 largeClusters.add(cluster2);
             }
@@ -428,17 +416,6 @@ public class TassaAlgorithmImpl {
         return modified;
     }
 
-    /**
-     * Helper: swaps elements in the given array
-     * @param array
-     * @param i
-     * @param j
-     */
-    private void swap(int[] array, int i, int j) {
-        int temp = array[i];
-        array[i] = array[j];
-        array[j] = temp;
-    }
     /**
      * 
      * @param alpha modifier for the initial size of clusters. has to be 0 < alpha <= 1
@@ -496,7 +473,8 @@ public class TassaAlgorithmImpl {
         // Transform data
         for (TassaCluster cluster : currentClustering) {
             int[] tuple = cluster.getTransformation();
-            for (int record : cluster.getRecords()) {
+            for (int j = 0; j <cluster.getRecords().size(); j++) {
+                int record = cluster.getRecords().getQuick(j);
                 for (int i = 0; i<tuple.length; i++) {
                     outputBuffer[record][i] = tuple[i];
                 }
