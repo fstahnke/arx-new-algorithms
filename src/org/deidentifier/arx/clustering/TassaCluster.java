@@ -1,11 +1,13 @@
 package org.deidentifier.arx.clustering;
 
+import java.util.Arrays;
+
 import cern.colt.list.IntArrayList;
 
 public class TassaCluster {
 
     /** The number of attributes. */
-    private final int                   numbAttributes;
+    private final int                   numAttributes;
     /** Identifiers of records */
     private IntArrayList                recordIdentifiers;
     /** Generalization levels of the cluster */
@@ -16,6 +18,8 @@ public class TassaCluster {
     private final GeneralizationManager generalizationManager;
     /** Id */
     public int                          id;
+    /** Cache */
+    private final double[]              cache;
 
     /**
      * Creates a new cluster
@@ -24,9 +28,11 @@ public class TassaCluster {
      */
     public TassaCluster(GeneralizationManager manager, IntArrayList recordIdentifiers) {
         this.generalizationManager = manager;
-        this.numbAttributes = manager.getNumAttributes();
-        this.generalizationLevels = new int[numbAttributes];
+        this.numAttributes = manager.getNumAttributes();
+        this.generalizationLevels = new int[numAttributes];
         this.recordIdentifiers = recordIdentifiers;
+        this.cache = new double[numAttributes];
+        Arrays.fill(this.cache, -1d);
         this.update();
     }
     
@@ -61,7 +67,10 @@ public class TassaCluster {
      * @return Weighted generalization cost.
      */
     public double getInformationLossWhenAdding(int record) {
-        return generalizationManager.getInformationLossWhenAddingRecord(this.recordIdentifiers, this.generalizationLevels, record);
+        return generalizationManager.getInformationLossWhenAddingRecord(this.recordIdentifiers, 
+                                                                        this.generalizationLevels, 
+                                                                        record,
+                                                                        this.cache);
     }
     
     /**
@@ -75,7 +84,7 @@ public class TassaCluster {
         } else if (this.recordIdentifiers.size() == 1) {
             return 0;
         } else {
-             return generalizationManager.getInformationLossWithoutRecord(this.recordIdentifiers, record);
+             return generalizationManager.getInformationLossWhenRemovingRecord(this.recordIdentifiers, record);
         }
     }
     
@@ -128,10 +137,7 @@ public class TassaCluster {
     	    this.informationLoss = 0d;
     	// Else, update
     	} else {
-    		for (int i = 0; i < numbAttributes; i++) {
-    			this.generalizationLevels[i] = generalizationManager.getGeneralizationLevel(i, this.recordIdentifiers);
-    		}
-    		this.informationLoss = generalizationManager.getInformationLoss(this.recordIdentifiers, this.generalizationLevels);
+    		this.informationLoss = generalizationManager.getInformationLoss(this.recordIdentifiers, this.generalizationLevels, this.cache);
     	}
     }
 }

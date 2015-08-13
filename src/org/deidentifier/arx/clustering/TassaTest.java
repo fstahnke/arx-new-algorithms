@@ -31,10 +31,15 @@ public class TassaTest {
         config.setMaxOutliers(0d);
         
         final TassaAlgorithm algorithm = new TassaAlgorithm(null, data, config);
-        algorithm.setLogging(true);
+        algorithm.setLogging(false);
         
         // Execute
-        algorithm.execute();
+        final int REPETITIONS = 1;
+        long time = System.currentTimeMillis();
+        for (int i=0; i<REPETITIONS; i++) {
+            algorithm.execute();
+        }
+        System.out.println("Execution time: " + (System.currentTimeMillis() - time) / (double)REPETITIONS);
         
         // Sanity checks, for testing only
         int count = 0;
