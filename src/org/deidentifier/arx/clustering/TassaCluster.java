@@ -1,13 +1,13 @@
 package org.deidentifier.arx.clustering;
 
-import java.util.Arrays;
+import cern.colt.list.IntArrayList;
 
 public class TassaCluster {
 
     /** The number of attributes. */
     private final int                   numbAttributes;
     /** Identifiers of records */
-    private int[]                       recordIdentifiers;
+    private IntArrayList                       recordIdentifiers;
     /** Generalization levels of the cluster */
     private int[]                       generalizationLevels;
     /** Costs */
@@ -22,7 +22,7 @@ public class TassaCluster {
      * @param manager
      * @param recordIdentifiers
      */
-    public TassaCluster(GeneralizationManager manager, int[] recordIdentifiers) {
+    public TassaCluster(GeneralizationManager manager, IntArrayList recordIdentifiers) {
         this.generalizationManager = manager;
         this.numbAttributes = manager.getNumAttributes();
         this.generalizationLevels = new int[numbAttributes];
@@ -31,16 +31,13 @@ public class TassaCluster {
     }
     
     public void addCluster(TassaCluster cluster) {
-        int offset = recordIdentifiers.length;
-        this.recordIdentifiers = Arrays.copyOf(recordIdentifiers, recordIdentifiers.length + cluster.recordIdentifiers.length);
-        System.arraycopy(cluster.recordIdentifiers, 0, this.recordIdentifiers, offset, cluster.recordIdentifiers.length);
+        
+        this.recordIdentifiers.addAllOf(cluster.recordIdentifiers);
         this.update();
     }
     
     public void addRecord(int recordId) {
-        // TODO: Use array list?
-        this.recordIdentifiers = Arrays.copyOf(recordIdentifiers, recordIdentifiers.length + 1);
-        this.recordIdentifiers[recordIdentifiers.length - 1] = recordId;
+        this.recordIdentifiers.add(recordId);
         this.update();
     }
     
@@ -73,39 +70,29 @@ public class TassaCluster {
      * @return Weighted generalization cost.
      */
     public double getInformationLossWhenRemoving(int record) {
-    	if (this.recordIdentifiers.length == 0) {
+    	if (this.recordIdentifiers.size() == 0) {
             throw new IllegalStateException("Cannot remove element from empty cluster");
-        } else if (this.recordIdentifiers.length == 1) {
+        } else if (this.recordIdentifiers.size() == 1) {
             return 0;
         } else {
              return generalizationManager.getInformationLossWithoutRecord(this.recordIdentifiers, record);
         }
     }
     
-    public int[] getRecords() {
+    public IntArrayList getRecords() {
         return this.recordIdentifiers;
     }
     
     public int getSize() {
-        return this.recordIdentifiers.length;
+        return this.recordIdentifiers.size();
     }
 
     public int[] getTransformation() {
-        return generalizationManager.getTransformation(recordIdentifiers[0], generalizationLevels);
+        return generalizationManager.getTransformation(recordIdentifiers.getQuick(0), generalizationLevels);
     }
 
     public void removeRecord(int recordId) {
-        int[] newRecordIdentifiers = new int[recordIdentifiers.length - 1];
-        // If cluster is not empty, add all remaining recordIDs to the array
-        if (newRecordIdentifiers.length > 0) {
-            int idx = 0;
-            for (int id : this.recordIdentifiers) {
-                if (id != recordId) {
-                    newRecordIdentifiers[idx++] = id;
-                }
-            }
-        }
-        this.recordIdentifiers = newRecordIdentifiers;
+        this.recordIdentifiers.remove(this.recordIdentifiers.indexOf(recordId));
         this.update();
     }
 
@@ -114,9 +101,12 @@ public class TassaCluster {
      * @return
      */
     public TassaCluster splitCluster() {
-        final int splitSize = (int)(this.recordIdentifiers.length / 2d);
-        int[] newRecordIdentifiers = Arrays.copyOfRange(this.recordIdentifiers, splitSize, this.recordIdentifiers.length);
-        this.recordIdentifiers = Arrays.copyOf(this.recordIdentifiers, splitSize);
+        int splitSize = (int)(this.recordIdentifiers.size() / 2d);
+        IntArrayList newRecordIdentifiers = new IntArrayList();
+        for (int i=splitSize; i<this.recordIdentifiers.size(); i++) {
+            newRecordIdentifiers.add(this.recordIdentifiers.elements()[i]);
+        }
+        this.recordIdentifiers.setSize(splitSize);
         this.update();
         return new TassaCluster(generalizationManager, newRecordIdentifiers);        
     }
