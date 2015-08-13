@@ -10,7 +10,7 @@ import org.deidentifier.arx.criteria.KAnonymity;
 
 public class TassaTest {
     
-    private static final int K = 20;
+    private static final int K = 100;
     
     public static void main(String[] args) throws IOException {
         
