@@ -70,18 +70,22 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
         if (threshold == 0) {
             TassaAlgorithmImpl algorithm = new TassaAlgorithmImpl(arxInterface);
             algorithm.setLogging(this.logging);
+            super.start();
             algorithm.execute(alpha, omega, null);
             this.statistics = algorithm.getStatistics();
             this.initialInformationLoss = algorithm.getInititalInformationLoss();
             this.informationLoss = algorithm.getFinalInformationLoss();
             this.clustering = algorithm.getClustering();
-            return getOutputTable(algorithm.getOutputBuffer());
+            final String[][] outputTable = getOutputTable(algorithm.getOutputBuffer());
+            super.updated(outputTable, new int[outputTable[0].length]);
+            return outputTable;
         } else {
             
             TassaAlgorithmImpl algorithm = new TassaAlgorithmImpl(arxInterface);
             algorithm.setLogging(this.logging);
             double delta = Double.MAX_VALUE;
             while (delta > threshold) {
+                super.start();
                 algorithm.execute(alpha, omega, this.clustering);
                 if (this.statistics == null) {
                     this.statistics = algorithm.getStatistics();
@@ -95,6 +99,8 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
                 }
                 this.informationLoss = algorithm.getFinalInformationLoss();
                 delta = Math.abs(informationLoss - base);
+                String[][] outputTable = getOutputTable(algorithm.getOutputBuffer());
+                super.updated(outputTable, new int[outputTable[0].length]);
             }
             return getOutputTable(algorithm.getOutputBuffer());
         }
