@@ -7,7 +7,7 @@ public class TassaCluster {
     /** The number of attributes. */
     private final int                   numbAttributes;
     /** Identifiers of records */
-    private IntArrayList                       recordIdentifiers;
+    private IntArrayList                recordIdentifiers;
     /** Generalization levels of the cluster */
     private int[]                       generalizationLevels;
     /** Costs */
