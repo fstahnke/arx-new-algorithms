@@ -232,12 +232,12 @@ public class BenchmarkSetup {
      */
     public static BenchmarkDataset[] getDatasets() {
         return new BenchmarkDataset[] {
-//        		BenchmarkDataset.ADULT_SUBSET
+//        		BenchmarkDataset.ADULT_SUBSET,
                 BenchmarkDataset.ADULT,
                 BenchmarkDataset.CUP,
                 BenchmarkDataset.FARS,
                 BenchmarkDataset.ATUS,
-//                BenchmarkDataset.IHIS
+                BenchmarkDataset.IHIS,
         };
     }
     
@@ -364,7 +364,7 @@ public class BenchmarkSetup {
 	public static BenchmarkAlgorithm[] getAlgorithms() {
 		return new BenchmarkAlgorithm[]{
 			BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING,
-//			BenchmarkAlgorithm.TASSA
+			BenchmarkAlgorithm.TASSA
 		};
 		
 	}

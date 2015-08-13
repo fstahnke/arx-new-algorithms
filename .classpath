@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="C:/Users/Fabian/eclipse/libtassa-prasser-0.1.jar"/>
+	<classpathentry excluding="org/deidentifier/arx/ARXInterface.java|org/deidentifier/arx/clustering/" kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/subframe-0.2-lib.jar" sourcepath="lib/subframe-0.2-src.jar">
 		<attributes>

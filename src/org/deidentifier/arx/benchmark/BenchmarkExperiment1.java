@@ -45,18 +45,20 @@ import de.linearbits.subframe.analyzer.ValueBuffer;
 public class BenchmarkExperiment1 {
 
     /** The benchmark instance */
-    private static final Benchmark BENCHMARK = new Benchmark(new String[] {
-            "Dataset", "UtilityMeasure", "PrivacyModel", "Algorithm",
-            "Suppression" });
+    private static final Benchmark BENCHMARK  = new Benchmark(new String[] { "Dataset",
+            "UtilityMeasure",
+            "PrivacyModel",
+            "Algorithm",
+            "Suppression"                    });
 
     /** TOTAL */
-    public static final int TIME = BENCHMARK.addMeasure("Time");
+    public static final int        TIME       = BENCHMARK.addMeasure("Time");
 
     /** UTILITY */
-    public static final int UTILITY = BENCHMARK.addMeasure("Utility");
+    public static final int        UTILITY    = BENCHMARK.addMeasure("Utility");
 
     /** UTILITY */
-    public static final int SUPPRESSED = BENCHMARK.addMeasure("Suppressed");
+    public static final int        SUPPRESSED = BENCHMARK.addMeasure("Suppressed");
 
     /**
      * Main entry point
@@ -76,24 +78,36 @@ public class BenchmarkExperiment1 {
         BenchmarkMetadataUtility metadata = new BenchmarkMetadataUtility();
 
         // Repeat for each data set
-        for (BenchmarkAlgorithm algorithm : BenchmarkSetup.getAlgorithms()) {
-            for (BenchmarkDataset data : BenchmarkSetup.getDatasets()) {
-                for (BenchmarkPrivacyModel model : BenchmarkSetup
-                        .getPrivacyModels()) {
-                    for (BenchmarkUtilityMeasure measure : BenchmarkSetup
-                            .getUtilityMeasures()) {
-                        for (double suppression : BenchmarkSetup
-                                .getSuppressionLimits()) {
-                            System.out.println("Performing run: " + data + "/"
-                                    + measure + "/" + model + "/" + algorithm
-                                    + "/" + suppression);
+        for (BenchmarkDataset data : BenchmarkSetup.getDatasets()) {
+            for (BenchmarkAlgorithm algorithm : BenchmarkSetup.getAlgorithms()) {
+                for (BenchmarkPrivacyModel model : BenchmarkSetup.getPrivacyModels()) {
+                    for (BenchmarkUtilityMeasure measure : BenchmarkSetup.getUtilityMeasures()) {
+                        if (algorithm != BenchmarkAlgorithm.TASSA) {
+                            for (double suppression : BenchmarkSetup.getSuppressionLimits()) {
+                                System.out.println("Performing run: " + data + "/" + measure + "/" +
+                                                   model + "/" + algorithm + "/" + suppression);
+
+                                // New run
+                                performExperiment(metadata,
+                                                  data,
+                                                  measure,
+                                                  model,
+                                                  algorithm,
+                                                  suppression);
+
+                                // Write after each experiment
+                                BENCHMARK.getResults().write(resultFile);
+                            }
+                        } else {
+                            System.out.println("Performing run: " + data + "/" + measure + "/" +
+                                               model + "/" + algorithm + "/(n/a)");
 
                             // New run
-                            performExperiment(metadata, data, measure, model,
-                                    algorithm, suppression);
+                            performExperiment(metadata, data, measure, model, algorithm, 0.0);
 
                             // Write after each experiment
                             BENCHMARK.getResults().write(resultFile);
+
                         }
                     }
                 }
@@ -112,20 +126,20 @@ public class BenchmarkExperiment1 {
      * @param suppression
      * @throws IOException
      */
-    private static void performExperiment(
-            final BenchmarkMetadataUtility metadata,
-            final BenchmarkDataset dataset,
-            final BenchmarkUtilityMeasure measure,
-            final BenchmarkPrivacyModel model,
-            final BenchmarkAlgorithm algorithm, final double suppression)
-            throws IOException {
+    private static void performExperiment(final BenchmarkMetadataUtility metadata,
+                                          final BenchmarkDataset dataset,
+                                          final BenchmarkUtilityMeasure measure,
+                                          final BenchmarkPrivacyModel model,
+                                          final BenchmarkAlgorithm algorithm,
+                                          final double suppression) throws IOException {
 
         Data data = BenchmarkSetup.getData(dataset, model);
         ARXConfiguration config = BenchmarkSetup.getConfiguration(dataset,
-                measure, model, suppression);
+                                                                  measure,
+                                                                  model,
+                                                                  suppression);
 
-        final Map<String, String[][]> hierarchies = new DataConverter()
-                .toMap(data.getDefinition());
+        final Map<String, String[][]> hierarchies = new DataConverter().toMap(data.getDefinition());
         final String[] header = new DataConverter().getHeader(data.getHandle());
 
         if (algorithm == BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING) {
@@ -133,24 +147,23 @@ public class BenchmarkExperiment1 {
             IBenchmarkObserver listener = new IBenchmarkObserver() {
 
                 @Override
-                public void notify(long timestamp, String[][] output,
-                        int[] transformation) {
+                public void notify(long timestamp, String[][] output, int[] transformation) {
 
                     // Obtain utility
                     double utility = 0d;
                     if (measure == BenchmarkUtilityMeasure.LOSS) {
                         utility = new UtilityMeasureLoss<Double>(header,
-                                hierarchies, AggregateFunction.GEOMETRIC_MEAN)
-                                .evaluate(output).getUtility();
+                                                                 hierarchies,
+                                                                 AggregateFunction.GEOMETRIC_MEAN).evaluate(output)
+                                                                                                  .getUtility();
                     } else if (measure == BenchmarkUtilityMeasure.DISCERNIBILITY) {
-                        utility = new UtilityMeasureDiscernibility().evaluate(
-                                output).getUtility();
+                        utility = new UtilityMeasureDiscernibility().evaluate(output).getUtility();
                     }
 
                     // Normalize
                     utility -= metadata.getLowerBound(dataset, measure);
-                    utility /= (metadata.getUpperBound(dataset, measure) - metadata
-                            .getLowerBound(dataset, measure));
+                    utility /= (metadata.getUpperBound(dataset, measure) - metadata.getLowerBound(dataset,
+                                                                                                  measure));
 
                     // Obtain suppressed tuples
                     double suppressed = 0d;
@@ -171,8 +184,7 @@ public class BenchmarkExperiment1 {
                     // Normalize
                     suppressed /= (double) output.length;
 
-                    BENCHMARK.addRun(dataset, measure, model, algorithm,
-                            suppression);
+                    BENCHMARK.addRun(dataset, measure, model, algorithm, suppression);
 
                     // Write
                     BENCHMARK.addValue(TIME, timestamp);
@@ -182,8 +194,7 @@ public class BenchmarkExperiment1 {
 
             };
 
-            BenchmarkAlgorithmRGR implementation = new BenchmarkAlgorithmRGR(
-                    listener, data, config);
+            BenchmarkAlgorithmRGR implementation = new BenchmarkAlgorithmRGR(listener, data, config);
             implementation.execute();
 
         } else if (algorithm == BenchmarkAlgorithm.TASSA) {
@@ -191,24 +202,23 @@ public class BenchmarkExperiment1 {
             IBenchmarkObserver observer = new IBenchmarkObserver() {
 
                 @Override
-                public void notify(long timestamp, String[][] output,
-                        int[] transformation) {
+                public void notify(long timestamp, String[][] output, int[] transformation) {
 
                     // Obtain utility
                     double utility = 0d;
                     if (measure == BenchmarkUtilityMeasure.LOSS) {
                         utility = new UtilityMeasureLoss<Double>(header,
-                                hierarchies, AggregateFunction.GEOMETRIC_MEAN)
-                                .evaluate(output).getUtility();
+                                                                 hierarchies,
+                                                                 AggregateFunction.GEOMETRIC_MEAN).evaluate(output)
+                                                                                                  .getUtility();
                     } else if (measure == BenchmarkUtilityMeasure.DISCERNIBILITY) {
-                        utility = new UtilityMeasureDiscernibility().evaluate(
-                                output).getUtility();
+                        utility = new UtilityMeasureDiscernibility().evaluate(output).getUtility();
                     }
 
                     // Normalize
                     utility -= metadata.getLowerBound(dataset, measure);
-                    utility /= (metadata.getUpperBound(dataset, measure) - metadata
-                            .getLowerBound(dataset, measure));
+                    utility /= (metadata.getUpperBound(dataset, measure) - metadata.getLowerBound(dataset,
+                                                                                                  measure));
 
                     // Obtain suppressed tuples
                     double suppressed = 0d;
@@ -229,8 +239,7 @@ public class BenchmarkExperiment1 {
                     // Normalize
                     suppressed /= (double) output.length;
 
-                    BENCHMARK.addRun(dataset, measure, model, algorithm,
-                            suppression);
+                    BENCHMARK.addRun(dataset, measure, model, algorithm, suppression);
 
                     // Write
                     BENCHMARK.addValue(TIME, timestamp);
@@ -239,8 +248,7 @@ public class BenchmarkExperiment1 {
                 }
             };
 
-            TassaAlgorithm implementation = new TassaAlgorithm(observer, data,
-                    config);
+            TassaAlgorithm implementation = new TassaAlgorithm(observer, data, config);
             implementation.execute();
         } else {
             throw new UnsupportedOperationException("TODO: Implement");
