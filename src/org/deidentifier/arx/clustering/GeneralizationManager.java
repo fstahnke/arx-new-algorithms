@@ -124,19 +124,25 @@ public class GeneralizationManager {
      * @param generalization2
      * @return
      */
-    public double getInformationLossWhenAddingCluster(IntArrayList cluster1, int[] generalization1, IntArrayList cluster2, int[] generalization2) {
+    public double getInformationLossWhenAddingCluster(IntArrayList cluster1, 
+                                                      int[] generalization1,
+                                                      IntArrayList cluster2, 
+                                                      int[] generalization2) {
         
-        int[] generalization = new int[numAttributes];
-        for (int i = 0; i < generalization.length; i++) {
-            generalization[i] = getGeneralizationLevelWhenAddingCluster(i, cluster1, cluster2, Math.max(generalization1[i], generalization2[i]));
-        }
+        
 
         double cost = 0d;
         int[] record = data[cluster1.getQuick(0)];
-        for (int i = 0; i < record.length; i++) {
+
+        for (int i = 0; i < numAttributes; i++) {
+            int level = getGeneralizationLevelWhenAddingCluster(i,
+                                                                cluster1,
+                                                                cluster2,
+                                                                Math.max(generalization1[i],
+                                                                         generalization2[i]));
             int[][] hierarchy = hierarchies[i];
-            int value = hierarchy[record[i]][generalization[i]];
-            cost += getDomainShare(i, generalization[i], value);
+            int value = hierarchy[record[i]][level];
+            cost += getDomainShare(i, level, value);
         }
 
         cost /= (double) numAttributes;
@@ -152,18 +158,17 @@ public class GeneralizationManager {
      */
     public double getInformationLossWhenRemovingRecord(IntArrayList cluster, int record) {
 
-        int[] generalization = new int[numAttributes];
-        for (int i = 0; i < generalization.length; i++) {
-            generalization[i] = getGeneralizationLevelWhenRemovingRecord(i, cluster, record);
-        }
+        
 
         double cost = 0d;
         int index = cluster.getQuick(0) != record ? cluster.getQuick(0) : cluster.getQuick(1);
         int[] tuple = data[index];
-        for (int i = 0; i < tuple.length; i++) {
+        
+        for (int i = 0; i < numAttributes; i++) {
+            int level = getGeneralizationLevelWhenRemovingRecord(i, cluster, record);
             int[][] hierarchy = hierarchies[i];
-            int value = hierarchy[tuple[i]][generalization[i]];
-            cost += getDomainShare(i, generalization[i], value);
+            int value = hierarchy[tuple[i]][level];
+            cost += getDomainShare(i, level, value);
         }
 
         cost /= (double) numAttributes;
@@ -204,11 +209,11 @@ public class GeneralizationManager {
     public int getGeneralizationLevelWhenAddingRecord(int dimension, IntArrayList records1, int record, int lvl) {
 
         int[][] hierarchy = hierarchies[dimension];
-        int val = hierarchy[data[records1.getQuick(0)][dimension]][lvl];
-        int previous = records1.getQuick(0);
-        int current = record;
-        while (hierarchy[data[current][dimension]][lvl] != val) {
-            val = hierarchy[data[previous][dimension]][++lvl];
+        int[] current = hierarchy[data[record][dimension]];
+        int[] previous = hierarchy[data[records1.getQuick(0)][dimension]];
+        int val = previous[lvl];
+        while (current[lvl] != val) {
+            val = previous[++lvl];
         }
         return lvl;
     }
@@ -218,12 +223,13 @@ public class GeneralizationManager {
      */
     public int getGeneralizationLevelWhenAddingCluster(int dimension, IntArrayList records1, IntArrayList records2, int lvl) {
 
+
         int[][] hierarchy = hierarchies[dimension];
-        int val = hierarchy[data[records1.getQuick(0)][dimension]][lvl];
-        int current = records2.getQuick(0);
-        int previous = records1.getQuick(0);
-        while (hierarchy[data[current][dimension]][lvl] != val) {
-            val = hierarchy[data[previous][dimension]][++lvl];
+        int[] current = hierarchy[data[records2.getQuick(0)][dimension]];
+        int[] previous = hierarchy[data[records1.getQuick(0)][dimension]];
+        int val = previous[lvl];
+        while (current[lvl] != val) {
+            val = previous[++lvl];
         }
         return lvl;
     }

@@ -34,7 +34,7 @@ public class TassaTest {
         algorithm.setLogging(false);
         
         // Execute
-        final int REPETITIONS = 1;
+        final int REPETITIONS = 10;
         long time = System.currentTimeMillis();
         for (int i=0; i<REPETITIONS; i++) {
             algorithm.execute();
