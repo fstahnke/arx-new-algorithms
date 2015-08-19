@@ -28,10 +28,11 @@ import org.deidentifier.arx.metric.Metric.AggregateFunction;
 
 /**
  * This class encapsulates most of the parameters of a benchmark run
+ * 
  * @author Fabian Prasser
  */
 public class BenchmarkSetup {
-    
+
     public static enum BenchmarkDataset {
         ADULT {
             @Override
@@ -94,14 +95,15 @@ public class BenchmarkSetup {
             }
         }
     }
-    
+
     public static enum BenchmarkPrivacyModel {
         K5_ANONYMITY {
             @Override
             public String toString() {
                 return "5-anonymity";
             }
-        }, K20_ANONYMITY {
+        },
+        K20_ANONYMITY {
             @Override
             public String toString() {
                 return "20-anonymity";
@@ -115,14 +117,15 @@ public class BenchmarkSetup {
             public String toString() {
                 return "RGR";
             }
-        }, TASSA {
+        },
+        TASSA {
             @Override
             public String toString() {
                 return "Tassa & Goldberger";
             }
         }
     }
-    
+
     public static enum BenchmarkUtilityMeasure {
         DISCERNIBILITY {
             @Override
@@ -137,16 +140,20 @@ public class BenchmarkSetup {
             }
         },
     }
-    
+
     /**
      * Returns a configuration for the ARX framework
+     * 
      * @param dataset
-     * @param suppression 
+     * @param suppression
      * @param criteria
      * @return
      * @throws IOException
      */
-    public static ARXConfiguration getConfiguration(BenchmarkDataset dataset, BenchmarkUtilityMeasure utility, BenchmarkPrivacyModel criterion, double suppression) throws IOException {
+    public static ARXConfiguration getConfiguration(BenchmarkDataset dataset,
+                                                    BenchmarkUtilityMeasure utility,
+                                                    BenchmarkPrivacyModel criterion,
+                                                    double suppression) throws IOException {
         ARXConfiguration config = ARXConfiguration.create();
         switch (utility) {
         case DISCERNIBILITY:
@@ -158,9 +165,9 @@ public class BenchmarkSetup {
         default:
             throw new IllegalArgumentException("");
         }
-        
+
         config.setMaxOutliers(suppression);
-        
+
         switch (criterion) {
         case K5_ANONYMITY:
             config.addCriterion(new KAnonymity(5));
@@ -173,16 +180,18 @@ public class BenchmarkSetup {
         }
         return config;
     }
-    
+
     /**
      * Configures and returns the dataset
+     * 
      * @param dataset
      * @param criteria
      * @return
      * @throws IOException
      */
-    
-    public static Data getData(BenchmarkDataset dataset, BenchmarkPrivacyModel criterion) throws IOException {
+
+    public static Data
+            getData(BenchmarkDataset dataset, BenchmarkPrivacyModel criterion) throws IOException {
         Data data = null;
         switch (dataset) {
         case ADULT:
@@ -218,37 +227,40 @@ public class BenchmarkSetup {
         default:
             throw new RuntimeException("Invalid dataset");
         }
-        
+
         for (String qi : getQuasiIdentifyingAttributes(dataset)) {
             data.getDefinition().setAttributeType(qi, getHierarchy(dataset, qi));
         }
-        
+
         return data;
     }
-    
+
     /**
      * Returns all datasets
+     * 
      * @return
      */
     public static BenchmarkDataset[] getDatasets() {
         return new BenchmarkDataset[] {
-//        		BenchmarkDataset.ADULT_SUBSET
-                BenchmarkDataset.ADULT,
-//                BenchmarkDataset.CUP,
-//                BenchmarkDataset.FARS,
-//                BenchmarkDataset.ATUS,
-//                BenchmarkDataset.IHIS
+        // BenchmarkDataset.ADULT_SUBSET
+        BenchmarkDataset.ADULT,
+        // BenchmarkDataset.CUP,
+        // BenchmarkDataset.FARS,
+        // BenchmarkDataset.ATUS,
+        // BenchmarkDataset.IHIS
         };
     }
-    
+
     /**
      * Returns the generalization hierarchy for the dataset and attribute
+     * 
      * @param dataset
      * @param attribute
      * @return
      * @throws IOException
      */
-    public static Hierarchy getHierarchy(BenchmarkDataset dataset, String attribute) throws IOException {
+    public static Hierarchy
+            getHierarchy(BenchmarkDataset dataset, String attribute) throws IOException {
         switch (dataset) {
         case ADULT:
         case ADULT_SUBSET:
@@ -269,9 +281,10 @@ public class BenchmarkSetup {
             throw new RuntimeException("Invalid dataset");
         }
     }
-    
+
     /**
      * Returns the quasi-identifiers for the dataset
+     * 
      * @param dataset
      * @return
      */
@@ -279,93 +292,86 @@ public class BenchmarkSetup {
         switch (dataset) {
         case ADULT:
         case ADULT_SUBSET:
-            return new String[] {   "age",
-                                    "education",
-                                    "marital-status",
-                                    "native-country",
-                                    "race",
-                                    "salary-class",
-                                    "sex",
-                                    "workclass",
-                                    "occupation" };
+            return new String[] { "age",
+                    "education",
+                    "marital-status",
+                    "native-country",
+                    "race",
+                    "salary-class",
+                    "sex",
+                    "workclass",
+                    "occupation" };
         case ATUS:
         case ATUS_SUBSET:
-            return new String[] {   "Age",
-                                    "Birthplace",
-                                    "Citizenship status",
-                                    "Labor force status",
-                                    "Marital status",
-                                    "Race",
-                                    "Region",
-                                    "Sex",
-                                    "Highest level of school completed" };
+            return new String[] { "Age",
+                    "Birthplace",
+                    "Citizenship status",
+                    "Labor force status",
+                    "Marital status",
+                    "Race",
+                    "Region",
+                    "Sex",
+                    "Highest level of school completed" };
         case CUP:
         case CUP_SUBSET:
-            return new String[] {   "AGE",
-                                    "GENDER",
-                                    "INCOME",
-                                    "MINRAMNT",
-                                    "NGIFTALL",
-                                    "STATE",
-                                    "ZIP",
-                                    "RAMNTALL" };
+            return new String[] { "AGE",
+                    "GENDER",
+                    "INCOME",
+                    "MINRAMNT",
+                    "NGIFTALL",
+                    "STATE",
+                    "ZIP",
+                    "RAMNTALL" };
         case FARS:
         case FARS_SUBSET:
-            return new String[] {   "iage",
-                                    "ideathday",
-                                    "ideathmon",
-                                    "ihispanic",
-                                    "iinjury",
-                                    "irace",
-                                    "isex",
-                                    "istatenum" };
+            return new String[] { "iage",
+                    "ideathday",
+                    "ideathmon",
+                    "ihispanic",
+                    "iinjury",
+                    "irace",
+                    "isex",
+                    "istatenum" };
         case IHIS:
         case IHIS_SUBSET:
-            return new String[] {   "AGE",
-                                    "MARSTAT",
-                                    "PERNUM",
-                                    "QUARTER",
-                                    "RACEA",
-                                    "REGION",
-                                    "SEX",
-                                    "YEAR",
-                                    "EDUC" };
+            return new String[] { "AGE",
+                    "MARSTAT",
+                    "PERNUM",
+                    "QUARTER",
+                    "RACEA",
+                    "REGION",
+                    "SEX",
+                    "YEAR",
+                    "EDUC" };
         default:
             throw new RuntimeException("Invalid dataset");
         }
     }
-    
+
     /**
      * Returns a set of utility measures
+     * 
      * @return
      */
     public static BenchmarkUtilityMeasure[] getUtilityMeasures() {
-        return new BenchmarkUtilityMeasure[]{
-//                BenchmarkUtilityMeasure.DISCERNIBILITY,
-                BenchmarkUtilityMeasure.LOSS};
+        return new BenchmarkUtilityMeasure[] {
+        // BenchmarkUtilityMeasure.DISCERNIBILITY,
+        BenchmarkUtilityMeasure.LOSS };
     }
 
-	public static BenchmarkPrivacyModel[] getPrivacyModels() {
-		return new BenchmarkPrivacyModel[]{
-//				BenchmarkPrivacyModel.K5_ANONYMITY,
-				BenchmarkPrivacyModel.K20_ANONYMITY
-		};
-	}
+    public static BenchmarkPrivacyModel[] getPrivacyModels() {
+        return new BenchmarkPrivacyModel[] {
+        // BenchmarkPrivacyModel.K5_ANONYMITY,
+        BenchmarkPrivacyModel.K20_ANONYMITY };
+    }
 
-	public static double[] getSuppressionLimits() {
-		return new double[]{
-		        0.02d,
-		        0.05d,
-		        0.1d,
-		        1.0d
-		};
-	}
-	
-	public static BenchmarkAlgorithm[] getAlgorithms() {
-		return new BenchmarkAlgorithm[]{
-//			BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING,
-			BenchmarkAlgorithm.TASSA
-		};
-		
-	}
+    public static double[] getSuppressionLimits() {
+        return new double[] { 0.02d, 0.05d, 0.1d, 1.0d };
+    }
+
+    public static BenchmarkAlgorithm[] getAlgorithms() {
+        return new BenchmarkAlgorithm[] {
+        // BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING,
+        BenchmarkAlgorithm.TASSA };
+    }
 }
