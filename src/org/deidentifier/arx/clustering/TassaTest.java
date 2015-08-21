@@ -5,28 +5,33 @@ import java.io.IOException;
 import org.deidentifier.arx.ARXConfiguration;
 import org.deidentifier.arx.AttributeType.Hierarchy;
 import org.deidentifier.arx.Data;
+import org.deidentifier.arx.benchmark.BenchmarkSetup;
 import org.deidentifier.arx.benchmark.IBenchmarkObserver;
+import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkDataset;
+import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkPrivacyModel;
 import org.deidentifier.arx.criteria.KAnonymity;
 
 public class TassaTest {
     
-    private static final int K = 100;
+    private static final int K = 5;
     
     public static void main(String[] args) throws IOException {
         
     	// Init
-        final Data data = Data.create("data/adult.csv", ';');
-        data.getDefinition().setAttributeType("age", Hierarchy.create("hierarchies/adult_hierarchy_age.csv", ';'));
-        data.getDefinition().setAttributeType("education", Hierarchy.create("hierarchies/adult_hierarchy_education.csv", ';'));
-        data.getDefinition().setAttributeType("marital-status", Hierarchy.create("hierarchies/adult_hierarchy_marital-status.csv", ';'));
-        data.getDefinition().setAttributeType("native-country", Hierarchy.create("hierarchies/adult_hierarchy_native-country.csv", ';'));
-        data.getDefinition().setAttributeType("occupation", Hierarchy.create("hierarchies/adult_hierarchy_occupation.csv", ';'));
-        data.getDefinition().setAttributeType("race", Hierarchy.create("hierarchies/adult_hierarchy_race.csv", ';'));
-        data.getDefinition().setAttributeType("salary-class", Hierarchy.create("hierarchies/adult_hierarchy_salary-class.csv", ';'));
-        data.getDefinition().setAttributeType("sex", Hierarchy.create("hierarchies/adult_hierarchy_sex.csv", ';'));
-        data.getDefinition().setAttributeType("workclass", Hierarchy.create("hierarchies/adult_hierarchy_workclass.csv", ';'));
+//        final Data data = Data.create("data/adult.csv", ';');
+//        data.getDefinition().setAttributeType("age", Hierarchy.create("hierarchies/adult_hierarchy_age.csv", ';'));
+//        data.getDefinition().setAttributeType("education", Hierarchy.create("hierarchies/adult_hierarchy_education.csv", ';'));
+//        data.getDefinition().setAttributeType("marital-status", Hierarchy.create("hierarchies/adult_hierarchy_marital-status.csv", ';'));
+//        data.getDefinition().setAttributeType("native-country", Hierarchy.create("hierarchies/adult_hierarchy_native-country.csv", ';'));
+//        data.getDefinition().setAttributeType("occupation", Hierarchy.create("hierarchies/adult_hierarchy_occupation.csv", ';'));
+//        data.getDefinition().setAttributeType("race", Hierarchy.create("hierarchies/adult_hierarchy_race.csv", ';'));
+//        data.getDefinition().setAttributeType("salary-class", Hierarchy.create("hierarchies/adult_hierarchy_salary-class.csv", ';'));
+//        data.getDefinition().setAttributeType("sex", Hierarchy.create("hierarchies/adult_hierarchy_sex.csv", ';'));
+//        data.getDefinition().setAttributeType("workclass", Hierarchy.create("hierarchies/adult_hierarchy_workclass.csv", ';'));
         
-        // Configuration
+        final Data data = BenchmarkSetup.getData(BenchmarkDataset.FARS, BenchmarkPrivacyModel.K5_ANONYMITY);
+        
+        // Configurationa
         final ARXConfiguration config = ARXConfiguration.create();
         config.addCriterion(new KAnonymity(K));
         config.setMaxOutliers(0d);
