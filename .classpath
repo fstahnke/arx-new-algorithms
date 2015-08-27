@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry kind="lib" path="C:/Users/Fabian/eclipse/subframe-0.2-debug-compile.jar" sourcepath="C:/Users/Fabian/eclipse/subframe-0.2-debug-compile.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/Fabian/eclipse/subframe-0.2-debug-compile.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="C:/Users/Fabian/Dropbox/libtassa-prasser-0.1.jar"/>
 	<classpathentry excluding="org/deidentifier/arx/ARXInterface.java|org/deidentifier/arx/clustering/" kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/subframe-0.2-lib.jar" sourcepath="lib/subframe-0.2-src.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/arx-new-algorithms/lib/subframe-0.2-doc.jar!/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="lib/libarx-3.1.0.jar" sourcepath="lib/libarx-3.1.0-src.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/arx-new-algorithms/lib/libarx-3.1.0-dev-doc.jar!/"/>

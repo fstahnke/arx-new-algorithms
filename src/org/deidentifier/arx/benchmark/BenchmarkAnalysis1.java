@@ -46,73 +46,105 @@ import de.linearbits.subframe.render.PlotGroup;
 
 /**
  * Example benchmark
+ * 
  * @author Fabian Prasser
  */
 public class BenchmarkAnalysis1 {
 
-	/**
-	 * Main
-	 * @param args
-	 * @throws IOException
-	 * @throws ParseException
-	 */
+    /**
+     * Main
+     * 
+     * @param args
+     * @throws IOException
+     * @throws ParseException
+     */
     public static void main(String[] args) throws IOException, ParseException {
-        
+
         CSVFile file = new CSVFile(new File("results/experiment1.csv"));
         List<PlotGroup> groups = new ArrayList<PlotGroup>();
-        
 
         // Repeat for each data set
-        for (BenchmarkAlgorithm algorithm : BenchmarkSetup.getAlgorithms()) {
-            for (BenchmarkDataset data : BenchmarkSetup.getDatasets()) {                            
+        for (BenchmarkDataset data : BenchmarkSetup.getDatasets()) {
+            for (BenchmarkAlgorithm algorithm : BenchmarkSetup.getAlgorithms()) {
                 for (BenchmarkPrivacyModel model : BenchmarkSetup.getPrivacyModels()) {
                     for (BenchmarkUtilityMeasure measure : BenchmarkSetup.getUtilityMeasures()) {
-                        for (double suppression : BenchmarkSetup.getSuppressionLimits()) {
-                            groups.add(analyze(file, data, measure, model, algorithm, suppression));
+                        if (algorithm != BenchmarkAlgorithm.TASSA) {
+                            for (double suppression : BenchmarkSetup.getSuppressionLimits()) {
+                                groups.add(analyze(file,
+                                                   data,
+                                                   measure,
+                                                   model,
+                                                   algorithm,
+                                                   suppression));
+                            }
+                        }
+                        else {
+                            groups.add(analyze(file,
+                                               data,
+                                               measure,
+                                               model,
+                                               algorithm,
+                                               0d));
                         }
                     }
                 }
             }
         }
-        
+
         LaTeX.plot(groups, "results/experiment1");
-        
+
     }
-    
+
     /**
      * Performs the analysis
+     * 
      * @param file
-     * @param suppression 
-     * @param algorithm 
-     * @param model 
-     * @param measure 
-     * @param data 
+     * @param suppression
+     * @param algorithm
+     * @param model
+     * @param measure
+     * @param data
      * @return
      * @throws ParseException
      */
-    private static PlotGroup analyze(CSVFile file, BenchmarkDataset data, BenchmarkUtilityMeasure measure, BenchmarkPrivacyModel model, BenchmarkAlgorithm algorithm, double suppression) throws ParseException{
+    private static PlotGroup analyze(CSVFile file,
+                                     BenchmarkDataset data,
+                                     BenchmarkUtilityMeasure measure,
+                                     BenchmarkPrivacyModel model,
+                                     BenchmarkAlgorithm algorithm,
+                                     double suppression) throws ParseException {
 
         // Selects according rows
         Selector<String[]> selector = file.getSelectorBuilder()
-                                                .field("Dataset").equals(data.toString()).and()
-                                                .field("UtilityMeasure").equals(measure.toString()).and()
-                                                .field("PrivacyModel").equals(model.toString()).and()
-                                                .field("Algorithm").equals(algorithm.toString()).and()
-                                                .field("Suppression").equals(String.valueOf(suppression))
-                                                .build();
-        
-        // Read data for both measures into 2D series
-        Series2D utility = new Series2D(file, selector, 
-                                       new Field("Time", Analyzer.VALUE),
-                                       new Field("Utility", Analyzer.VALUE));
+                                          .field("Dataset")
+                                          .equals(data.toString())
+                                          .and()
+                                          .field("UtilityMeasure")
+                                          .equals(measure.toString())
+                                          .and()
+                                          .field("PrivacyModel")
+                                          .equals(model.toString())
+                                          .and()
+                                          .field("Algorithm")
+                                          .equals(algorithm.toString())
+                                          .and()
+                                          .field("Suppression")
+                                          .equals(String.valueOf(suppression))
+                                          .build();
 
-        Series2D suppressed = new Series2D(file, selector, 
-                                       new Field("Time", Analyzer.VALUE),
-                                       new Field("Suppressed", Analyzer.VALUE));
-        
+        // Read data for both measures into 2D series
+        Series2D utility = new Series2D(file,
+                                        selector,
+                                        new Field("Time", Analyzer.VALUE),
+                                        new Field("Utility", Analyzer.VALUE));
+
+        Series2D suppressed = new Series2D(file,
+                                           selector,
+                                           new Field("Time", Analyzer.VALUE),
+                                           new Field("Suppressed", Analyzer.VALUE));
+
         // Dirty hack for creating a 3D series from two 2D series'
-        Series3D series = new Series3D(file, selector, 
-                                       new Field("Dataset"), // Cluster
+        Series3D series = new Series3D(file, selector, new Field("Dataset"), // Cluster
                                        new Field("UtilityMeasure"), // Type
                                        new Field("PrivacyModel")); // Value
         series.getData().clear();
@@ -122,18 +154,23 @@ public class BenchmarkAnalysis1 {
         for (Point2D point : suppressed.getData()) {
             series.getData().add(new Point3D(point.x, "Suppression", point.y));
         }
-        
+
         // Plot
         List<Plot<?>> plots = new ArrayList<Plot<?>>();
-        plots.add(new PlotLinesClustered(data.toString()+"/"+measure.toString()+"/"+model.toString()+"/"+String.valueOf(suppression), 
+        plots.add(new PlotLinesClustered(data.toString() + " / " + algorithm.toString() + " / " + measure.toString() + " / " +
+                                                 model.toString() + " / " +
+                                                 String.valueOf(suppression),
                                          new Labels("Time [ms]", "Utility [%] / Suppression [%]"),
                                          series));
-        
+
         GnuPlotParams params = new GnuPlotParams();
         params.rotateXTicks = 0;
         params.keypos = KeyPos.TOP_LEFT;
         params.size = 1.0d;
         params.ratio = 0.5d;
-        return new PlotGroup("Development of utility and ratio of suppressed tuples over time. ", plots, params, 1.0d);
+        return new PlotGroup("Development of utility and ratio of suppressed tuples over time. ",
+                             plots,
+                             params,
+                             1.0d);
     }
 }
