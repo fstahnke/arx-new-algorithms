@@ -49,7 +49,7 @@ import de.linearbits.subframe.render.PlotGroup;
  * 
  * @author Fabian Prasser
  */
-public class BenchmarkAnalysis1 {
+public class BenchmarkAnalysis3 {
 
     /**
      * Main
@@ -60,7 +60,7 @@ public class BenchmarkAnalysis1 {
      */
     public static void main(String[] args) throws IOException, ParseException {
 
-        CSVFile file = new CSVFile(new File("results/experiment1.csv"));
+        CSVFile file = new CSVFile(new File("results/experiment3.csv"));
         List<PlotGroup> groups = new ArrayList<PlotGroup>();
 
         // Repeat for each data set
@@ -91,7 +91,7 @@ public class BenchmarkAnalysis1 {
             }
         }
 
-        LaTeX.plot(groups, "results/experiment1");
+        LaTeX.plot(groups, "results/experiment3");
 
     }
 

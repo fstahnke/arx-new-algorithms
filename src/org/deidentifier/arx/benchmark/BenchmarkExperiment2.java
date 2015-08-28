@@ -53,7 +53,7 @@ public class BenchmarkExperiment2 {
             "Suppression"                                });
 
     /** TOTAL */
-    public static final int        TIME                   = BENCHMARK.addMeasure("Time");
+    public static final int        STEP                   = BENCHMARK.addMeasure("Step");
 
     /** AVERAGE PERCENTAGE_OF_GENERALIZATION */
     public static final int        GENERALIZATION_DEGREE  = BENCHMARK.addMeasure("Generalization degree");
@@ -88,7 +88,7 @@ public class BenchmarkExperiment2 {
     public static void main(String[] args) throws IOException {
 
         // Init
-        BENCHMARK.addAnalyzer(TIME, new ValueBuffer());
+        BENCHMARK.addAnalyzer(STEP, new ValueBuffer());
 
         BENCHMARK.addAnalyzer(GENERALIZATION_DEGREE, new ValueBuffer());
         for (int degree : DEGREE_ARRAY) {
@@ -148,52 +148,15 @@ public class BenchmarkExperiment2 {
                                                                   measure,
                                                                   model,
                                                                   suppression);
-
-        final Map<String, String[][]> hierarchies = new DataConverter().toMap(data.getDefinition());
-        final String[] header = new DataConverter().getHeader(data.getHandle());
-
+        
         if (algorithm == BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING) {
 
             IBenchmarkObserver listener = new IBenchmarkObserver() {
+                
+                private int step = 0;
 
                 @Override
                 public void notify(long timestamp, String[][] output, int[] transformation) {
-
-                    // Obtain utility
-                    double utilityMeasure = 0d;
-                    if (measure == BenchmarkUtilityMeasure.LOSS) {
-                        utilityMeasure = new UtilityMeasureLoss<Double>(header,
-                                                                        hierarchies,
-                                                                        AggregateFunction.GEOMETRIC_MEAN).evaluate(output)
-                                                                                                         .getUtility();
-                    } else if (measure == BenchmarkUtilityMeasure.DISCERNIBILITY) {
-                        utilityMeasure = new UtilityMeasureDiscernibility().evaluate(output)
-                                                                           .getUtility();
-                    }
-
-                    // Normalize
-                    utilityMeasure -= metadata.getLowerBound(dataset, measure);
-                    utilityMeasure /= (metadata.getUpperBound(dataset, measure) - metadata.getLowerBound(dataset,
-                                                                                                         measure));
-
-                    // Obtain suppressed tuples
-                    double suppressed = 0d;
-                    for (String[] row : output) {
-
-                        boolean cellSuppressed = true;
-                        for (String cell : row) {
-                            if (!cell.equals("*")) {
-                                cellSuppressed = false;
-                                break;
-                            }
-                        }
-                        if (cellSuppressed) {
-                            suppressed++;
-                        }
-                    }
-
-                    // Normalize
-                    suppressed /= (double) output.length;
 
                     // Obtain relative generalization
                     double[] generalizationDegrees = new double[transformation.length];
@@ -212,7 +175,7 @@ public class BenchmarkExperiment2 {
                     BENCHMARK.addRun(dataset, measure, model, algorithm, suppression);
 
                     // Write
-                    BENCHMARK.addValue(TIME, timestamp);
+                    BENCHMARK.addValue(STEP, step++);
                     BENCHMARK.addValue(GENERALIZATION_DEGREE, averageGeneralizationDegree);
 
                     for (int i = 0; i < transformation.length; i++) {
@@ -234,49 +197,15 @@ public class BenchmarkExperiment2 {
         } else if (algorithm == BenchmarkAlgorithm.TASSA) {
             config.setMaxOutliers(0);
             IBenchmarkObserver observer = new IBenchmarkObserver() {
+                
+                private int step = 0;
 
                 @Override
                 public void notify(long timestamp, String[][] output, int[] transformation) {
-
-                    // Obtain utility
-                    double utility = 0d;
-                    if (measure == BenchmarkUtilityMeasure.LOSS) {
-                        utility = new UtilityMeasureLoss<Double>(header,
-                                                                 hierarchies,
-                                                                 AggregateFunction.GEOMETRIC_MEAN).evaluate(output)
-                                                                                                  .getUtility();
-                    } else if (measure == BenchmarkUtilityMeasure.DISCERNIBILITY) {
-                        utility = new UtilityMeasureDiscernibility().evaluate(output).getUtility();
-                    }
-
-                    // Normalize
-                    utility -= metadata.getLowerBound(dataset, measure);
-                    utility /= (metadata.getUpperBound(dataset, measure) - metadata.getLowerBound(dataset,
-                                                                                                  measure));
-
-                    // Obtain suppressed tuples
-                    double suppressed = 0d;
-                    for (String[] row : output) {
-
-                        boolean cellSuppressed = true;
-                        for (String cell : row) {
-                            if (!cell.equals("*")) {
-                                cellSuppressed = false;
-                                break;
-                            }
-                        }
-                        if (cellSuppressed) {
-                            suppressed++;
-                        }
-                    }
-
-                    // Normalize
-                    suppressed /= (double) output.length;
-
                     BENCHMARK.addRun(dataset, measure, model, algorithm, suppression);
 
                     // Write
-                    BENCHMARK.addValue(TIME, timestamp);
+                    BENCHMARK.addValue(STEP, step++);
                 }
             };
 

@@ -232,9 +232,10 @@ public class BenchmarkSetup {
      */
     public static BenchmarkDataset[] getDatasets() {
         return new BenchmarkDataset[] {
-//        		BenchmarkDataset.ADULT_SUBSET,
-                BenchmarkDataset.ADULT,
-                BenchmarkDataset.CUP,
+        		BenchmarkDataset.ADULT_SUBSET,
+                BenchmarkDataset.CUP_SUBSET,
+//                BenchmarkDataset.ADULT,
+//                BenchmarkDataset.CUP,
 //                BenchmarkDataset.FARS,
 //                BenchmarkDataset.ATUS,
 //                BenchmarkDataset.IHIS,

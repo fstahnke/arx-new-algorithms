@@ -149,6 +149,7 @@ public class BenchmarkAnalysis2 {
                                          series));
 
         GnuPlotParams params = new GnuPlotParams();
+        params.colorize = true;
         params.rotateXTicks = 0;
         params.keypos = KeyPos.TOP_LEFT;
         params.size = 1.0d;
