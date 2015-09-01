@@ -23,6 +23,12 @@ public class RecursiveTest {
 			public void notify(long timestamp, String[][] output, int[] transformation) {
 				System.out.println("Iteration");
 			}
+
+            @Override
+            public void notifyFinished(long timestamp, String[][] output, int[] transformation) {
+                System.out.println("Iteration");
+                
+            }
     		
     	};
         

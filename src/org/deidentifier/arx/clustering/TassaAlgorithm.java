@@ -102,7 +102,9 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
                 String[][] outputTable = getOutputTable(algorithm.getOutputBuffer());
                 super.updated(outputTable, new int[outputTable[0].length]);
             }
-            return getOutputTable(algorithm.getOutputBuffer());
+            String[][] outputTable = getOutputTable(algorithm.getOutputBuffer());
+            super.finished(outputTable, new int[outputTable[0].length]);
+            return outputTable;
         }
 	}
     

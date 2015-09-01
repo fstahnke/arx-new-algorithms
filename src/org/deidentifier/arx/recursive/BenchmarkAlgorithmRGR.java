@@ -134,6 +134,7 @@ public class BenchmarkAlgorithmRGR extends BenchmarkAlgorithm {
             super.updated(output, transformation);
             
         }
+        super.finished(output, transformation);
         return output;
     }
 

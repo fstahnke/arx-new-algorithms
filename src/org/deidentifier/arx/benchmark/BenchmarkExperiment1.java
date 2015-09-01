@@ -194,6 +194,11 @@ public class BenchmarkExperiment1 {
                     BENCHMARK.addValue(SUPPRESSED, suppressed);
                 }
 
+                @Override
+                public void notifyFinished(long timestamp, String[][] output, int[] transformation) {
+                    
+                }
+
             };
 
             BenchmarkAlgorithmRGR implementation = new BenchmarkAlgorithmRGR(listener, data, config);
@@ -247,6 +252,12 @@ public class BenchmarkExperiment1 {
                     BENCHMARK.addValue(TIME, timestamp);
                     BENCHMARK.addValue(UTILITY, utility);
                     BENCHMARK.addValue(SUPPRESSED, suppressed);
+                }
+
+                @Override
+                public void notifyFinished(long timestamp, String[][] output, int[] transformation) {
+                    // TODO Auto-generated method stub
+                    
                 }
             };
 

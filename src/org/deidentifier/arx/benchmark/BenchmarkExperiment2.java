@@ -19,8 +19,6 @@ package org.deidentifier.arx.benchmark;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.Map;
 
 import org.deidentifier.arx.ARXConfiguration;
 import org.deidentifier.arx.Data;
@@ -30,10 +28,6 @@ import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkPrivacyModel;
 import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkUtilityMeasure;
 import org.deidentifier.arx.clustering.TassaAlgorithm;
 import org.deidentifier.arx.recursive.BenchmarkAlgorithmRGR;
-import org.deidentifier.arx.utility.AggregateFunction;
-import org.deidentifier.arx.utility.DataConverter;
-import org.deidentifier.arx.utility.UtilityMeasureDiscernibility;
-import org.deidentifier.arx.utility.UtilityMeasureLoss;
 
 import de.linearbits.subframe.Benchmark;
 import de.linearbits.subframe.analyzer.ValueBuffer;
@@ -194,6 +188,12 @@ public class BenchmarkExperiment2 {
                     }
                 }
 
+                @Override
+                public void notifyFinished(long timestamp, String[][] output, int[] transformation) {
+                    // TODO Auto-generated method stub
+                    
+                }
+
             };
 
             BenchmarkAlgorithmRGR implementation = new BenchmarkAlgorithmRGR(listener, data, config);
@@ -211,6 +211,12 @@ public class BenchmarkExperiment2 {
 
                     // Write
                     BENCHMARK.addValue(STEP, step++);
+                }
+
+                @Override
+                public void notifyFinished(long timestamp, String[][] output, int[] transformation) {
+                    // TODO Auto-generated method stub
+                    
                 }
             };
 

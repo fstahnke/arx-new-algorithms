@@ -8,7 +8,7 @@
     <dataset>CUP</dataset>
     <dataset>FARS</dataset>
     <dataset>ATUS</dataset>
-    <dataset>IHIS</dataset>
+    <!-- <dataset>IHIS</dataset> -->
 	
     <!-- add implemented algorithms -->
     <algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>

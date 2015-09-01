@@ -62,7 +62,7 @@ public class BenchmarkAnalysis2 {
 
         List<PlotGroup> groups = new ArrayList<PlotGroup>();
         BenchmarkSetup setup = new BenchmarkSetup("benchmarkConfig/generalizationDegreeRGR.xml");
-        CSVFile file = new CSVFile(new File(setup.getPlotFile()));
+        CSVFile file = new CSVFile(new File(setup.getOutputFile()));
 
         // Repeat for each data set
         for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
@@ -77,7 +77,7 @@ public class BenchmarkAnalysis2 {
             }
         }
 
-        LaTeX.plot(groups, "results/experiment2");
+        LaTeX.plot(groups, setup.getPlotFile());
 
     }
 

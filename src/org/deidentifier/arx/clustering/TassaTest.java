@@ -41,6 +41,12 @@ public class TassaTest {
             public void notify(long timestamp, String[][] output, int[] transformation) {
                 // Empty by design
             }
+
+            @Override
+            public void notifyFinished(long timestamp, String[][] output, int[] transformation) {
+             // Empty by design
+                
+            }
         }, data, config);
         algorithm.setLogging(true);
         

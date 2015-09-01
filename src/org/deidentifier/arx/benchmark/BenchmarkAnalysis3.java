@@ -62,7 +62,7 @@ public class BenchmarkAnalysis3 {
 
         List<PlotGroup> groups = new ArrayList<PlotGroup>();
         BenchmarkSetup setup = new BenchmarkSetup("benchmarkConfig/tassaVariance.xml");
-        CSVFile file = new CSVFile(new File(setup.getPlotFile()));
+        CSVFile file = new CSVFile(new File(setup.getOutputFile()));
 
         // Repeat for each data set
         for (BenchmarkDataset data : setup.getDatasets()) {
@@ -92,7 +92,7 @@ public class BenchmarkAnalysis3 {
             }
         }
 
-        LaTeX.plot(groups, "results/experiment3");
+        LaTeX.plot(groups, setup.getPlotFile());
 
     }
 
