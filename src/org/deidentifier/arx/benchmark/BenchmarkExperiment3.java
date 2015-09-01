@@ -28,7 +28,6 @@ import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkDataset;
 import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkPrivacyModel;
 import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkUtilityMeasure;
 import org.deidentifier.arx.clustering.TassaAlgorithm;
-import org.deidentifier.arx.recursive.BenchmarkAlgorithmRGR;
 import org.deidentifier.arx.utility.AggregateFunction;
 import org.deidentifier.arx.utility.DataConverter;
 import org.deidentifier.arx.utility.UtilityMeasureDiscernibility;
@@ -38,26 +37,24 @@ import de.linearbits.subframe.Benchmark;
 import de.linearbits.subframe.analyzer.ValueBuffer;
 
 /**
- * Main benchmark class.
+ * BenchmarkExperiment analysing variance of Tassa results.
  * 
  * @author Fabian Prasser
  */
 public class BenchmarkExperiment3 {
 
     /** The benchmark instance */
-    private static final Benchmark BENCHMARK      = new Benchmark(new String[] { "Dataset",
+    private static final Benchmark BENCHMARK      = new Benchmark(new String[] {
+            "Dataset",
             "UtilityMeasure",
             "PrivacyModel",
-            "Algorithm",
-            "Suppression"                        });
-
-    /** TOTAL */
-    public static final int        RUN            = BENCHMARK.addMeasure("Run");
+            "Algorithm"
+            });
 
     /** UTILITY */
-    public static final int        UTILITY        = BENCHMARK.addMeasure("Utility");
+    private static final int       VARIANCE        = BENCHMARK.addMeasure("Variance");
 
-    private static final int       NUMBER_OF_RUNS = 10;
+    private static final int       NUMBER_OF_RUNS = 20;
 
     /**
      * Main entry point
@@ -68,22 +65,22 @@ public class BenchmarkExperiment3 {
     public static void main(String[] args) throws IOException {
 
         // Init
-        BENCHMARK.addAnalyzer(RUN, new ValueBuffer());
-        BENCHMARK.addAnalyzer(UTILITY, new ValueBuffer());
+        BENCHMARK.addAnalyzer(VARIANCE, new ValueBuffer());
 
-        File resultFile = new File("results/experiment3.csv");
+        BenchmarkSetup setup = new BenchmarkSetup("benchmarkConfig/tassaVariance.xml");
+        BenchmarkMetadataUtility metadata = new BenchmarkMetadataUtility(setup);
+        File resultFile = new File(setup.getOutputFile());
         resultFile.getParentFile().mkdirs();
-        BenchmarkMetadataUtility metadata = new BenchmarkMetadataUtility();
 
         // Repeat for each data set
-        for (BenchmarkDataset data : BenchmarkSetup.getDatasets()) {
-            for (BenchmarkPrivacyModel model : BenchmarkSetup.getPrivacyModels()) {
-                for (BenchmarkUtilityMeasure measure : BenchmarkSetup.getUtilityMeasures()) {
+        for (BenchmarkDataset data : setup.getDatasets()) {
+            for (BenchmarkPrivacyModel model : setup.getPrivacyModels()) {
+                for (BenchmarkUtilityMeasure measure : setup.getUtilityMeasures()) {
                     System.out.println("Performing run: " + data + "/" + measure + "/" + model +
                                        "/" + BenchmarkAlgorithm.TASSA + "/(n/a)");
 
                     // New run
-                    performExperiment(metadata, data, measure, model, BenchmarkAlgorithm.TASSA, 0.0);
+                    performExperiment(metadata, data, measure, model, BenchmarkAlgorithm.TASSA);
 
                     // Write after each experiment
                     BENCHMARK.getResults().write(resultFile);
@@ -100,21 +97,19 @@ public class BenchmarkExperiment3 {
      * @param measure
      * @param model
      * @param algorithm
-     * @param suppression
      * @throws IOException
      */
     private static void performExperiment(final BenchmarkMetadataUtility metadata,
                                           final BenchmarkDataset dataset,
                                           final BenchmarkUtilityMeasure measure,
                                           final BenchmarkPrivacyModel model,
-                                          final BenchmarkAlgorithm algorithm,
-                                          final double suppression) throws IOException {
+                                          final BenchmarkAlgorithm algorithm) throws IOException {
 
         Data data = BenchmarkSetup.getData(dataset, model);
         ARXConfiguration config = BenchmarkSetup.getConfiguration(dataset,
                                                                   measure,
                                                                   model,
-                                                                  suppression);
+                                                                  0.0);
 
         final Map<String, String[][]> hierarchies = new DataConverter().toMap(data.getDefinition());
         final String[] header = new DataConverter().getHeader(data.getHandle());
@@ -123,7 +118,8 @@ public class BenchmarkExperiment3 {
             config.setMaxOutliers(0);
             IBenchmarkObserver observer = new IBenchmarkObserver() {
 
-                private int run = 0;
+                private int      run     = 0;
+                private double[] results = new double[NUMBER_OF_RUNS];
 
                 @Override
                 public void notify(long timestamp, String[][] output, int[] transformation) {
@@ -143,12 +139,18 @@ public class BenchmarkExperiment3 {
                     utility -= metadata.getLowerBound(dataset, measure);
                     utility /= (metadata.getUpperBound(dataset, measure) - metadata.getLowerBound(dataset,
                                                                                                   measure));
-
-                    BENCHMARK.addRun(dataset, measure, model, algorithm, suppression);
-
+                    
+                    // Save intermediary results
+                    results[run++] = utility;
+                    
                     // Write
-                    BENCHMARK.addValue(RUN, run++);
-                    BENCHMARK.addValue(UTILITY, utility);
+                    if (run == 10) {
+                        
+                        double variance = calculateVariance(results);
+                        
+                        BENCHMARK.addRun(dataset, measure, model, algorithm);
+                        BENCHMARK.addValue(VARIANCE, variance);
+                    }
                 }
             };
 
@@ -161,5 +163,27 @@ public class BenchmarkExperiment3 {
         } else {
             throw new UnsupportedOperationException("TODO: Implement");
         }
+    }
+
+    /**
+     * Calculates the variance for a given set of values (without Bessel's correction).
+     * @param values A set of sample values.
+     * @return The sample variance.
+     */
+    protected static double calculateVariance(double[] values) {
+        double arithmeticMean = 0;
+        for (double value : values) {
+            arithmeticMean += value;
+        }
+        arithmeticMean /= values.length;
+        
+        double variance = 0;
+        for (double value : values) {
+            variance += Math.pow(value - arithmeticMean, 2);
+        }
+        variance /= values.length;
+        
+        return variance;
+        
     }
 }

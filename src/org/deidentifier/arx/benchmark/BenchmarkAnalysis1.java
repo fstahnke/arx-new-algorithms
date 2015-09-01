@@ -45,7 +45,7 @@ import de.linearbits.subframe.render.LaTeX;
 import de.linearbits.subframe.render.PlotGroup;
 
 /**
- * Example benchmark
+ * BenchmarkAnalysis analyzing utility and suppression of RGR.
  * 
  * @author Fabian Prasser
  */
@@ -60,16 +60,17 @@ public class BenchmarkAnalysis1 {
      */
     public static void main(String[] args) throws IOException, ParseException {
 
-        CSVFile file = new CSVFile(new File("results/experiment1.csv"));
         List<PlotGroup> groups = new ArrayList<PlotGroup>();
+        BenchmarkSetup setup = new BenchmarkSetup("rgrUtilityAndSuppression.xml");
+        CSVFile file = new CSVFile(new File(setup.getPlotFile()));
 
         // Repeat for each data set
-        for (BenchmarkDataset data : BenchmarkSetup.getDatasets()) {
-            for (BenchmarkAlgorithm algorithm : BenchmarkSetup.getAlgorithms()) {
-                for (BenchmarkPrivacyModel model : BenchmarkSetup.getPrivacyModels()) {
-                    for (BenchmarkUtilityMeasure measure : BenchmarkSetup.getUtilityMeasures()) {
+        for (BenchmarkDataset data : setup.getDatasets()) {
+            for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
+                for (BenchmarkPrivacyModel model : setup.getPrivacyModels()) {
+                    for (BenchmarkUtilityMeasure measure : setup.getUtilityMeasures()) {
                         if (algorithm != BenchmarkAlgorithm.TASSA) {
-                            for (double suppression : BenchmarkSetup.getSuppressionLimits()) {
+                            for (double suppression : setup.getSuppressionLimits()) {
                                 groups.add(analyze(file,
                                                    data,
                                                    measure,

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<config>
+    <dataset>ADULT_SUBSET</dataset>
+    <dataset>CUP_SUBSET</dataset>
+    <algorithm>TASSA</algorithm>
+    <privacyModel>K5_ANONYMITY</privacyModel>
+    <privacyModel>K20_ANONYMITY</privacyModel>
+    <utilityMeasure>LOSS</utilityMeasure>
+    <utilityMeasure>DISCERNIBILITY</utilityMeasure>
+    <suppressionLimit>0.0</suppressionLimit>
+    <outputFile>results/tassaVariance.csv</outputFile>
+    <plotFile>results/tassaVariance.pdf</plotFile>
+</config>

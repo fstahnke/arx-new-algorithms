@@ -60,15 +60,16 @@ public class BenchmarkAnalysis2 {
      */
     public static void main(String[] args) throws IOException, ParseException {
 
-        CSVFile file = new CSVFile(new File("results/experiment2.csv"));
         List<PlotGroup> groups = new ArrayList<PlotGroup>();
+        BenchmarkSetup setup = new BenchmarkSetup("benchmarkConfig/generalizationDegreeRGR.xml");
+        CSVFile file = new CSVFile(new File(setup.getPlotFile()));
 
         // Repeat for each data set
-        for (BenchmarkAlgorithm algorithm : BenchmarkSetup.getAlgorithms()) {
-            for (BenchmarkDataset data : BenchmarkSetup.getDatasets()) {
-                for (BenchmarkPrivacyModel model : BenchmarkSetup.getPrivacyModels()) {
-                    for (BenchmarkUtilityMeasure measure : BenchmarkSetup.getUtilityMeasures()) {
-                        for (double suppression : BenchmarkSetup.getSuppressionLimits()) {
+        for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
+            for (BenchmarkDataset data : setup.getDatasets()) {
+                for (BenchmarkPrivacyModel model : setup.getPrivacyModels()) {
+                    for (BenchmarkUtilityMeasure measure : setup.getUtilityMeasures()) {
+                        for (double suppression : setup.getSuppressionLimits()) {
                             groups.add(analyze(file, data, measure, model, algorithm, suppression));
                         }
                     }

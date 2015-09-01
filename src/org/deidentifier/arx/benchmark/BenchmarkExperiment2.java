@@ -39,45 +39,47 @@ import de.linearbits.subframe.Benchmark;
 import de.linearbits.subframe.analyzer.ValueBuffer;
 
 /**
- * Main benchmark class.
+ * BenchmarkExperiment analysing the development of generalization degrees of
+ * RGR.
  * 
  * @author Fabian Prasser
  */
 public class BenchmarkExperiment2 {
 
     /** The benchmark instance */
-    private static final Benchmark BENCHMARK              = new Benchmark(new String[] { "Dataset",
+    private static final Benchmark BENCHMARK              = new Benchmark(new String[] {
+            "Dataset",
             "UtilityMeasure",
             "PrivacyModel",
             "Algorithm",
             "Suppression"                                });
 
-    /** TOTAL */
-    public static final int        STEP                   = BENCHMARK.addMeasure("Step");
+    /** Iteration of the recursive algorithm */
+    private static final int       STEP                   = BENCHMARK.addMeasure("Step");
 
     /** AVERAGE PERCENTAGE_OF_GENERALIZATION */
-    public static final int        GENERALIZATION_DEGREE  = BENCHMARK.addMeasure("Generalization degree");
+    private static final int       GENERALIZATION_DEGREE  = BENCHMARK.addMeasure("Generalization degree");
 
-    public static final int        GENERALIZATION_DEGREE1 = BENCHMARK.addMeasure("Generalization degree 1");
-    public static final int        GENERALIZATION_DEGREE2 = BENCHMARK.addMeasure("Generalization degree 2");
-    public static final int        GENERALIZATION_DEGREE3 = BENCHMARK.addMeasure("Generalization degree 3");
-    public static final int        GENERALIZATION_DEGREE4 = BENCHMARK.addMeasure("Generalization degree 4");
-    public static final int        GENERALIZATION_DEGREE5 = BENCHMARK.addMeasure("Generalization degree 5");
-    public static final int        GENERALIZATION_DEGREE6 = BENCHMARK.addMeasure("Generalization degree 6");
-    public static final int        GENERALIZATION_DEGREE7 = BENCHMARK.addMeasure("Generalization degree 7");
-    public static final int        GENERALIZATION_DEGREE8 = BENCHMARK.addMeasure("Generalization degree 8");
-    public static final int        GENERALIZATION_DEGREE9 = BENCHMARK.addMeasure("Generalization degree 9");
+    private static final int       GENERALIZATION_DEGREE1 = BENCHMARK.addMeasure("Generalization degree 1");
+    private static final int       GENERALIZATION_DEGREE2 = BENCHMARK.addMeasure("Generalization degree 2");
+    private static final int       GENERALIZATION_DEGREE3 = BENCHMARK.addMeasure("Generalization degree 3");
+    private static final int       GENERALIZATION_DEGREE4 = BENCHMARK.addMeasure("Generalization degree 4");
+    private static final int       GENERALIZATION_DEGREE5 = BENCHMARK.addMeasure("Generalization degree 5");
+    private static final int       GENERALIZATION_DEGREE6 = BENCHMARK.addMeasure("Generalization degree 6");
+    private static final int       GENERALIZATION_DEGREE7 = BENCHMARK.addMeasure("Generalization degree 7");
+    private static final int       GENERALIZATION_DEGREE8 = BENCHMARK.addMeasure("Generalization degree 8");
+    private static final int       GENERALIZATION_DEGREE9 = BENCHMARK.addMeasure("Generalization degree 9");
 
-    public static final int[]      DEGREE_ARRAY           = new int[] { GENERALIZATION_DEGREE1,
-                                                                        GENERALIZATION_DEGREE2,
-                                                                        GENERALIZATION_DEGREE3,
-                                                                        GENERALIZATION_DEGREE4,
-                                                                        GENERALIZATION_DEGREE5,
-                                                                        GENERALIZATION_DEGREE6,
-                                                                        GENERALIZATION_DEGREE7,
-                                                                        GENERALIZATION_DEGREE8,
-                                                                        GENERALIZATION_DEGREE9
-                                                                        };
+    private static final int[]     DEGREE_ARRAY           = new int[] {
+            GENERALIZATION_DEGREE1,
+            GENERALIZATION_DEGREE2,
+            GENERALIZATION_DEGREE3,
+            GENERALIZATION_DEGREE4,
+            GENERALIZATION_DEGREE5,
+            GENERALIZATION_DEGREE6,
+            GENERALIZATION_DEGREE7,
+            GENERALIZATION_DEGREE8,
+            GENERALIZATION_DEGREE9                       };
 
     /**
      * /** Main entry point
@@ -95,16 +97,17 @@ public class BenchmarkExperiment2 {
             BENCHMARK.addAnalyzer(degree, new ValueBuffer());
         }
 
-        File resultFile = new File("results/experiment2.csv");
+        BenchmarkSetup setup = new BenchmarkSetup("benchmarkConfig/generalizationDegreeRGR.xml");
+        BenchmarkMetadataUtility metadata = new BenchmarkMetadataUtility(setup);
+        File resultFile = new File(setup.getOutputFile());
         resultFile.getParentFile().mkdirs();
-        BenchmarkMetadataUtility metadata = new BenchmarkMetadataUtility();
 
         // Repeat for each data set
-        for (BenchmarkAlgorithm algorithm : BenchmarkSetup.getAlgorithms()) {
-            for (BenchmarkDataset data : BenchmarkSetup.getDatasets()) {
-                for (BenchmarkPrivacyModel model : BenchmarkSetup.getPrivacyModels()) {
-                    for (BenchmarkUtilityMeasure measure : BenchmarkSetup.getUtilityMeasures()) {
-                        for (double suppression : BenchmarkSetup.getSuppressionLimits()) {
+        for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
+            for (BenchmarkDataset data : setup.getDatasets()) {
+                for (BenchmarkPrivacyModel model : setup.getPrivacyModels()) {
+                    for (BenchmarkUtilityMeasure measure : setup.getUtilityMeasures()) {
+                        for (double suppression : setup.getSuppressionLimits()) {
                             System.out.println("Performing run: " + data + "/" + measure + "/" +
                                                model + "/" + algorithm + "/" + suppression);
 
@@ -148,11 +151,11 @@ public class BenchmarkExperiment2 {
                                                                   measure,
                                                                   model,
                                                                   suppression);
-        
+
         if (algorithm == BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING) {
 
             IBenchmarkObserver listener = new IBenchmarkObserver() {
-                
+
                 private int step = 0;
 
                 @Override
@@ -164,7 +167,9 @@ public class BenchmarkExperiment2 {
 
                     for (int i = 0; i < transformation.length; i++) {
                         int generalizationLevel = transformation[i];
-                        int maxGeneralizationLevel = data.getDefinition().getHierarchy(data.getHandle().getAttributeName(i))[0].length - 1;
+                        int maxGeneralizationLevel = data.getDefinition()
+                                                         .getHierarchy(data.getHandle()
+                                                                           .getAttributeName(i))[0].length - 1;
                         double degree = 1.0 * generalizationLevel / maxGeneralizationLevel;
                         generalizationDegrees[i] = degree;
                         averageGeneralizationDegree += generalizationDegrees[i];
@@ -181,7 +186,7 @@ public class BenchmarkExperiment2 {
                     for (int i = 0; i < transformation.length; i++) {
                         BENCHMARK.addValue(DEGREE_ARRAY[i], generalizationDegrees[i]);
                     }
-                    
+
                     if (transformation.length < DEGREE_ARRAY.length) {
                         for (int i = transformation.length; i < DEGREE_ARRAY.length; i++) {
                             BENCHMARK.addValue(DEGREE_ARRAY[i], -0.1d);
@@ -197,7 +202,7 @@ public class BenchmarkExperiment2 {
         } else if (algorithm == BenchmarkAlgorithm.TASSA) {
             config.setMaxOutliers(0);
             IBenchmarkObserver observer = new IBenchmarkObserver() {
-                
+
                 private int step = 0;
 
                 @Override

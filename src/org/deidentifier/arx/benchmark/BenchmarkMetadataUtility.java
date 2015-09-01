@@ -49,10 +49,10 @@ public class BenchmarkMetadataUtility {
      * Creates a new instance
      * @throws IOException
      */
-    public BenchmarkMetadataUtility() throws IOException{
+    public BenchmarkMetadataUtility(BenchmarkSetup setup) throws IOException{
         long time = System.currentTimeMillis();
         System.out.print("Preparing utility metadata...");
-        for (BenchmarkDataset dataset : BenchmarkSetup.getDatasets()) {
+        for (BenchmarkDataset dataset : setup.getDatasets()) {
             computeLowerBounds(dataset);
             computeUpperBounds(dataset);
         }

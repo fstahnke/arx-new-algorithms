@@ -60,16 +60,17 @@ public class BenchmarkAnalysis3 {
      */
     public static void main(String[] args) throws IOException, ParseException {
 
-        CSVFile file = new CSVFile(new File("results/experiment3.csv"));
         List<PlotGroup> groups = new ArrayList<PlotGroup>();
+        BenchmarkSetup setup = new BenchmarkSetup("benchmarkConfig/tassaVariance.xml");
+        CSVFile file = new CSVFile(new File(setup.getPlotFile()));
 
         // Repeat for each data set
-        for (BenchmarkDataset data : BenchmarkSetup.getDatasets()) {
-            for (BenchmarkAlgorithm algorithm : BenchmarkSetup.getAlgorithms()) {
-                for (BenchmarkPrivacyModel model : BenchmarkSetup.getPrivacyModels()) {
-                    for (BenchmarkUtilityMeasure measure : BenchmarkSetup.getUtilityMeasures()) {
+        for (BenchmarkDataset data : setup.getDatasets()) {
+            for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
+                for (BenchmarkPrivacyModel model : setup.getPrivacyModels()) {
+                    for (BenchmarkUtilityMeasure measure : setup.getUtilityMeasures()) {
                         if (algorithm != BenchmarkAlgorithm.TASSA) {
-                            for (double suppression : BenchmarkSetup.getSuppressionLimits()) {
+                            for (double suppression : setup.getSuppressionLimits()) {
                                 groups.add(analyze(file,
                                                    data,
                                                    measure,
@@ -124,12 +125,6 @@ public class BenchmarkAnalysis3 {
                                           .and()
                                           .field("PrivacyModel")
                                           .equals(model.toString())
-                                          .and()
-                                          .field("Algorithm")
-                                          .equals(algorithm.toString())
-                                          .and()
-                                          .field("Suppression")
-                                          .equals(String.valueOf(suppression))
                                           .build();
 
         // Read data for both measures into 2D series

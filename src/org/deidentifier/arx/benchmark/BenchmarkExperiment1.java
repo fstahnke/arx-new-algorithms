@@ -38,7 +38,7 @@ import de.linearbits.subframe.Benchmark;
 import de.linearbits.subframe.analyzer.ValueBuffer;
 
 /**
- * Main benchmark class.
+ * BenchmarkExperiment analyzing utility and suppression of RGR.
  * 
  * @author Fabian Prasser
  */
@@ -73,17 +73,18 @@ public class BenchmarkExperiment1 {
         BENCHMARK.addAnalyzer(UTILITY, new ValueBuffer());
         BENCHMARK.addAnalyzer(SUPPRESSED, new ValueBuffer());
 
-        File resultFile = new File("results/experiment1.csv");
+        BenchmarkSetup setup = new BenchmarkSetup("utilityAndSuppressionRGR.xml");
+        BenchmarkMetadataUtility metadata = new BenchmarkMetadataUtility(setup);
+        File resultFile = new File(setup.getOutputFile());
         resultFile.getParentFile().mkdirs();
-        BenchmarkMetadataUtility metadata = new BenchmarkMetadataUtility();
 
         // Repeat for each data set
-        for (BenchmarkDataset data : BenchmarkSetup.getDatasets()) {
-            for (BenchmarkAlgorithm algorithm : BenchmarkSetup.getAlgorithms()) {
-                for (BenchmarkPrivacyModel model : BenchmarkSetup.getPrivacyModels()) {
-                    for (BenchmarkUtilityMeasure measure : BenchmarkSetup.getUtilityMeasures()) {
+        for (BenchmarkDataset data : setup.getDatasets()) {
+            for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
+                for (BenchmarkPrivacyModel model : setup.getPrivacyModels()) {
+                    for (BenchmarkUtilityMeasure measure : setup.getUtilityMeasures()) {
                         if (algorithm != BenchmarkAlgorithm.TASSA) {
-                            for (double suppression : BenchmarkSetup.getSuppressionLimits()) {
+                            for (double suppression : setup.getSuppressionLimits()) {
                                 System.out.println("Performing run: " + data + "/" + measure + "/" +
                                                    model + "/" + algorithm + "/" + suppression);
 
@@ -98,6 +99,7 @@ public class BenchmarkExperiment1 {
                                 // Write after each experiment
                                 BENCHMARK.getResults().write(resultFile);
                             }
+                            // For Tassa we don't need the suppression limit
                         } else {
                             System.out.println("Performing run: " + data + "/" + measure + "/" +
                                                model + "/" + algorithm + "/(n/a)");
