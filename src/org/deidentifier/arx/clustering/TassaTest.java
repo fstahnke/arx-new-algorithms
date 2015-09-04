@@ -3,12 +3,11 @@ package org.deidentifier.arx.clustering;
 import java.io.IOException;
 
 import org.deidentifier.arx.ARXConfiguration;
-import org.deidentifier.arx.AttributeType.Hierarchy;
 import org.deidentifier.arx.Data;
 import org.deidentifier.arx.benchmark.BenchmarkSetup;
-import org.deidentifier.arx.benchmark.IBenchmarkObserver;
 import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkDataset;
 import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkPrivacyModel;
+import org.deidentifier.arx.benchmark.IBenchmarkObserver;
 import org.deidentifier.arx.criteria.KAnonymity;
 
 public class TassaTest {
@@ -47,6 +46,16 @@ public class TassaTest {
              // Empty by design
                 
             }
+
+            @Override
+            public boolean isWarmup() {
+                return false;
+            }
+
+            @Override
+            public void setWarmup(boolean isWarmup) {
+            }
+            
         }, data, config);
         algorithm.setLogging(true);
         

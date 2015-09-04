@@ -59,7 +59,7 @@ public class BenchmarkExperiment3 {
     /** RUNTIME */
     private static final int       RUNTIME        = BENCHMARK.addMeasure("Runtime");
     /** Number of runs for each benchmark setting */
-    private static final int       NUMBER_OF_RUNS = 20;
+    private static final int       NUMBER_OF_RUNS = 5;
 
     /**
      * Main entry point
@@ -106,12 +106,7 @@ public class BenchmarkExperiment3 {
                                                model + "/" + algorithm + "/(n/a)");
 
                             // New run
-                            performExperiment(metadata,
-                                              data,
-                                              measure,
-                                              model,
-                                              algorithm,
-                                              0.0);
+                            performExperiment(metadata, data, measure, model, algorithm, 0.0);
 
                             // Write after each experiment
                             BENCHMARK.getResults().write(resultFile);
@@ -130,7 +125,7 @@ public class BenchmarkExperiment3 {
      * @param measure
      * @param model
      * @param algorithm
-     * @param suppression 
+     * @param suppression
      * @throws IOException
      */
     private static void performExperiment(final BenchmarkMetadataUtility metadata,
@@ -141,7 +136,10 @@ public class BenchmarkExperiment3 {
                                           double suppression) throws IOException {
 
         Data data = BenchmarkSetup.getData(dataset, model);
-        ARXConfiguration config = BenchmarkSetup.getConfiguration(dataset, measure, model, suppression);
+        ARXConfiguration config = BenchmarkSetup.getConfiguration(dataset,
+                                                                  measure,
+                                                                  model,
+                                                                  suppression);
 
         final Map<String, String[][]> hierarchies = new DataConverter().toMap(data.getDefinition());
         final String[] header = new DataConverter().getHeader(data.getHandle());
@@ -150,6 +148,7 @@ public class BenchmarkExperiment3 {
             algorithm == BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING) {
             IBenchmarkObserver observer = new IBenchmarkObserver() {
 
+                private boolean  isWarmup       = false;
                 private int      run            = 0;
                 private double[] utilityResults = new double[NUMBER_OF_RUNS];
                 private double[] runtimes       = new double[NUMBER_OF_RUNS];
@@ -162,42 +161,55 @@ public class BenchmarkExperiment3 {
                 @Override
                 public void notifyFinished(long timestamp, String[][] output, int[] transformation) {
 
-                    // Obtain utility
-                    double utility = 0d;
-                    if (measure == BenchmarkUtilityMeasure.LOSS) {
-                        utility = new UtilityMeasureLoss<Double>(header,
-                                                                 hierarchies,
-                                                                 AggregateFunction.GEOMETRIC_MEAN).evaluate(output)
-                                                                                                  .getUtility();
-                    } else if (measure == BenchmarkUtilityMeasure.DISCERNIBILITY) {
-                        utility = new UtilityMeasureDiscernibility().evaluate(output).getUtility();
+                    if (!isWarmup) {
+                        // Obtain utility
+                        double utility = 0d;
+                        if (measure == BenchmarkUtilityMeasure.LOSS) {
+                            utility = new UtilityMeasureLoss<Double>(header,
+                                                                     hierarchies,
+                                                                     AggregateFunction.GEOMETRIC_MEAN).evaluate(output)
+                                                                                                      .getUtility();
+                        } else if (measure == BenchmarkUtilityMeasure.DISCERNIBILITY) {
+                            utility = new UtilityMeasureDiscernibility().evaluate(output)
+                                                                        .getUtility();
+                        }
+
+                        // Normalize
+                        utility -= metadata.getLowerBound(dataset, measure);
+                        utility /= (metadata.getUpperBound(dataset, measure) - metadata.getLowerBound(dataset,
+                                                                                                      measure));
+
+                        // Save intermediary results
+                        utilityResults[run] = utility;
+                        runtimes[run] = timestamp;
+
+                        // Write
+                        if (run == NUMBER_OF_RUNS - 1) {
+
+                            double utilityMean = calculateArithmeticMean(utilityResults);
+                            double variance = calculateVariance(utilityResults);
+                            double runtime = calculateArithmeticMean(runtimes);
+
+                            BENCHMARK.addRun(dataset, measure, model, algorithm);
+                            BENCHMARK.addValue(UTILITY, utilityMean);
+                            BENCHMARK.addValue(RUNTIME, runtime);
+                            BENCHMARK.addValue(VARIANCE, variance);
+                        }
+
+                        // Run complete
+                        run++;
+                        System.out.print(run + " ");
                     }
+                }
 
-                    // Normalize
-                    utility -= metadata.getLowerBound(dataset, measure);
-                    utility /= (metadata.getUpperBound(dataset, measure) - metadata.getLowerBound(dataset,
-                                                                                                  measure));
+                @Override
+                public boolean isWarmup() {
+                    return isWarmup;
+                }
 
-                    // Save intermediary results
-                    utilityResults[run] = utility;
-                    runtimes[run] = timestamp;
-
-                    // Write
-                    if (run == NUMBER_OF_RUNS - 1) {
-
-                        double utilityMean = calculateArithmeticMean(utilityResults);
-                        double variance = calculateVariance(utilityResults);
-                        double runtime = calculateArithmeticMean(runtimes);
-
-                        BENCHMARK.addRun(dataset, measure, model, algorithm);
-                        BENCHMARK.addValue(UTILITY, utilityMean);
-                        BENCHMARK.addValue(RUNTIME, runtime);
-                        BENCHMARK.addValue(VARIANCE, variance);
-                    }
-
-                    // Run complete
-                    run++;
-                    System.out.print(run + " ");
+                @Override
+                public void setWarmup(boolean isWarmup) {
+                    this.isWarmup = isWarmup;
                 }
             };
 
@@ -208,11 +220,17 @@ public class BenchmarkExperiment3 {
                 algorithmImplementation = new BenchmarkAlgorithmRGR(observer, data, config);
             }
             
+            System.out.print("Warmup... ");
+            observer.setWarmup(true);
+            algorithmImplementation.execute();
+            observer.setWarmup(false);
+            System.out.println("done!");
+
             System.out.print("Iteration: ");
             for (int i = 0; i < NUMBER_OF_RUNS; i++) {
                 algorithmImplementation.execute();
             }
-            System.out.println(".");
+            System.out.println("done!");
 
         } else {
             throw new UnsupportedOperationException("Unimplemented Algorithm: " + algorithm);

@@ -190,8 +190,15 @@ public class BenchmarkExperiment2 {
 
                 @Override
                 public void notifyFinished(long timestamp, String[][] output, int[] transformation) {
-                    // TODO Auto-generated method stub
-                    
+                }
+
+                @Override
+                public boolean isWarmup() {
+                    return false;
+                }
+
+                @Override
+                public void setWarmup(boolean isWarmup) {
                 }
 
             };
@@ -215,6 +222,18 @@ public class BenchmarkExperiment2 {
 
                 @Override
                 public void notifyFinished(long timestamp, String[][] output, int[] transformation) {
+                    // TODO Auto-generated method stub
+                    
+                }
+
+                @Override
+                public boolean isWarmup() {
+                    // TODO Auto-generated method stub
+                    return false;
+                }
+
+                @Override
+                public void setWarmup(boolean isWarmup) {
                     // TODO Auto-generated method stub
                     
                 }

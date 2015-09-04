@@ -29,6 +29,16 @@ public class RecursiveTest {
                 System.out.println("Iteration");
                 
             }
+
+            @Override
+            public boolean isWarmup() {
+                return false;
+            }
+
+            @Override
+            public void setWarmup(boolean isWarmup) {
+                
+            }
     		
     	};
         

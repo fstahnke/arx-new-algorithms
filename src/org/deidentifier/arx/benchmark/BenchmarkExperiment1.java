@@ -199,6 +199,15 @@ public class BenchmarkExperiment1 {
                     
                 }
 
+                @Override
+                public boolean isWarmup() {
+                    return false;
+                }
+
+                @Override
+                public void setWarmup(boolean isWarmup) {
+                }
+
             };
 
             BenchmarkAlgorithmRGR implementation = new BenchmarkAlgorithmRGR(listener, data, config);
@@ -258,6 +267,15 @@ public class BenchmarkExperiment1 {
                 public void notifyFinished(long timestamp, String[][] output, int[] transformation) {
                     // TODO Auto-generated method stub
                     
+                }
+
+                @Override
+                public boolean isWarmup() {
+                    return false;
+                }
+
+                @Override
+                public void setWarmup(boolean isWarmup) {
                 }
             };
 
