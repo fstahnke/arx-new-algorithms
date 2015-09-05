@@ -272,6 +272,38 @@ public class BenchmarkSetup {
     }
 
     /**
+     * Configures and returns a subset of the dataset. Subset has to exist as
+     * csv in folder "datasetname_subset". Subset has to be named
+     * "datasetname_subsetCount".
+     * 
+     * @param dataset
+     *            The BenchmarkDataset enum of the original dataset.
+     * @param criterion
+     * @param subsetCount
+     *            The number of records that the subset contains.
+     * @return A Data object containing the subset.
+     * @throws IOException
+     */
+    public static Data getDataSubset(BenchmarkDataset dataset,
+                                     BenchmarkPrivacyModel criterion,
+                                     int subsetCount) throws IOException {
+        String datasetName = dataset.toString().toLowerCase();
+        // Trim possible "subset" from name
+        if (datasetName.contains("subset")) {
+            datasetName = datasetName.substring(0, datasetName.lastIndexOf("subset"));
+        }
+        // Create path to according subset csv file
+        Data data = Data.create(String.format("data/%1$s_subset/%1$s_%2$d.csv", datasetName, subsetCount),
+                                ';');
+
+        for (String qi : getQuasiIdentifyingAttributes(dataset)) {
+            data.getDefinition().setAttributeType(qi, getHierarchy(dataset, qi));
+        }
+
+        return data;
+    }
+
+    /**
      * Returns the generalization hierarchy for the dataset and attribute
      * 
      * @param dataset
@@ -446,7 +478,7 @@ public class BenchmarkSetup {
         if (plotFile != null) {
             return plotFile;
         } else {
-            return "results/experiment.pdf";
+            return "results/experiment";
         }
     }
 
@@ -481,7 +513,7 @@ public class BenchmarkSetup {
         if (nList.getLength() > 0) {
             datasets = new BenchmarkDataset[nList.getLength()];
             for (int i = 0; i < nList.getLength(); i++) {
-                datasets[i] = BenchmarkDataset.valueOf(nList.item(i).getTextContent());
+                datasets[i] = BenchmarkDataset.valueOf(nList.item(i).getTextContent().toUpperCase());
             }
         }
 
@@ -490,7 +522,9 @@ public class BenchmarkSetup {
         if (nList.getLength() > 0) {
             algorithms = new BenchmarkAlgorithm[nList.getLength()];
             for (int i = 0; i < nList.getLength(); i++) {
-                algorithms[i] = BenchmarkAlgorithm.valueOf(nList.item(i).getTextContent());
+                algorithms[i] = BenchmarkAlgorithm.valueOf(nList.item(i)
+                                                                .getTextContent()
+                                                                .toUpperCase());
             }
         }
 
@@ -499,7 +533,9 @@ public class BenchmarkSetup {
         if (nList.getLength() > 0) {
             privacyModels = new BenchmarkPrivacyModel[nList.getLength()];
             for (int i = 0; i < nList.getLength(); i++) {
-                privacyModels[i] = BenchmarkPrivacyModel.valueOf(nList.item(i).getTextContent());
+                privacyModels[i] = BenchmarkPrivacyModel.valueOf(nList.item(i)
+                                                                      .getTextContent()
+                                                                      .toUpperCase());
             }
         }
 
@@ -508,7 +544,9 @@ public class BenchmarkSetup {
         if (nList.getLength() > 0) {
             utilityMeasures = new BenchmarkUtilityMeasure[nList.getLength()];
             for (int i = 0; i < nList.getLength(); i++) {
-                utilityMeasures[i] = BenchmarkUtilityMeasure.valueOf(nList.item(i).getTextContent());
+                utilityMeasures[i] = BenchmarkUtilityMeasure.valueOf(nList.item(i)
+                                                                          .getTextContent()
+                                                                          .toUpperCase());
             }
         }
 
@@ -539,6 +577,11 @@ public class BenchmarkSetup {
                     outputFile = nList.item(i).getTextContent();
                 } else if (nodeName.equals("plotFile")) {
                     plotFile = nList.item(i).getTextContent();
+                    // trim ".pdf" at the end, since plotter adds it
+                    // automatically
+                    if (plotFile.toLowerCase().endsWith(".pdf")) {
+                        plotFile = plotFile.substring(0, plotFile.lastIndexOf(".pdf"));
+                    }
                 }
             }
         }

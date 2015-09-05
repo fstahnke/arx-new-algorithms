@@ -73,43 +73,41 @@ public class BenchmarkExperimentRecordScaling {
         BENCHMARK.addAnalyzer(VARIANCE, new ValueBuffer());
         BENCHMARK.addAnalyzer(RUNTIME, new ValueBuffer());
 
-        BenchmarkSetup setup = new BenchmarkSetup("benchmarkConfig/tassaRGR.xml");
+        BenchmarkSetup setup = new BenchmarkSetup("benchmarkConfig/tassaRGRscaling.xml");
         BenchmarkMetadataUtility metadata = new BenchmarkMetadataUtility(setup);
         File resultFile = new File(setup.getOutputFile());
         resultFile.getParentFile().mkdirs();
+        final double SUPPRESSION = 1.0;
 
         // Repeat for each data set
-        for (BenchmarkDataset data : setup.getDatasets()) {
-            for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
-                for (BenchmarkPrivacyModel model : setup.getPrivacyModels()) {
-                    for (BenchmarkUtilityMeasure measure : setup.getUtilityMeasures()) {
-                        if (algorithm != BenchmarkAlgorithm.TASSA) {
-                            for (double suppression : setup.getSuppressionLimits()) {
-                                System.out.println("Performing run: " + data + "/" + measure + "/" +
-                                                   model + "/" + algorithm + "/" + suppression);
+        for (BenchmarkPrivacyModel model : setup.getPrivacyModels()) {
+            for (BenchmarkUtilityMeasure measure : setup.getUtilityMeasures()) {
+                for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
+                    for (int subsetCount = 1000; subsetCount <= 30000; subsetCount += 1000) {
+                        System.out.println("Performing run: " + measure + " / " + model + " / " +
+                                           algorithm + " / subset-" + subsetCount);
 
-                                // New run
-                                performExperiment(metadata,
-                                                  data,
-                                                  measure,
-                                                  model,
-                                                  algorithm,
-                                                  suppression);
-
-                                // Write after each experiment
-                                BENCHMARK.getResults().write(resultFile);
-                            }
-                            // For Tassa we don't need the suppression limit
+                        // New run
+                        if (algorithm == BenchmarkAlgorithm.TASSA) {
+                            performExperiment(metadata,
+                                              BenchmarkDataset.ADULT,
+                                              measure,
+                                              model,
+                                              algorithm,
+                                              0.0,
+                                              subsetCount);
                         } else {
-                            System.out.println("Performing run: " + data + "/" + measure + "/" +
-                                               model + "/" + algorithm + "/(n/a)");
-
-                            // New run
-                            performExperiment(metadata, data, measure, model, algorithm, 0.0);
-
-                            // Write after each experiment
-                            BENCHMARK.getResults().write(resultFile);
+                            performExperiment(metadata,
+                                              BenchmarkDataset.ADULT,
+                                              measure,
+                                              model,
+                                              algorithm,
+                                              SUPPRESSION,
+                                              subsetCount);
                         }
+
+                        // Write after each experiment
+                        BENCHMARK.getResults().write(resultFile);
                     }
                 }
             }
@@ -132,9 +130,10 @@ public class BenchmarkExperimentRecordScaling {
                                           final BenchmarkUtilityMeasure measure,
                                           final BenchmarkPrivacyModel model,
                                           final BenchmarkAlgorithm algorithm,
-                                          double suppression) throws IOException {
+                                          double suppression,
+                                          int subsetCount) throws IOException {
 
-        Data data = BenchmarkSetup.getData(dataset, model);
+        Data data = BenchmarkSetup.getDataSubset(dataset, model, subsetCount);
         ARXConfiguration config = BenchmarkSetup.getConfiguration(dataset,
                                                                   measure,
                                                                   model,
@@ -219,11 +218,17 @@ public class BenchmarkExperimentRecordScaling {
                 algorithmImplementation = new BenchmarkAlgorithmRGR(observer, data, config);
             }
 
+            System.out.print("Warmup... ");
+            observer.setWarmup(true);
+            algorithmImplementation.execute();
+            observer.setWarmup(false);
+            System.out.println("done!");
+
             System.out.print("Iteration: ");
             for (int i = 0; i < NUMBER_OF_RUNS; i++) {
                 algorithmImplementation.execute();
             }
-            System.out.println(".");
+            System.out.println("done!");
 
         } else {
             throw new UnsupportedOperationException("Unimplemented Algorithm: " + algorithm);

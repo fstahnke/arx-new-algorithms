@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config>
+    <dataset>ADULT</dataset>
+    <algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
+    <algorithm>TASSA</algorithm>
+    <privacyModel>K5_ANONYMITY</privacyModel>
+    <utilityMeasure>LOSS</utilityMeasure>
+    <utilityMeasure>DISCERNIBILITY</utilityMeasure>
+    <suppressionLimit>1.0</suppressionLimit>
+    <outputFile>results/tassaRGRscaling.csv</outputFile>
+    <plotFile>results/tassaRGRscaling.pdf</plotFile>
+</config>
