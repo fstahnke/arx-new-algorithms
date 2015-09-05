@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <config>
-<!--     <dataset>ADULT</dataset> -->
-    <dataset>CUP_SUBSET</dataset>
+    <dataset>ADULT</dataset>
+    <dataset>CUP</dataset>
     <algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
     <algorithm>TASSA</algorithm>
-<!--     <privacyModel>K5_ANONYMITY</privacyModel> -->
+    <privacyModel>K5_ANONYMITY</privacyModel>
     <privacyModel>K20_ANONYMITY</privacyModel>
     <utilityMeasure>LOSS</utilityMeasure>
     <utilityMeasure>DISCERNIBILITY</utilityMeasure>
