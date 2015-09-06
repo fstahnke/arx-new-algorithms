@@ -49,7 +49,8 @@ public class BenchmarkExperimentRecordScaling {
             "Dataset",
             "UtilityMeasure",
             "PrivacyModel",
-            "Algorithm"                          });
+            "Algorithm",
+            "Suppression"                        });
 
     /** UTILITY */
     private static final int       UTILITY        = BENCHMARK.addMeasure("Utility");
@@ -77,7 +78,7 @@ public class BenchmarkExperimentRecordScaling {
         BenchmarkMetadataUtility metadata = new BenchmarkMetadataUtility(setup);
         File resultFile = new File(setup.getOutputFile());
         resultFile.getParentFile().mkdirs();
-        final double SUPPRESSION = 1.0;
+        final double SUPPRESSION = 0.5;
 
         // Repeat for each data set
         for (BenchmarkPrivacyModel model : setup.getPrivacyModels()) {
@@ -122,7 +123,7 @@ public class BenchmarkExperimentRecordScaling {
      * @param measure
      * @param model
      * @param algorithm
-     * @param suppression
+     * @param suppressed
      * @throws IOException
      */
     private static void performExperiment(final BenchmarkMetadataUtility metadata,
@@ -130,14 +131,14 @@ public class BenchmarkExperimentRecordScaling {
                                           final BenchmarkUtilityMeasure measure,
                                           final BenchmarkPrivacyModel model,
                                           final BenchmarkAlgorithm algorithm,
-                                          double suppression,
+                                          final double suppressed,
                                           int subsetCount) throws IOException {
 
         Data data = BenchmarkSetup.getDataSubset(dataset, model, subsetCount);
         ARXConfiguration config = BenchmarkSetup.getConfiguration(dataset,
                                                                   measure,
                                                                   model,
-                                                                  suppression);
+                                                                  suppressed);
 
         final Map<String, String[][]> hierarchies = new DataConverter().toMap(data.getDefinition());
         final String[] header = new DataConverter().getHeader(data.getHandle());
@@ -188,7 +189,7 @@ public class BenchmarkExperimentRecordScaling {
                             double variance = calculateVariance(utilityResults);
                             double runtime = calculateArithmeticMean(runtimes);
 
-                            BENCHMARK.addRun(dataset, measure, model, algorithm);
+                            BENCHMARK.addRun(dataset, measure, model, algorithm, suppressed);
                             BENCHMARK.addValue(UTILITY, utilityMean);
                             BENCHMARK.addValue(RUNTIME, runtime);
                             BENCHMARK.addValue(VARIANCE, variance);

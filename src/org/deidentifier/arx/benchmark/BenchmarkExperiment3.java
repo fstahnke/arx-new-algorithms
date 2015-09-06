@@ -50,7 +50,8 @@ public class BenchmarkExperiment3 {
             "Dataset",
             "UtilityMeasure",
             "PrivacyModel",
-            "Algorithm"                          });
+            "Algorithm",
+            "Suppression"                        });
 
     /** UTILITY */
     private static final int       UTILITY        = BENCHMARK.addMeasure("Utility");
@@ -133,7 +134,7 @@ public class BenchmarkExperiment3 {
                                           final BenchmarkUtilityMeasure measure,
                                           final BenchmarkPrivacyModel model,
                                           final BenchmarkAlgorithm algorithm,
-                                          double suppression) throws IOException {
+                                          final double suppression) throws IOException {
 
         Data data = BenchmarkSetup.getData(dataset, model);
         ARXConfiguration config = BenchmarkSetup.getConfiguration(dataset,
@@ -190,7 +191,7 @@ public class BenchmarkExperiment3 {
                             double variance = calculateVariance(utilityResults);
                             double runtime = calculateArithmeticMean(runtimes);
 
-                            BENCHMARK.addRun(dataset, measure, model, algorithm);
+                            BENCHMARK.addRun(dataset, measure, model, algorithm, suppression);
                             BENCHMARK.addValue(UTILITY, utilityMean);
                             BENCHMARK.addValue(RUNTIME, runtime);
                             BENCHMARK.addValue(VARIANCE, variance);
@@ -219,7 +220,7 @@ public class BenchmarkExperiment3 {
             } else if (algorithm == BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING) {
                 algorithmImplementation = new BenchmarkAlgorithmRGR(observer, data, config);
             }
-            
+
             System.out.print("Warmup... ");
             observer.setWarmup(true);
             algorithmImplementation.execute();
