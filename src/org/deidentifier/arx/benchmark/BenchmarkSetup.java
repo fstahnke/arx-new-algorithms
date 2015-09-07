@@ -129,7 +129,61 @@ public class BenchmarkSetup {
             public String toString() {
                 return "IhisSubset";
             }
-        }
+        },
+        ADULT1 {
+            @Override
+            public String toString() {
+                return "Adult";
+            }
+        },
+        ADULT2 {
+            @Override
+            public String toString() {
+                return "Adult";
+            }
+        },
+        ADULT3 {
+            @Override
+            public String toString() {
+                return "Adult";
+            }
+        },
+        ADULT4 {
+            @Override
+            public String toString() {
+                return "Adult";
+            }
+        },
+        ADULT5 {
+            @Override
+            public String toString() {
+                return "Adult";
+            }
+        },
+        ADULT6 {
+            @Override
+            public String toString() {
+                return "Adult";
+            }
+        },
+        ADULT7 {
+            @Override
+            public String toString() {
+                return "Adult";
+            }
+        },
+        ADULT8 {
+            @Override
+            public String toString() {
+                return "Adult";
+            }
+        },
+        ADULT9 {
+            @Override
+            public String toString() {
+                return "Adult";
+            }
+        },
     }
 
     public static enum BenchmarkPrivacyModel {
@@ -233,6 +287,33 @@ public class BenchmarkSetup {
         case ADULT:
             data = Data.create("data/adult.csv", ';');
             break;
+        case ADULT1:
+            data = Data.create("data/adult.csv", ';');
+            break;
+        case ADULT2:
+            data = Data.create("data/adult.csv", ';');
+            break;
+        case ADULT3:
+            data = Data.create("data/adult.csv", ';');
+            break;
+        case ADULT4:
+            data = Data.create("data/adult.csv", ';');
+            break;
+        case ADULT5:
+            data = Data.create("data/adult.csv", ';');
+            break;
+        case ADULT6:
+            data = Data.create("data/adult.csv", ';');
+            break;
+        case ADULT7:
+            data = Data.create("data/adult.csv", ';');
+            break;
+        case ADULT8:
+            data = Data.create("data/adult.csv", ';');
+            break;
+        case ADULT9:
+            data = Data.create("data/adult.csv", ';');
+            break;
         case ADULT_SUBSET:
             data = Data.create("data/adult_subset.csv", ';');
             break;
@@ -293,8 +374,9 @@ public class BenchmarkSetup {
             datasetName = datasetName.substring(0, datasetName.lastIndexOf("subset"));
         }
         // Create path to according subset csv file
-        Data data = Data.create(String.format("data/%1$s_subset/%1$s_%2$d.csv", datasetName, subsetCount),
-                                ';');
+        Data data = Data.create(String.format("data/%1$s_subset/%1$s_%2$d.csv",
+                                              datasetName,
+                                              subsetCount), ';');
 
         for (String qi : getQuasiIdentifyingAttributes(dataset)) {
             data.getDefinition().setAttributeType(qi, getHierarchy(dataset, qi));
@@ -315,6 +397,15 @@ public class BenchmarkSetup {
             getHierarchy(BenchmarkDataset dataset, String attribute) throws IOException {
         switch (dataset) {
         case ADULT:
+        case ADULT1:
+        case ADULT2:
+        case ADULT3:
+        case ADULT4:
+        case ADULT5:
+        case ADULT6:
+        case ADULT7:
+        case ADULT8:
+        case ADULT9:
         case ADULT_SUBSET:
             return Hierarchy.create("hierarchies/adult_hierarchy_" + attribute + ".csv", ';');
         case ATUS:
@@ -343,15 +434,53 @@ public class BenchmarkSetup {
     public static String[] getQuasiIdentifyingAttributes(BenchmarkDataset dataset) {
         switch (dataset) {
         case ADULT:
+        case ADULT9:
         case ADULT_SUBSET:
             return new String[] {
-                    "age",
-                    "education",
-                    "marital-status",
-                    "native-country",
-                    "race",
-                    "salary-class",
                     "sex",
+                    "age",
+                    "race",
+                    "marital-status",
+                    "education",
+                    "native-country",
+                    "workclass",
+                    "occupation",
+                    "salary-class" };
+        case ADULT1:
+            return new String[] { "sex" };
+        case ADULT2:
+            return new String[] { "sex", "age" };
+        case ADULT3:
+            return new String[] { "sex", "age", "race" };
+        case ADULT4:
+            return new String[] { "sex", "age", "race", "marital-status" };
+        case ADULT5:
+            return new String[] { "sex", "age", "race", "marital-status", "education" };
+        case ADULT6:
+            return new String[] {
+                    "sex",
+                    "age",
+                    "race",
+                    "marital-status",
+                    "education",
+                    "native-country" };
+        case ADULT7:
+            return new String[] {
+                    "sex",
+                    "age",
+                    "race",
+                    "marital-status",
+                    "education",
+                    "native-country",
+                    "workclass" };
+        case ADULT8:
+            return new String[] {
+                    "sex",
+                    "age",
+                    "race",
+                    "marital-status",
+                    "education",
+                    "native-country",
                     "workclass",
                     "occupation" };
         case ATUS:
