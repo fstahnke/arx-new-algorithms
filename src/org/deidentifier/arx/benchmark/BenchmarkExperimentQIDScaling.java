@@ -42,7 +42,7 @@ import de.linearbits.subframe.analyzer.ValueBuffer;
  * 
  * @author Fabian Stahnke
  */
-public class BenchmarkExperimentRecordScaling {
+public class BenchmarkExperimentQIDScaling {
 
     /** The benchmark instance */
     private static final Benchmark BENCHMARK      = new Benchmark(new String[] {
@@ -71,7 +71,6 @@ public class BenchmarkExperimentRecordScaling {
 
         // Init
         BENCHMARK.addAnalyzer(UTILITY, new ValueBuffer());
-        BENCHMARK.addAnalyzer(VARIANCE, new ValueBuffer());
         BENCHMARK.addAnalyzer(RUNTIME, new ValueBuffer());
 
         BenchmarkSetup setup = new BenchmarkSetup("benchmarkConfig/tassaRGRscaling.xml");
@@ -186,13 +185,11 @@ public class BenchmarkExperimentRecordScaling {
                         if (run == NUMBER_OF_RUNS - 1) {
 
                             double utilityMean = calculateArithmeticMean(utilityResults);
-                            double variance = calculateVariance(utilityResults);
                             double runtime = calculateArithmeticMean(runtimes);
 
                             BENCHMARK.addRun(dataset, measure, model, algorithm, suppressed);
                             BENCHMARK.addValue(UTILITY, utilityMean);
                             BENCHMARK.addValue(RUNTIME, runtime);
-                            BENCHMARK.addValue(VARIANCE, variance);
                         }
 
                         // Run complete
@@ -234,27 +231,6 @@ public class BenchmarkExperimentRecordScaling {
         } else {
             throw new UnsupportedOperationException("Unimplemented Algorithm: " + algorithm);
         }
-    }
-
-    /**
-     * Get the variance for a set of values (without Bessel's correction).
-     * 
-     * @param values
-     *            A set of sample values.
-     * @return The sample variance.
-     */
-    private static double calculateVariance(double[] values) {
-
-        double arithmeticMean = calculateArithmeticMean(values);
-
-        double variance = 0d;
-        for (double value : values) {
-            variance += Math.pow(value - arithmeticMean, 2);
-        }
-        variance /= values.length;
-
-        return variance;
-
     }
 
     /**

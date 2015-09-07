@@ -41,9 +41,9 @@ import de.linearbits.subframe.analyzer.ValueBuffer;
  * BenchmarkExperiment comparing RGR and Tassa and analysing variance of Tassa
  * results.
  * 
- * @author Fabian Prasser
+ * @author Fabian Stahnke
  */
-public class BenchmarkExperiment3 {
+public class BenchmarkExperimentTassaVsRGR {
 
     /** The benchmark instance */
     private static final Benchmark BENCHMARK      = new Benchmark(new String[] {

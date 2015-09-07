@@ -1,42 +1,42 @@
 ;;;;;Utility;Variance;Runtime
 Dataset;UtilityMeasure;PrivacyModel;Algorithm;Suppression;Value;Value;Value
-Adult;Loss;20-anonymity;RGR;0.02;0.506711258;0;845.6
-Adult;Loss;20-anonymity;RGR;0.1;0.398187194;0;1192.4
-Adult;Loss;20-anonymity;RGR;0.5;0.339753547;0;1724.8
-Adult;Loss;20-anonymity;RGR;1;0.300721078;0;9905
-Adult;Discernibility;20-anonymity;RGR;0.02;0.007468757;0;470.2
-Adult;Discernibility;20-anonymity;RGR;0.1;0.007795052;0;921.6
-Adult;Discernibility;20-anonymity;RGR;0.5;0.007795052;0;1604.2
-Adult;Discernibility;20-anonymity;RGR;1;0.007795052;0;6113.2
-Cup;Loss;20-anonymity;RGR;0.02;0.263831624;0;7475.8
-Cup;Loss;20-anonymity;RGR;0.1;0.189538846;0;10009.8
-Cup;Loss;20-anonymity;RGR;0.5;0.168195062;0;10126.4
-Cup;Loss;20-anonymity;RGR;1;0.168171077;0;118060.4
-Cup;Discernibility;20-anonymity;RGR;0.02;0.007473902;0;971.2
-Cup;Discernibility;20-anonymity;RGR;0.1;0.007535102;0;1602.8
-Cup;Discernibility;20-anonymity;RGR;0.5;0.007707788;7.52E-37;2805.4
-Cup;Discernibility;20-anonymity;RGR;1;0.007707788;7.52E-37;143478.6
-Adult;Loss;5-anonymity;RGR;0.02;0.371020786;0;1410.8
-Adult;Loss;5-anonymity;RGR;0.1;0.27392452;0;1545.6
-Adult;Loss;5-anonymity;RGR;0.5;0.213403475;0;2188.8
-Adult;Loss;5-anonymity;RGR;1;0.213107754;7.70E-34;7696.2
-Adult;Discernibility;5-anonymity;RGR;0.02;0.004331537;0;986.8
-Adult;Discernibility;5-anonymity;RGR;0.1;0.004463606;0;1718
-Adult;Discernibility;5-anonymity;RGR;0.5;0.004330719;0;2655.2
-Adult;Discernibility;5-anonymity;RGR;1;0.004363866;0;5993
-Cup;Loss;5-anonymity;RGR;0.02;0.160973708;0;9873
-Cup;Loss;5-anonymity;RGR;0.1;0.124103553;1.93E-34;9090.4
-Cup;Loss;5-anonymity;RGR;0.5;0.12333462;0;9813.8
-Cup;Loss;5-anonymity;RGR;1;0.123183102;0;69374.8
-Cup;Discernibility;5-anonymity;RGR;0.02;0.002946804;0;1856.2
-Cup;Discernibility;5-anonymity;RGR;0.1;0.002946804;0;3754.4
-Cup;Discernibility;5-anonymity;RGR;0.5;0.002946804;0;6312.4
-Cup;Discernibility;5-anonymity;RGR;1;0.002946804;0;149150.8
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;0.06968227477336841;4.98873678144271E-8;249942.8
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;1.2649724718772788E-4;5.502612820858224E-13;244037.6
+Adult;Loss;20-anonymity;RGR;0.02;0.5067112584273624;0.0;845.6
+Adult;Loss;20-anonymity;RGR;0.1;0.39818719354082843;0.0;1192.4
+Adult;Loss;20-anonymity;RGR;0.5;0.3397535466431039;0.0;1724.8
+Adult;Loss;20-anonymity;RGR;1;0.3007210784839254;0.0;9905.0
+Adult;Discernibility;20-anonymity;RGR;0.02;0.0074687571451374085;0.0;470.2
+Adult;Discernibility;20-anonymity;RGR;0.1;0.007795052142810871;0.0;921.6
+Adult;Discernibility;20-anonymity;RGR;0.5;0.007795052142810871;0.0;1604.2
+Adult;Discernibility;20-anonymity;RGR;1;0.007795052142810871;0.0;6113.2
+Cup;Loss;20-anonymity;RGR;0.02;0.26383162364425283;0.0;7475.8
+Cup;Loss;20-anonymity;RGR;0.1;0.18953884566215481;0.0;10009.8
+Cup;Loss;20-anonymity;RGR;0.5;0.16819506188481947;0.0;10126.4
+Cup;Loss;20-anonymity;RGR;1;0.16817107655239244;0.0;118060.4
+Cup;Discernibility;20-anonymity;RGR;0.02;0.007473902184697112;0.0;971.2
+Cup;Discernibility;20-anonymity;RGR;0.1;0.007535101822223121;0.0;1602.8
+Cup;Discernibility;20-anonymity;RGR;0.5;0.007707787615238737;0.0;2805.4
+Cup;Discernibility;20-anonymity;RGR;1;0.007707787615238737;0.0;143478.6
+Adult;Loss;5-anonymity;RGR;0.02;0.37102078565921204;0.0;1410.8
+Adult;Loss;5-anonymity;RGR;0.1;0.2739245195979827;0.0;1545.6
+Adult;Loss;5-anonymity;RGR;0.5;0.21340347468849327;0.0;2188.8
+Adult;Loss;5-anonymity;RGR;1;0.21310775428150958;0.0;7696.2
+Adult;Discernibility;5-anonymity;RGR;0.02;0.004331537291222646;0.0;986.8
+Adult;Discernibility;5-anonymity;RGR;0.1;0.004463606249102837;0.0;1718.0
+Adult;Discernibility;5-anonymity;RGR;0.5;0.004330719377021313;0.0;2655.2
+Adult;Discernibility;5-anonymity;RGR;1;0.004363865789769125;0.0;5993.0
+Cup;Loss;5-anonymity;RGR;0.02;0.16097370773531794;0.0;9873.0
+Cup;Loss;5-anonymity;RGR;0.1;0.12410355266152488;0.0;9090.4
+Cup;Loss;5-anonymity;RGR;0.5;0.1233346195032465;0.0;9813.8
+Cup;Loss;5-anonymity;RGR;1;0.12318310210916532;0.0;69374.8
+Cup;Discernibility;5-anonymity;RGR;0.02;0.0029468041649167213;0.0;1856.2
+Cup;Discernibility;5-anonymity;RGR;0.1;0.0029468041649167213;0.0;3754.4
+Cup;Discernibility;5-anonymity;RGR;0.5;0.0029468041649167213;0.0;6312.4
+Cup;Discernibility;5-anonymity;RGR;1;0.0029468041649167213;0.0;149150.8
 Adult;Loss;20-anonymity;Tassa & Goldberger;0.0;0.1545384166979399;1.2421969036705008E-7;61462.6
 Adult;Discernibility;20-anonymity;Tassa & Goldberger;0.0;0.0012429206695056046;1.8398403759933597E-7;60791.0
-Cup;Loss;5-anonymity;Tassa & Goldberger;0.0;0.07924137881225155;1.5698733425442596E-9;1760015.2
-Cup;Discernibility;5-anonymity;Tassa & Goldberger;0.0;1.0580716902855375E-4;6.849385714748344E-13;1841751.6
 Cup;Loss;20-anonymity;Tassa & Goldberger;0.0;0.12823206517274421;8.001799774945969E-8;276510.6
-Cup;Discernibility;20-anonymity;Tassa & Goldberger;0.0;7.140279060607256E-4;2.638607470637487E-8;263557.4
+Cup;Discernibility;20-anonymity;Tassa & Goldberger;0.0;0.0007140279060607256;2.638607470637487E-8;263557.4
+Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;0.06968227477336841;4.98873678144271E-8;249942.8
+Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;0.00012649724718772788;5.502612820858224E-13;244037.6
+Cup;Loss;5-anonymity;Tassa & Goldberger;0.0;0.07924137881225155;1.5698733425442596E-9;1760015.2
+Cup;Discernibility;5-anonymity;Tassa & Goldberger;0.0;0.00010580716902855375;6.849385714748344E-13;1841751.6

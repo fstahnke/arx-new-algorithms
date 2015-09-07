@@ -47,9 +47,9 @@ import de.linearbits.subframe.render.PlotGroup;
 /**
  * Example benchmark
  * 
- * @author Fabian Prasser
+ * @author Fabian Stahnke
  */
-public class BenchmarkAnalysis2 {
+public class BenchmarkAnalysisGeneralizationDegrees {
 
     /**
      * Main
@@ -118,12 +118,17 @@ public class BenchmarkAnalysis2 {
                                           .equals(String.valueOf(suppression))
                                           .build();
 
+        Series2D utility = new Series2D(file,
+                                        selector,
+                                        new Field("Step", Analyzer.VALUE),
+                                        new Field("Utility", Analyzer.VALUE));
+        
         // Read generalization degrees into 2D series
         Series2D[] degreeSeries = new Series2D[9];
         for (int i = 0; i < 9; i++) {
             degreeSeries[i] = new Series2D(file,
                                            selector,
-                                           new Field("Time", Analyzer.VALUE),
+                                           new Field("Step", Analyzer.VALUE),
                                            new Field("Generalization degree " + (i+1), Analyzer.VALUE));
         }
 
@@ -133,10 +138,17 @@ public class BenchmarkAnalysis2 {
                                        new Field("PrivacyModel")); // Value
         series.getData().clear();
         
+        
+        // Read utility into 3D series
+        for (Point2D point : utility.getData()) {
+            series.getData().add(new Point3D(point.x, "Total Utility", point.y));
+        }
+        
         // Read generalization degrees into 2D series
-        for (int i = 0; i < 9; i++) {
+        String[] qids = BenchmarkSetup.getQuasiIdentifyingAttributes(data);
+        for (int i = 0; i < qids.length; i++) {
             for (Point2D point : degreeSeries[i].getData()) {
-                series.getData().add(new Point3D(point.x, "Generalization degree " + (i+1), point.y));
+                series.getData().add(new Point3D(point.x, qids[i], point.y));
             }
         }
 
@@ -145,8 +157,8 @@ public class BenchmarkAnalysis2 {
         plots.add(new PlotLinesClustered(data.toString() + "/" + measure.toString() + "/" +
                                                  model.toString() + "/" +
                                                  String.valueOf(suppression),
-                                         new Labels("Time [ms]",
-                                                    "Utility [%] / Suppression [%] / Generalization Degree [%]"),
+                                         new Labels("Recursive Step",
+                                                    "Generalization Degree / Utility"),
                                          series));
 
         GnuPlotParams params = new GnuPlotParams();
