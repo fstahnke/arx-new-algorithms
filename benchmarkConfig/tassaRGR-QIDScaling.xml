@@ -9,12 +9,20 @@
     <dataset>ADULT7</dataset>
     <dataset>ADULT8</dataset>
     <dataset>ADULT9</dataset>
+    <dataset>CUP1</dataset>
+    <dataset>CUP2</dataset>
+    <dataset>CUP3</dataset>
+    <dataset>CUP4</dataset>
+    <dataset>CUP5</dataset>
+    <dataset>CUP6</dataset>
+    <dataset>CUP7</dataset>
+    <dataset>CUP8</dataset>
     <algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
     <algorithm>TASSA</algorithm>
     <privacyModel>K5_ANONYMITY</privacyModel>
     <utilityMeasure>LOSS</utilityMeasure>
-    <utilityMeasure>DISCERNIBILITY</utilityMeasure>
-    <suppressionLimit>0.5</suppressionLimit>
+    <suppressionLimit>0.05</suppressionLimit>
+    <suppressionLimit>0.1</suppressionLimit>
     <outputFile>results/tassaRGR-QIDScaling.csv</outputFile>
     <plotFile>results/tassaRGR-QIDScaling.pdf</plotFile>
 </config>

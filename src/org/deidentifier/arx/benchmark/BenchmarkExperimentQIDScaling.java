@@ -78,39 +78,43 @@ public class BenchmarkExperimentQIDScaling {
         BenchmarkMetadataUtility metadata = new BenchmarkMetadataUtility(setup);
         File resultFile = new File(setup.getOutputFile());
         resultFile.getParentFile().mkdirs();
-        final double SUPPRESSION = 0.5;
 
         // Repeat for each data set
         for (BenchmarkPrivacyModel model : setup.getPrivacyModels()) {
             for (BenchmarkUtilityMeasure measure : setup.getUtilityMeasures()) {
                 for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
-                    int qidCount = 1;
                     for (BenchmarkDataset dataset : setup.getDatasets()) {
-                        System.out.println("Performing run: " + measure + " / " + model + " / " +
-                                           algorithm + " / QIDs: " + qidCount);
 
                         // New run
                         if (algorithm == BenchmarkAlgorithm.TASSA) {
+                            System.out.println("Performing run: " + dataset +  " / " + measure + " / " + model + " / " +
+                                    algorithm + " / QIs: " + dataset.getNumQIs());
                             performExperiment(metadata,
                                               dataset,
                                               measure,
                                               model,
                                               algorithm,
                                               0.0,
-                                              qidCount);
-                        } else {
-                            performExperiment(metadata,
-                                              dataset,
-                                              measure,
-                                              model,
-                                              algorithm,
-                                              SUPPRESSION,
-                                              qidCount);
-                        }
+                                              dataset.getNumQIs());
 
-                        // Write after each experiment
-                        BENCHMARK.getResults().write(resultFile);
-                        qidCount++;
+                            // Write after each experiment
+                            BENCHMARK.getResults().write(resultFile);
+                        } else {
+                            for (double suppression : setup.getSuppressionLimits()) {
+                                System.out.println("Performing run: " + dataset +  " / " + measure + " / " + model + " / " +
+                                        algorithm + " / QIs: " + dataset.getNumQIs() + " / " + suppression);
+                                performExperiment(metadata,
+                                                  dataset,
+                                                  measure,
+                                                  model,
+                                                  algorithm,
+                                                  suppression,
+                                                  dataset.getNumQIs());
+
+                                // Write after each experiment
+                                BENCHMARK.getResults().write(resultFile);
+                            }
+                        }
                     }
                 }
             }
@@ -136,7 +140,7 @@ public class BenchmarkExperimentQIDScaling {
                                           final double suppressed,
                                           final int qidCount) throws IOException {
 
-        Data data = BenchmarkSetup.getDataSubset(dataset, model, qidCount);
+        Data data = BenchmarkSetup.getData(dataset, model);
         ARXConfiguration config = BenchmarkSetup.getConfiguration(dataset,
                                                                   measure,
                                                                   model,

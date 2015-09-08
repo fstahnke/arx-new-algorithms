@@ -87,6 +87,28 @@ public class BenchmarkExperimentGeneralizationDegrees {
             GENERALIZATION_DEGREE8,
             GENERALIZATION_DEGREE9                       };
 
+    /** AVERAGE DEGREE OF GENERALIZATION */
+    private static final int       GENERALIZATION_VARIANCE1 = BENCHMARK.addMeasure("Generalization degree 1");
+    private static final int       GENERALIZATION_VARIANCE2 = BENCHMARK.addMeasure("Generalization degree 2");
+    private static final int       GENERALIZATION_VARIANCE3 = BENCHMARK.addMeasure("Generalization degree 3");
+    private static final int       GENERALIZATION_VARIANCE4 = BENCHMARK.addMeasure("Generalization degree 4");
+    private static final int       GENERALIZATION_VARIANCE5 = BENCHMARK.addMeasure("Generalization degree 5");
+    private static final int       GENERALIZATION_VARIANCE6 = BENCHMARK.addMeasure("Generalization degree 6");
+    private static final int       GENERALIZATION_VARIANCE7 = BENCHMARK.addMeasure("Generalization degree 7");
+    private static final int       GENERALIZATION_VARIANCE8 = BENCHMARK.addMeasure("Generalization degree 8");
+    private static final int       GENERALIZATION_VARIANCE9 = BENCHMARK.addMeasure("Generalization degree 9");
+
+    private static final int[]     VARIANCE_ARRAY           = new int[] {
+            GENERALIZATION_DEGREE1,
+            GENERALIZATION_DEGREE2,
+            GENERALIZATION_DEGREE3,
+            GENERALIZATION_DEGREE4,
+            GENERALIZATION_DEGREE5,
+            GENERALIZATION_DEGREE6,
+            GENERALIZATION_DEGREE7,
+            GENERALIZATION_DEGREE8,
+            GENERALIZATION_DEGREE9                       };
+
     /**
      * /** Main entry point
      * 
@@ -99,6 +121,9 @@ public class BenchmarkExperimentGeneralizationDegrees {
         BENCHMARK.addAnalyzer(STEP, new ValueBuffer());
         for (int degree : DEGREE_ARRAY) {
             BENCHMARK.addAnalyzer(degree, new ValueBuffer());
+        }
+        for (int variance : VARIANCE_ARRAY) {
+            BENCHMARK.addAnalyzer(variance, new ValueBuffer());
         }
         BENCHMARK.addAnalyzer(SUPPRESSED, new ValueBuffer());
         BENCHMARK.addAnalyzer(UTILITY, new ValueBuffer());
@@ -172,9 +197,14 @@ public class BenchmarkExperimentGeneralizationDegrees {
                  */
                 private int generalizedRecords = 0;
                 /**
-                 * The average generalization degrees of all records.
+                 * The average generalization degree of each attributes.
                  */
                 private double[] generalizationDegrees;
+                /**
+                 * The generalization variance of each attribute.
+                 */
+                private double[] generalizationVariances;
+                
 
                 @Override
                 public void notify(long timestamp, String[][] output, int[] transformation) {
@@ -182,7 +212,9 @@ public class BenchmarkExperimentGeneralizationDegrees {
                     // init
                     if (step == 0) {
                         generalizationDegrees = new double[transformation.length];
+                        generalizationVariances = new double[transformation.length];
                         Arrays.fill(generalizationDegrees, 1d);
+                        Arrays.fill(generalizationVariances, 0d);
                     }
 
                     // Obtain utility

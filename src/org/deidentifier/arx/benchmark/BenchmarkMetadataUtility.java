@@ -97,7 +97,6 @@ public class BenchmarkMetadataUtility {
         String[][] output = input;
         Map<String, String[][]> hierarchies = converter.toMap(definition);
         String[] header = converter.getHeader(inputHandle);
-        header = Arrays.copyOf(header, hierarchies.size());
         int[] transformation = new int[definition.getQuasiIdentifyingAttributes().size()];
         Arrays.fill(transformation, 0);
 

@@ -71,44 +71,44 @@ public class BenchmarkExperimentRecordScaling {
 
         // Init
         BENCHMARK.addAnalyzer(UTILITY, new ValueBuffer());
-        BENCHMARK.addAnalyzer(VARIANCE, new ValueBuffer());
         BENCHMARK.addAnalyzer(RUNTIME, new ValueBuffer());
 
         BenchmarkSetup setup = new BenchmarkSetup("benchmarkConfig/tassaRGRscaling.xml");
         BenchmarkMetadataUtility metadata = new BenchmarkMetadataUtility(setup);
         File resultFile = new File(setup.getOutputFile());
         resultFile.getParentFile().mkdirs();
-        final double SUPPRESSION = 0.5;
 
         // Repeat for each data set
         for (BenchmarkPrivacyModel model : setup.getPrivacyModels()) {
             for (BenchmarkUtilityMeasure measure : setup.getUtilityMeasures()) {
                 for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
-                    for (int subsetCount = 1000; subsetCount <= 30000; subsetCount += 1000) {
-                        System.out.println("Performing run: " + measure + " / " + model + " / " +
-                                           algorithm + " / subset-" + subsetCount);
+                    for (double suppression : setup.getSuppressionLimits()) {
+                        for (int subsetCount = 1000; subsetCount <= 30000; subsetCount += 1000) {
+                            System.out.println("Performing run: " + measure + " / " + model +
+                                               " / " + algorithm + " / subset-" + subsetCount);
 
-                        // New run
-                        if (algorithm == BenchmarkAlgorithm.TASSA) {
-                            performExperiment(metadata,
-                                              BenchmarkDataset.ADULT,
-                                              measure,
-                                              model,
-                                              algorithm,
-                                              0.0,
-                                              subsetCount);
-                        } else {
-                            performExperiment(metadata,
-                                              BenchmarkDataset.ADULT,
-                                              measure,
-                                              model,
-                                              algorithm,
-                                              SUPPRESSION,
-                                              subsetCount);
+                            // New run
+                            if (algorithm == BenchmarkAlgorithm.TASSA) {
+                                performExperiment(metadata,
+                                                  BenchmarkDataset.ADULT,
+                                                  measure,
+                                                  model,
+                                                  algorithm,
+                                                  0.0,
+                                                  subsetCount);
+                            } else {
+                                performExperiment(metadata,
+                                                  BenchmarkDataset.ADULT,
+                                                  measure,
+                                                  model,
+                                                  algorithm,
+                                                  suppression,
+                                                  subsetCount);
+                            }
+
+                            // Write after each experiment
+                            BENCHMARK.getResults().write(resultFile);
                         }
-
-                        // Write after each experiment
-                        BENCHMARK.getResults().write(resultFile);
                     }
                 }
             }
@@ -192,7 +192,6 @@ public class BenchmarkExperimentRecordScaling {
                             BENCHMARK.addRun(dataset, measure, model, algorithm, suppressed);
                             BENCHMARK.addValue(UTILITY, utilityMean);
                             BENCHMARK.addValue(RUNTIME, runtime);
-                            BENCHMARK.addValue(VARIANCE, variance);
                         }
 
                         // Run complete

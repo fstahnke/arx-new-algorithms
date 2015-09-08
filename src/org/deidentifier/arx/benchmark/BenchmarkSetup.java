@@ -18,6 +18,7 @@
 package org.deidentifier.arx.benchmark;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -26,6 +27,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.deidentifier.arx.ARXConfiguration;
 import org.deidentifier.arx.AttributeType.Hierarchy;
 import org.deidentifier.arx.Data;
+import org.deidentifier.arx.DataSource;
 import org.deidentifier.arx.criteria.KAnonymity;
 import org.deidentifier.arx.metric.Metric;
 import org.deidentifier.arx.metric.Metric.AggregateFunction;
@@ -70,120 +72,51 @@ public class BenchmarkSetup {
     }
 
     public static enum BenchmarkDataset {
-        ADULT {
-            @Override
-            public String toString() {
-                return "Adult";
-            }
-        },
-        ADULT_SUBSET {
-            @Override
-            public String toString() {
-                return "AdultSubset";
-            }
-        },
-        CUP {
-            @Override
-            public String toString() {
-                return "Cup";
-            }
-        },
-        CUP_SUBSET {
-            @Override
-            public String toString() {
-                return "CupSubset";
-            }
-        },
-        FARS {
-            @Override
-            public String toString() {
-                return "Fars";
-            }
-        },
-        FARS_SUBSET {
-            @Override
-            public String toString() {
-                return "FarsSubset";
-            }
-        },
-        ATUS {
-            @Override
-            public String toString() {
-                return "Atus";
-            }
-        },
-        ATUS_SUBSET {
-            @Override
-            public String toString() {
-                return "AtusSubset";
-            }
-        },
-        IHIS {
-            @Override
-            public String toString() {
-                return "Ihis";
-            }
-        },
-        IHIS_SUBSET {
-            @Override
-            public String toString() {
-                return "IhisSubset";
-            }
-        },
-        ADULT1 {
-            @Override
-            public String toString() {
-                return "Adult";
-            }
-        },
-        ADULT2 {
-            @Override
-            public String toString() {
-                return "Adult";
-            }
-        },
-        ADULT3 {
-            @Override
-            public String toString() {
-                return "Adult";
-            }
-        },
-        ADULT4 {
-            @Override
-            public String toString() {
-                return "Adult";
-            }
-        },
-        ADULT5 {
-            @Override
-            public String toString() {
-                return "Adult";
-            }
-        },
-        ADULT6 {
-            @Override
-            public String toString() {
-                return "Adult";
-            }
-        },
-        ADULT7 {
-            @Override
-            public String toString() {
-                return "Adult";
-            }
-        },
-        ADULT8 {
-            @Override
-            public String toString() {
-                return "Adult";
-            }
-        },
-        ADULT9 {
-            @Override
-            public String toString() {
-                return "Adult";
-            }
-        },
+        
+        ADULT("Adult", 9),
+        ADULT_SUBSET("AdultSubset", 9),
+        CUP("Cup", 8),
+        CUP_SUBSET("CupSubset", 8),
+        FARS("Fars", 8),
+        FARS_SUBSET("FarsSubset", 8),
+        ATUS("Atus", 9),
+        ATUS_SUBSET("AtusSubset", 9),
+        IHIS("Ihis", 9),
+        IHIS_SUBSET("IhisSubset", 9),
+        ADULT1("Adult", 1),
+        ADULT2("Adult", 2),
+        ADULT3("Adult", 3),
+        ADULT4("Adult", 4),
+        ADULT5("Adult", 5),
+        ADULT6("Adult", 6),
+        ADULT7("Adult", 7),
+        ADULT8("Adult", 8),
+        ADULT9("Adult", 9),
+        CUP1("Cup", 1),
+        CUP2("Cup", 2),
+        CUP3("Cup", 3),
+        CUP4("Cup", 4),
+        CUP5("Cup", 5),
+        CUP6("Cup", 6),
+        CUP7("Cup", 7),
+        CUP8("Cup", 8);
+
+        private final int qis;
+        private final String name;
+        
+        private BenchmarkDataset(String name, int val) {
+            this.name = name;
+            this.qis = val;
+        }
+        
+        @Override
+        public String toString() {
+            return this.name;
+        }
+        
+        public int getNumQIs() {
+            return this.qis;
+        }
     }
 
     public static enum BenchmarkPrivacyModel {
@@ -283,36 +216,25 @@ public class BenchmarkSetup {
     public static Data
             getData(BenchmarkDataset dataset, BenchmarkPrivacyModel criterion) throws IOException {
         Data data = null;
+        DataSource source = null;
         switch (dataset) {
         case ADULT:
             data = Data.create("data/adult.csv", ';');
             break;
         case ADULT1:
-            data = Data.create("data/adult.csv", ';');
-            break;
         case ADULT2:
-            data = Data.create("data/adult.csv", ';');
-            break;
         case ADULT3:
-            data = Data.create("data/adult.csv", ';');
-            break;
         case ADULT4:
-            data = Data.create("data/adult.csv", ';');
-            break;
         case ADULT5:
-            data = Data.create("data/adult.csv", ';');
-            break;
         case ADULT6:
-            data = Data.create("data/adult.csv", ';');
-            break;
         case ADULT7:
-            data = Data.create("data/adult.csv", ';');
-            break;
         case ADULT8:
-            data = Data.create("data/adult.csv", ';');
-            break;
         case ADULT9:
-            data = Data.create("data/adult.csv", ';');
+            source = DataSource.createCSVSource("data/adult.csv", ';', true);
+            for(String attribute : getQuasiIdentifyingAttributes(dataset)) {
+                source.addColumn(attribute);
+            }
+            data = Data.create(source);
             break;
         case ADULT_SUBSET:
             data = Data.create("data/adult_subset.csv", ';');
@@ -325,6 +247,20 @@ public class BenchmarkSetup {
             break;
         case CUP:
             data = Data.create("data/cup.csv", ';');
+            break;
+        case CUP1:
+        case CUP2:
+        case CUP3:
+        case CUP4:
+        case CUP5:
+        case CUP6:
+        case CUP7:
+        case CUP8:
+            source = DataSource.createCSVSource("data/cup.csv", ';', true);
+            for(String attribute : getQuasiIdentifyingAttributes(dataset)) {
+                source.addColumn(attribute);
+            }
+            data = Data.create(source);
             break;
         case CUP_SUBSET:
             data = Data.create("data/cup_subset.csv", ';');
@@ -412,6 +348,14 @@ public class BenchmarkSetup {
         case ATUS_SUBSET:
             return Hierarchy.create("hierarchies/atus_hierarchy_" + attribute + ".csv", ';');
         case CUP:
+        case CUP1:
+        case CUP2:
+        case CUP3:
+        case CUP4:
+        case CUP5:
+        case CUP6:
+        case CUP7:
+        case CUP8:
         case CUP_SUBSET:
             return Hierarchy.create("hierarchies/cup_hierarchy_" + attribute + ".csv", ';');
         case FARS:
@@ -432,57 +376,40 @@ public class BenchmarkSetup {
      * @return
      */
     public static String[] getQuasiIdentifyingAttributes(BenchmarkDataset dataset) {
+        final String[] adultAttributes = new String[] {
+                                                       "sex",
+                                                       "age",
+                                                       "race",
+                                                       "marital-status",
+                                                       "education",
+                                                       "native-country",
+                                                       "workclass",
+                                                       "occupation",
+                                                       "salary-class" };
+        final String[] cupAttributes = new String[] {
+                                                     "AGE",
+                                                     "GENDER",
+                                                     "INCOME",
+                                                     "MINRAMNT",
+                                                     "NGIFTALL",
+                                                     "STATE",
+                                                     "ZIP",
+                                                     "RAMNTALL" };
+        
         switch (dataset) {
         case ADULT:
-        case ADULT9:
         case ADULT_SUBSET:
-            return new String[] {
-                    "sex",
-                    "age",
-                    "race",
-                    "marital-status",
-                    "education",
-                    "native-country",
-                    "workclass",
-                    "occupation",
-                    "salary-class" };
+        case ADULT9:
+            return adultAttributes;
         case ADULT1:
-            return new String[] { "sex" };
         case ADULT2:
-            return new String[] { "sex", "age" };
         case ADULT3:
-            return new String[] { "sex", "age", "race" };
         case ADULT4:
-            return new String[] { "sex", "age", "race", "marital-status" };
         case ADULT5:
-            return new String[] { "sex", "age", "race", "marital-status", "education" };
         case ADULT6:
-            return new String[] {
-                    "sex",
-                    "age",
-                    "race",
-                    "marital-status",
-                    "education",
-                    "native-country" };
         case ADULT7:
-            return new String[] {
-                    "sex",
-                    "age",
-                    "race",
-                    "marital-status",
-                    "education",
-                    "native-country",
-                    "workclass" };
         case ADULT8:
-            return new String[] {
-                    "sex",
-                    "age",
-                    "race",
-                    "marital-status",
-                    "education",
-                    "native-country",
-                    "workclass",
-                    "occupation" };
+            return Arrays.copyOf(adultAttributes, dataset.getNumQIs());
         case ATUS:
         case ATUS_SUBSET:
             return new String[] {
@@ -497,15 +424,16 @@ public class BenchmarkSetup {
                     "Highest level of school completed" };
         case CUP:
         case CUP_SUBSET:
-            return new String[] {
-                    "AGE",
-                    "GENDER",
-                    "INCOME",
-                    "MINRAMNT",
-                    "NGIFTALL",
-                    "STATE",
-                    "ZIP",
-                    "RAMNTALL" };
+        case CUP8:
+            return cupAttributes;
+        case CUP1:
+        case CUP2:
+        case CUP3:
+        case CUP4:
+        case CUP5:
+        case CUP6:
+        case CUP7:
+            return Arrays.copyOf(cupAttributes, dataset.getNumQIs());
         case FARS:
         case FARS_SUBSET:
             return new String[] {
