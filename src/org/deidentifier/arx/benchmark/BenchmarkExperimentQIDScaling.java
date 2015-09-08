@@ -53,9 +53,9 @@ public class BenchmarkExperimentQIDScaling {
             "Suppression"                        });
 
     /** UTILITY */
+    private static final int       QIDS           = BENCHMARK.addMeasure("QIDs");
+    /** UTILITY */
     private static final int       UTILITY        = BENCHMARK.addMeasure("Utility");
-    /** VARIANCE */
-    private static final int       VARIANCE       = BENCHMARK.addMeasure("Variance");
     /** RUNTIME */
     private static final int       RUNTIME        = BENCHMARK.addMeasure("Runtime");
     /** Number of runs for each benchmark setting */
@@ -70,10 +70,11 @@ public class BenchmarkExperimentQIDScaling {
     public static void main(String[] args) throws IOException {
 
         // Init
+        BENCHMARK.addAnalyzer(QIDS, new ValueBuffer());
         BENCHMARK.addAnalyzer(UTILITY, new ValueBuffer());
         BENCHMARK.addAnalyzer(RUNTIME, new ValueBuffer());
 
-        BenchmarkSetup setup = new BenchmarkSetup("benchmarkConfig/tassaRGRscaling.xml");
+        BenchmarkSetup setup = new BenchmarkSetup("benchmarkConfig/tassaRGR-QIDScaling.xml");
         BenchmarkMetadataUtility metadata = new BenchmarkMetadataUtility(setup);
         File resultFile = new File(setup.getOutputFile());
         resultFile.getParentFile().mkdirs();
@@ -83,31 +84,33 @@ public class BenchmarkExperimentQIDScaling {
         for (BenchmarkPrivacyModel model : setup.getPrivacyModels()) {
             for (BenchmarkUtilityMeasure measure : setup.getUtilityMeasures()) {
                 for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
-                    for (int subsetCount = 1000; subsetCount <= 30000; subsetCount += 1000) {
+                    int qidCount = 1;
+                    for (BenchmarkDataset dataset : setup.getDatasets()) {
                         System.out.println("Performing run: " + measure + " / " + model + " / " +
-                                           algorithm + " / subset-" + subsetCount);
+                                           algorithm + " / QIDs: " + qidCount);
 
                         // New run
                         if (algorithm == BenchmarkAlgorithm.TASSA) {
                             performExperiment(metadata,
-                                              BenchmarkDataset.ADULT,
+                                              dataset,
                                               measure,
                                               model,
                                               algorithm,
                                               0.0,
-                                              subsetCount);
+                                              qidCount);
                         } else {
                             performExperiment(metadata,
-                                              BenchmarkDataset.ADULT,
+                                              dataset,
                                               measure,
                                               model,
                                               algorithm,
                                               SUPPRESSION,
-                                              subsetCount);
+                                              qidCount);
                         }
 
                         // Write after each experiment
                         BENCHMARK.getResults().write(resultFile);
+                        qidCount++;
                     }
                 }
             }
@@ -131,9 +134,9 @@ public class BenchmarkExperimentQIDScaling {
                                           final BenchmarkPrivacyModel model,
                                           final BenchmarkAlgorithm algorithm,
                                           final double suppressed,
-                                          int subsetCount) throws IOException {
+                                          final int qidCount) throws IOException {
 
-        Data data = BenchmarkSetup.getDataSubset(dataset, model, subsetCount);
+        Data data = BenchmarkSetup.getDataSubset(dataset, model, qidCount);
         ARXConfiguration config = BenchmarkSetup.getConfiguration(dataset,
                                                                   measure,
                                                                   model,
@@ -188,6 +191,7 @@ public class BenchmarkExperimentQIDScaling {
                             double runtime = calculateArithmeticMean(runtimes);
 
                             BENCHMARK.addRun(dataset, measure, model, algorithm, suppressed);
+                            BENCHMARK.addValue(QIDS, qidCount);
                             BENCHMARK.addValue(UTILITY, utilityMean);
                             BENCHMARK.addValue(RUNTIME, runtime);
                         }
