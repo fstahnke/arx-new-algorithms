@@ -45,21 +45,23 @@ import de.linearbits.subframe.analyzer.ValueBuffer;
 public class BenchmarkExperimentQIDScaling {
 
     /** The benchmark instance */
-    private static final Benchmark BENCHMARK      = new Benchmark(new String[] {
+    private static final Benchmark BENCHMARK         = new Benchmark(new String[] {
             "Dataset",
             "UtilityMeasure",
             "PrivacyModel",
             "Algorithm",
-            "Suppression"                        });
+            "Suppression"                           });
 
     /** UTILITY */
-    private static final int       QIDS           = BENCHMARK.addMeasure("QIDs");
+    private static final int       QIDS              = BENCHMARK.addMeasure("QIDs");
     /** UTILITY */
-    private static final int       UTILITY        = BENCHMARK.addMeasure("Utility");
+    private static final int       UTILITY           = BENCHMARK.addMeasure("Utility");
     /** RUNTIME */
-    private static final int       RUNTIME        = BENCHMARK.addMeasure("Runtime");
+    private static final int       RUNTIME           = BENCHMARK.addMeasure("Runtime");
     /** Number of runs for each benchmark setting */
-    private static final int       NUMBER_OF_RUNS = 5;
+    private static final int       NUMBER_OF_RUNS    = 5;
+    /** Number of warmup runs */
+    private static final int       NUMBER_OF_WARMUPS = (int) Math.ceil(NUMBER_OF_RUNS / 10.0);
 
     /**
      * Main entry point
@@ -87,8 +89,9 @@ public class BenchmarkExperimentQIDScaling {
 
                         // New run
                         if (algorithm == BenchmarkAlgorithm.TASSA) {
-                            System.out.println("Performing run: " + dataset +  " / " + measure + " / " + model + " / " +
-                                    algorithm + " / QIs: " + dataset.getNumQIs());
+                            System.out.println("Performing run: " + dataset + " / " + measure +
+                                               " / " + model + " / " + algorithm + " / QIs: " +
+                                               dataset.getNumQIs());
                             performExperiment(metadata,
                                               dataset,
                                               measure,
@@ -101,8 +104,9 @@ public class BenchmarkExperimentQIDScaling {
                             BENCHMARK.getResults().write(resultFile);
                         } else {
                             for (double suppression : setup.getSuppressionLimits()) {
-                                System.out.println("Performing run: " + dataset +  " / " + measure + " / " + model + " / " +
-                                        algorithm + " / QIs: " + dataset.getNumQIs() + " / " + suppression);
+                                System.out.println("Performing run: " + dataset + " / " + measure +
+                                                   " / " + model + " / " + algorithm + " / QIs: " +
+                                                   dataset.getNumQIs() + " / " + suppression);
                                 performExperiment(metadata,
                                                   dataset,
                                                   measure,
@@ -200,9 +204,11 @@ public class BenchmarkExperimentQIDScaling {
                             BENCHMARK.addValue(RUNTIME, runtime);
                         }
 
-                        // Run complete
                         run++;
-                        System.out.print(run + " ");
+                        // Run complete
+                        if (run % NUMBER_OF_WARMUPS == 0) {
+                            System.out.print(run + " ");
+                        }
                     }
                 }
 
@@ -226,7 +232,9 @@ public class BenchmarkExperimentQIDScaling {
 
             System.out.print("Warmup... ");
             observer.setWarmup(true);
-            algorithmImplementation.execute();
+            for (int i = 0; i < NUMBER_OF_WARMUPS; i++) {
+                algorithmImplementation.execute();
+            }
             observer.setWarmup(false);
             System.out.println("done!");
 

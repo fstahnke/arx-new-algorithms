@@ -54,6 +54,9 @@ public class BenchmarkExperiment1 {
     /** TOTAL */
     public static final int        TIME       = BENCHMARK.addMeasure("Time");
 
+    /** ITERATION OF THE RECURSIVE ALGORITHM */
+    private static final int       STEP                   = BENCHMARK.addMeasure("Step");
+
     /** UTILITY */
     public static final int        UTILITY    = BENCHMARK.addMeasure("Utility");
 
