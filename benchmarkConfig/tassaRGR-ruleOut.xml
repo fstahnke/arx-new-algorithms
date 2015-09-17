@@ -5,25 +5,24 @@
 <config>
 	<!-- all subsets -->
     <dataset>ADULT</dataset>
-    <dataset>CUP</dataset>
-    <dataset>FARS</dataset>
-    <dataset>ATUS</dataset>
-    <dataset>IHIS</dataset>
 	
     <!-- add implemented algorithms -->
     <algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
+	<algorithm>TASSA</algorithm>
 	
     <!-- add privacy models -->
     <privacyModel>K5_ANONYMITY</privacyModel>
 	
     <!-- add utility measures -->
     <utilityMeasure>LOSS</utilityMeasure>
+    <utilityMeasure>DISCERNIBILITY</utilityMeasure>
 	
     <!-- add suppression limits. can be any double value between 0 and 1 -->
+    <suppressionLimit>0.02</suppressionLimit>
     <suppressionLimit>0.05</suppressionLimit>
-    <suppressionLimit>0.1</suppressionLimit>
+	<suppressionLimit>1.0</suppressionLimit>
 	
     <!-- set paths for output files -->
-    <outputFile>results/generalizationDegreeRGR.csv</outputFile>
-    <plotFile>results/generalizationDegreeRGR.pdf</plotFile>
+    <outputFile>results/tassaRGR-ruleOut.csv</outputFile>
+    <plotFile>results/tassaRGR-ruleOut.pdf</plotFile>
 </config>

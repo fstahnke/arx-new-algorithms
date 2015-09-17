@@ -1,18 +1,18 @@
 /*
- * Benchmark of risk-based anonymization in ARX 3.0.0
- * Copyright 2015 - Fabian Prasser
+ * Benchmark of risk-based anonymization in ARX 3.0.0 Copyright 2015 - Fabian
+ * Prasser
  * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  * 
  * http://www.apache.org/licenses/LICENSE-2.0
  * 
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package org.deidentifier.arx.benchmark;
@@ -38,48 +38,49 @@ import de.linearbits.subframe.Benchmark;
 import de.linearbits.subframe.analyzer.ValueBuffer;
 
 /**
- * BenchmarkExperiment analysing the development of generalization degrees of
- * RGR.
+ * BenchmarkExperiment analysing the development of generalization degrees,
+ * utility, suppressed records and the ratio of suppressed records throughout
+ * the iterations of RGR.
  * 
- * @author Fabian Prasser
+ * @author Fabian Stahnke
  */
-public class BenchmarkExperimentGeneralizationDegrees {
+public class BenchmarkExperimentRGRIterations {
 
     /** The benchmark instance */
-    private static final Benchmark BENCHMARK              = new Benchmark(new String[] {
+    private static final Benchmark BENCHMARK                = new Benchmark(new String[] {
             "Dataset",
             "UtilityMeasure",
             "PrivacyModel",
             "Algorithm",
-            "Suppression"                                });
+            "Suppression"                                  });
 
     /** TOTAL TIME ELAPSED */
-    public static final int        TIME       = BENCHMARK.addMeasure("Time");
+    public static final int        TIME                     = BENCHMARK.addMeasure("Time");
 
     /** UTILITY */
-    public static final int        UTILITY    = BENCHMARK.addMeasure("Utility");
+    public static final int        UTILITY                  = BENCHMARK.addMeasure("Utility");
 
     /** SUPPRESSED RECORDS */
-    public static final int        SUPPRESSED = BENCHMARK.addMeasure("Suppressed");
+    public static final int        SUPPRESSED               = BENCHMARK.addMeasure("Suppressed");
 
     /** SUPPRESSED RECORDS IN PERCENT */
-    public static final int        SUPPRESSED_RATIO = BENCHMARK.addMeasure("Suppressed ratio");
+    public static final int        SUPPRESSED_RATIO         = BENCHMARK.addMeasure("Suppressed ratio");
 
     /** ITERATION OF THE RECURSIVE ALGORITHM */
-    private static final int       STEP                   = BENCHMARK.addMeasure("Step");
+    private static final int       STEP                     = BENCHMARK.addMeasure("Step");
 
     /** AVERAGE DEGREE OF GENERALIZATION */
-    private static final int       GENERALIZATION_DEGREE1 = BENCHMARK.addMeasure("Generalization degree 1");
-    private static final int       GENERALIZATION_DEGREE2 = BENCHMARK.addMeasure("Generalization degree 2");
-    private static final int       GENERALIZATION_DEGREE3 = BENCHMARK.addMeasure("Generalization degree 3");
-    private static final int       GENERALIZATION_DEGREE4 = BENCHMARK.addMeasure("Generalization degree 4");
-    private static final int       GENERALIZATION_DEGREE5 = BENCHMARK.addMeasure("Generalization degree 5");
-    private static final int       GENERALIZATION_DEGREE6 = BENCHMARK.addMeasure("Generalization degree 6");
-    private static final int       GENERALIZATION_DEGREE7 = BENCHMARK.addMeasure("Generalization degree 7");
-    private static final int       GENERALIZATION_DEGREE8 = BENCHMARK.addMeasure("Generalization degree 8");
-    private static final int       GENERALIZATION_DEGREE9 = BENCHMARK.addMeasure("Generalization degree 9");
+    private static final int       GENERALIZATION_DEGREE1   = BENCHMARK.addMeasure("Generalization degree 1");
+    private static final int       GENERALIZATION_DEGREE2   = BENCHMARK.addMeasure("Generalization degree 2");
+    private static final int       GENERALIZATION_DEGREE3   = BENCHMARK.addMeasure("Generalization degree 3");
+    private static final int       GENERALIZATION_DEGREE4   = BENCHMARK.addMeasure("Generalization degree 4");
+    private static final int       GENERALIZATION_DEGREE5   = BENCHMARK.addMeasure("Generalization degree 5");
+    private static final int       GENERALIZATION_DEGREE6   = BENCHMARK.addMeasure("Generalization degree 6");
+    private static final int       GENERALIZATION_DEGREE7   = BENCHMARK.addMeasure("Generalization degree 7");
+    private static final int       GENERALIZATION_DEGREE8   = BENCHMARK.addMeasure("Generalization degree 8");
+    private static final int       GENERALIZATION_DEGREE9   = BENCHMARK.addMeasure("Generalization degree 9");
 
-    private static final int[]     DEGREE_ARRAY           = new int[] {
+    private static final int[]     DEGREE_ARRAY             = new int[] {
             GENERALIZATION_DEGREE1,
             GENERALIZATION_DEGREE2,
             GENERALIZATION_DEGREE3,
@@ -88,7 +89,7 @@ public class BenchmarkExperimentGeneralizationDegrees {
             GENERALIZATION_DEGREE6,
             GENERALIZATION_DEGREE7,
             GENERALIZATION_DEGREE8,
-            GENERALIZATION_DEGREE9                       };
+            GENERALIZATION_DEGREE9                         };
 
     /** AVERAGE DEGREE OF GENERALIZATION */
     private static final int       GENERALIZATION_VARIANCE1 = BENCHMARK.addMeasure("Generalization variance 1");
@@ -187,19 +188,26 @@ public class BenchmarkExperimentGeneralizationDegrees {
                                                                   measure,
                                                                   model,
                                                                   suppression);
-        
+
         final Map<String, String[][]> hierarchies = new DataConverter().toMap(data.getDefinition());
         final String[] header = new DataConverter().getHeader(data.getHandle());
+
+        // Calculate max generalization levels
+        final int maxGeneralizationLevels[] = new int[header.length];
+        for (int i = 0; i < maxGeneralizationLevels.length; i++) {
+            maxGeneralizationLevels[i] = data.getDefinition()
+                                             .getHierarchy(data.getHandle().getAttributeName(i))[0].length - 1;
+        }
 
         if (algorithm == BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING) {
 
             IBenchmarkObserver listener = new IBenchmarkObserver() {
 
-                private int step = 0;
+                private int      step               = 0;
                 /**
                  * The number of tuples that are generalized and not suppressed.
                  */
-                private int generalizedRecords = 0;
+                private int      generalizedRecords = 0;
                 /**
                  * The average generalization degree of each attributes.
                  */
@@ -208,11 +216,10 @@ public class BenchmarkExperimentGeneralizationDegrees {
                  * The generalization variance of each attribute.
                  */
                 private double[] generalizationVariances;
-                
 
                 @Override
                 public void notify(long timestamp, String[][] output, int[] transformation) {
-                    
+
                     // init
                     if (step == 0) {
                         generalizationDegrees = new double[transformation.length];
@@ -236,21 +243,21 @@ public class BenchmarkExperimentGeneralizationDegrees {
                     utility -= metadata.getLowerBound(dataset, measure);
                     utility /= (metadata.getUpperBound(dataset, measure) - metadata.getLowerBound(dataset,
                                                                                                   measure));
-                    
-                    // Calculate how many records have been generalized during this run
+
+                    // Calculate how many records have been generalized during
+                    // this run
                     int suppressed = getSuppressedRecords(output);
-                    int newGeneralized = output.length - generalizedRecords - suppressed; // get number of newly generalized tuples from this run
-                    
+                    // get number of newly generalized tuples from this run
+                    int newGeneralized = output.length - generalizedRecords - suppressed;
+
                     // Update the generalization degree for each attribute
                     for (int i = 0; i < transformation.length; i++) {
 
                         // Obtain generalization degree for current run
                         int generalizationLevel = transformation[i];
-                        int maxGeneralizationLevel = data.getDefinition()
-                                                         .getHierarchy(data.getHandle()
-                                                                           .getAttributeName(i))[0].length - 1;
+                        int maxGeneralizationLevel = maxGeneralizationLevels[i];
                         double currentDegree = 1.0 * generalizationLevel / maxGeneralizationLevel;
-                        
+
                         // Calculate new generalization degree:
                         // De-normalize degree from last run
                         double updatedDegree = generalizationDegrees[i] * output.length;
@@ -262,23 +269,25 @@ public class BenchmarkExperimentGeneralizationDegrees {
                         updatedDegree += suppressed;
                         // Normalize
                         updatedDegree /= output.length;
-                        
-                        // De-normalize degree from last run
+
+                        // De-normalize variance from last run
                         double updatedVariance = generalizationVariances[i] * output.length;
                         // Remove suppressed tuples from the last run
-                        updatedVariance -= (output.length - generalizedRecords) * Math.pow((1 - generalizationDegrees[i]), 2);
+                        updatedVariance -= (output.length - generalizedRecords) *
+                                           Math.pow((1 - generalizationDegrees[i]), 2);
                         // Add generalized tuples from this run
-                        updatedVariance += newGeneralized * Math.pow((currentDegree - updatedDegree), 2);
+                        updatedVariance += newGeneralized *
+                                           Math.pow((currentDegree - updatedDegree), 2);
                         // Add the suppressed tuples from this run
                         updatedVariance += suppressed * Math.pow((1 - updatedDegree), 2);
                         // Normalize
                         updatedVariance /= output.length;
-                        
+
                         // Update output values
                         generalizationDegrees[i] = updatedDegree;
                         generalizationVariances[i] = updatedVariance;
                     }
-                    
+
                     // Update number of generalized records
                     generalizedRecords = output.length - suppressed;
 
@@ -287,7 +296,7 @@ public class BenchmarkExperimentGeneralizationDegrees {
                     // Write
                     BENCHMARK.addValue(STEP, step++);
                     BENCHMARK.addValue(SUPPRESSED, suppressed);
-                    BENCHMARK.addValue(SUPPRESSED_RATIO, suppressed * 1.0 /output.length);
+                    BENCHMARK.addValue(SUPPRESSED_RATIO, suppressed * 1.0 / output.length);
                     BENCHMARK.addValue(UTILITY, utility);
                     BENCHMARK.addValue(TIME, timestamp);
 
@@ -309,11 +318,6 @@ public class BenchmarkExperimentGeneralizationDegrees {
                 }
 
                 @Override
-                public boolean isWarmup() {
-                    return false;
-                }
-
-                @Override
                 public void setWarmup(boolean isWarmup) {
                 }
 
@@ -326,7 +330,7 @@ public class BenchmarkExperimentGeneralizationDegrees {
             throw new UnsupportedOperationException("TODO: Implement");
         }
     }
-    
+
     private static int getSuppressedRecords(String[][] output) {
 
         // Obtain suppressed tuples
@@ -344,7 +348,7 @@ public class BenchmarkExperimentGeneralizationDegrees {
                 suppressed++;
             }
         }
-        
+
         return suppressed;
     }
 }

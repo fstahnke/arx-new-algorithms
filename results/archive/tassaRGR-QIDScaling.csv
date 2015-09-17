@@ -34,3 +34,12 @@ Cup;Loss;5-anonymity;RGR;0.05;7.0;0.11452806759220073;2978.65
 Cup;Loss;5-anonymity;RGR;0.1;7.0;0.11369977256595606;2943.9
 Cup;Loss;5-anonymity;RGR;0.05;8.0;0.12410355266152487;9043.0
 Cup;Loss;5-anonymity;RGR;0.1;8.0;0.12333461950324649;10015.5
+Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;1.0;7.293704207169682E-5;307551.8
+Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;2.0;6.498707701973923E-4;67216.0
+Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;3.0;0.001636414829356747;359735.6
+Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;4.0;0.005156819937599846;224954.2
+Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;0.017081998901867342;177911.4
+Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;6.0;0.025612243490329322;295011.8
+Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;7.0;0.03480334467420054;301932.0
+Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;8.0;0.0629699456574325;313772.4
+Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;9.0;0.06945595263779011;314918.6

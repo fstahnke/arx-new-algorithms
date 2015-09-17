@@ -1,18 +1,18 @@
 /*
- * Benchmark of risk-based anonymization in ARX 3.0.0
- * Copyright 2015 - Fabian Prasser
+ * Benchmark of risk-based anonymization in ARX 3.0.0 Copyright 2015 - Fabian
+ * Prasser
  * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  * 
  * http://www.apache.org/licenses/LICENSE-2.0
  * 
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package org.deidentifier.arx.benchmark;
@@ -38,30 +38,29 @@ import de.linearbits.subframe.Benchmark;
 import de.linearbits.subframe.analyzer.ValueBuffer;
 
 /**
- * BenchmarkExperiment analyzing utility and suppression of RGR.
+ * BenchmarkExperiment comparing RGR and Tassa and analysing variance of Tassa
+ * results.
  * 
- * @author Fabian Prasser
+ * @author Fabian Stahnke
  */
-public class BenchmarkExperiment1 {
+public class BenchmarkExperimentUtility {
 
     /** The benchmark instance */
-    private static final Benchmark BENCHMARK  = new Benchmark(new String[] { "Dataset",
+    private static final Benchmark BENCHMARK         = new Benchmark(new String[] {
+            "Dataset",
             "UtilityMeasure",
             "PrivacyModel",
             "Algorithm",
-            "Suppression"                    });
-
-    /** TOTAL */
-    public static final int        TIME       = BENCHMARK.addMeasure("Time");
-
-    /** ITERATION OF THE RECURSIVE ALGORITHM */
-    private static final int       STEP                   = BENCHMARK.addMeasure("Step");
+            "Suppression"                           });
 
     /** UTILITY */
-    public static final int        UTILITY    = BENCHMARK.addMeasure("Utility");
-
-    /** UTILITY */
-    public static final int        SUPPRESSED = BENCHMARK.addMeasure("Suppressed");
+    private static final int       UTILITY           = BENCHMARK.addMeasure("Utility");
+    /** RUNTIME */
+    private static final int       RUNTIME           = BENCHMARK.addMeasure("Runtime");
+    /** Number of runs for each benchmark setting */
+    private static final int       NUMBER_OF_RUNS    = 5;
+    /** Number of warmup runs */
+    private static final int       NUMBER_OF_WARMUPS = (int) Math.ceil(NUMBER_OF_RUNS / 10.0);
 
     /**
      * Main entry point
@@ -72,11 +71,10 @@ public class BenchmarkExperiment1 {
     public static void main(String[] args) throws IOException {
 
         // Init
-        BENCHMARK.addAnalyzer(TIME, new ValueBuffer());
         BENCHMARK.addAnalyzer(UTILITY, new ValueBuffer());
-        BENCHMARK.addAnalyzer(SUPPRESSED, new ValueBuffer());
+        BENCHMARK.addAnalyzer(RUNTIME, new ValueBuffer());
 
-        BenchmarkSetup setup = new BenchmarkSetup("utilityAndSuppressionRGR.xml");
+        BenchmarkSetup setup = new BenchmarkSetup("benchmarkConfig/tassaRGRFlash.xml");
         BenchmarkMetadataUtility metadata = new BenchmarkMetadataUtility(setup);
         File resultFile = new File(setup.getOutputFile());
         resultFile.getParentFile().mkdirs();
@@ -112,7 +110,6 @@ public class BenchmarkExperiment1 {
 
                             // Write after each experiment
                             BENCHMARK.getResults().write(resultFile);
-
                         }
                     }
                 }
@@ -147,81 +144,17 @@ public class BenchmarkExperiment1 {
         final Map<String, String[][]> hierarchies = new DataConverter().toMap(data.getDefinition());
         final String[] header = new DataConverter().getHeader(data.getHandle());
 
-        if (algorithm == BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING) {
-
-            IBenchmarkObserver listener = new IBenchmarkObserver() {
-
-                @Override
-                public void notify(long timestamp, String[][] output, int[] transformation) {
-
-                    // Obtain utility
-                    double utility = 0d;
-                    if (measure == BenchmarkUtilityMeasure.LOSS) {
-                        utility = new UtilityMeasureLoss<Double>(header,
-                                                                 hierarchies,
-                                                                 AggregateFunction.GEOMETRIC_MEAN).evaluate(output)
-                                                                                                  .getUtility();
-                    } else if (measure == BenchmarkUtilityMeasure.DISCERNIBILITY) {
-                        utility = new UtilityMeasureDiscernibility().evaluate(output).getUtility();
-                    }
-
-                    // Normalize
-                    utility -= metadata.getLowerBound(dataset, measure);
-                    utility /= (metadata.getUpperBound(dataset, measure) - metadata.getLowerBound(dataset,
-                                                                                                  measure));
-
-                    // Obtain suppressed tuples
-                    double suppressed = 0d;
-                    for (String[] row : output) {
-
-                        boolean cellSuppressed = true;
-                        for (String cell : row) {
-                            if (!cell.equals("*")) {
-                                cellSuppressed = false;
-                                break;
-                            }
-                        }
-                        if (cellSuppressed) {
-                            suppressed++;
-                        }
-                    }
-
-                    // Normalize
-                    suppressed /= (double) output.length;
-
-                    BENCHMARK.addRun(dataset, measure, model, algorithm, suppression);
-
-                    // Write
-                    BENCHMARK.addValue(TIME, timestamp);
-                    BENCHMARK.addValue(UTILITY, utility);
-                    BENCHMARK.addValue(SUPPRESSED, suppressed);
-                }
-
-                @Override
-                public void notifyFinished(long timestamp, String[][] output, int[] transformation) {
-                    
-                }
-
-                @Override
-                public boolean isWarmup() {
-                    return false;
-                }
-
-                @Override
-                public void setWarmup(boolean isWarmup) {
-                }
-
-            };
-
-            BenchmarkAlgorithmRGR implementation = new BenchmarkAlgorithmRGR(listener, data, config);
-            implementation.execute();
-
-        } else if (algorithm == BenchmarkAlgorithm.TASSA) {
-            config.setMaxOutliers(0);
+        if (algorithm == BenchmarkAlgorithm.TASSA ||
+            algorithm == BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING ||
+            algorithm == BenchmarkAlgorithm.FLASH) {
             IBenchmarkObserver observer = new IBenchmarkObserver() {
 
                 @Override
                 public void notify(long timestamp, String[][] output, int[] transformation) {
+                }
+
+                @Override
+                public void notifyFinished(long timestamp, String[][] output, int[] transformation) {
 
                     // Obtain utility
                     double utility = 0d;
@@ -239,42 +172,9 @@ public class BenchmarkExperiment1 {
                     utility /= (metadata.getUpperBound(dataset, measure) - metadata.getLowerBound(dataset,
                                                                                                   measure));
 
-                    // Obtain suppressed tuples
-                    double suppressed = 0d;
-                    for (String[] row : output) {
-
-                        boolean cellSuppressed = true;
-                        for (String cell : row) {
-                            if (!cell.equals("*")) {
-                                cellSuppressed = false;
-                                break;
-                            }
-                        }
-                        if (cellSuppressed) {
-                            suppressed++;
-                        }
-                    }
-
-                    // Normalize
-                    suppressed /= (double) output.length;
-
                     BENCHMARK.addRun(dataset, measure, model, algorithm, suppression);
-
-                    // Write
-                    BENCHMARK.addValue(TIME, timestamp);
                     BENCHMARK.addValue(UTILITY, utility);
-                    BENCHMARK.addValue(SUPPRESSED, suppressed);
-                }
-
-                @Override
-                public void notifyFinished(long timestamp, String[][] output, int[] transformation) {
-                    // TODO Auto-generated method stub
-                    
-                }
-
-                @Override
-                public boolean isWarmup() {
-                    return false;
+                    BENCHMARK.addValue(RUNTIME, timestamp);
                 }
 
                 @Override
@@ -282,10 +182,20 @@ public class BenchmarkExperiment1 {
                 }
             };
 
-            TassaAlgorithm implementation = new TassaAlgorithm(observer, data, config);
-            implementation.execute();
+            org.deidentifier.arx.benchmark.BenchmarkAlgorithm algorithmImplementation = null;
+            if (algorithm == BenchmarkAlgorithm.TASSA) {
+                algorithmImplementation = new TassaAlgorithm(observer, data, config);
+            } else if (algorithm == BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING) {
+                algorithmImplementation = new BenchmarkAlgorithmRGR(observer, data, config);
+            } else if (algorithm == BenchmarkAlgorithm.FLASH) {
+                algorithmImplementation = new BenchmarkAlgorithmFlash(observer, data, config);
+            }
+
+            algorithmImplementation.execute();
+
         } else {
-            throw new UnsupportedOperationException("TODO: Implement");
+            throw new UnsupportedOperationException("Unimplemented Algorithm: " + algorithm);
         }
     }
+
 }

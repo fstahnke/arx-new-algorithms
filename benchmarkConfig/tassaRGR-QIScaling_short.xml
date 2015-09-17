@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!-- Experiment for QI scaling. This only covers the QI settings, that are 
+	very quickly calculated by RGR. To get more accurate values, we use 200 runs 
+	and 20 warmups to calculate the runtime. -->
+<config>
+	<dataset>ADULT1</dataset>
+	<dataset>ADULT2</dataset>
+	<dataset>ADULT3</dataset>
+	<dataset>ADULT4</dataset>
+	<dataset>ADULT5</dataset>
+	<dataset>ADULT6</dataset>
+	<dataset>ADULT7</dataset>
+	<!-- <dataset>ADULT8</dataset> -->
+	<!-- <dataset>ADULT9</dataset> -->
+	<dataset>CUP1</dataset>
+	<dataset>CUP2</dataset>
+	<dataset>CUP3</dataset>
+	<dataset>CUP4</dataset>
+	<dataset>CUP5</dataset>
+	<dataset>CUP6</dataset>
+	<!-- <dataset>CUP7</dataset> -->
+	<!-- <dataset>CUP8</dataset> -->
+	<algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
+	<!-- <algorithm>TASSA</algorithm> -->
+	<privacyModel>K5_ANONYMITY</privacyModel>
+	<utilityMeasure>LOSS</utilityMeasure>
+	<suppressionLimit>0.05</suppressionLimit>
+	<suppressionLimit>0.1</suppressionLimit>
+	<outputFile>results/tassaRGR-QIScaling_short.csv</outputFile>
+	<plotFile>results/tassaRGR-QIScaling_short.pdf</plotFile>
+	<numberOfRuns>200</numberOfRuns>
+</config>

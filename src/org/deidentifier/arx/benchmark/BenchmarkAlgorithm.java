@@ -23,6 +23,5 @@ public abstract class BenchmarkAlgorithm {
 
     protected void finished(String[][] data, int[] transformation) {
         observer.notifyFinished(System.currentTimeMillis() - start, data, transformation);
-
     }
 }

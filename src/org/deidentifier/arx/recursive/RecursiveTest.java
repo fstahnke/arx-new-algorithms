@@ -31,11 +31,6 @@ public class RecursiveTest {
             }
 
             @Override
-            public boolean isWarmup() {
-                return false;
-            }
-
-            @Override
             public void setWarmup(boolean isWarmup) {
                 
             }

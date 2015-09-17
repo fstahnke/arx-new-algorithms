@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<config>
+	<!-- only works, when it is the only dataset element -->
+    <dataset>ADULT_ALL_SUBSETS</dataset>
+    <algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
+    <algorithm>TASSA</algorithm>
+    <privacyModel>K5_ANONYMITY</privacyModel>
+    <utilityMeasure>LOSS</utilityMeasure>
+    <utilityMeasure>DISCERNIBILITY</utilityMeasure>
+    <suppressionLimit>0.1</suppressionLimit>
+    <outputFile>results/tassaRGR-RecordScaling.csv</outputFile>
+    <plotFile>results/tassaRGR-RecordScaling.pdf</plotFile>
+    <numberOfRuns>1</numberOfRuns>
+</config>

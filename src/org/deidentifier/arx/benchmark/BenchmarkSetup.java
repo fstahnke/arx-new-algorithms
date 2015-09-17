@@ -1,18 +1,18 @@
 /*
- * Benchmark of risk-based anonymization in ARX 3.0.0
- * Copyright 2015 - Fabian Prasser
+ * Benchmark of risk-based anonymization in ARX 3.0.0 Copyright 2015 - Fabian
+ * Prasser
  * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  * 
  * http://www.apache.org/licenses/LICENSE-2.0
  * 
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package org.deidentifier.arx.benchmark;
@@ -49,6 +49,7 @@ public class BenchmarkSetup {
     private BenchmarkPrivacyModel[]   privacyModels;
     private BenchmarkUtilityMeasure[] utilityMeasures;
     private double[]                  suppressionLimits;
+    private int                       numberOfRuns = 1;
 
     private String                    outputFile;
 
@@ -72,26 +73,56 @@ public class BenchmarkSetup {
     }
 
     public static enum BenchmarkDataset {
-        
-        ADULT("Adult", 9),
-        ADULT_SUBSET("AdultSubset", 9),
-        CUP("Cup", 8),
-        CUP_SUBSET("CupSubset", 8),
+
+        ADULT("Adult", 9, 30162),
+        ADULT_SUBSET("AdultSubset", 9, 3016),
+        CUP("Cup", 8, 63441),
+        CUP_SUBSET("CupSubset", 8, 6344),
         FARS("Fars", 8),
         FARS_SUBSET("FarsSubset", 8),
         ATUS("Atus", 9),
         ATUS_SUBSET("AtusSubset", 9),
         IHIS("Ihis", 9),
         IHIS_SUBSET("IhisSubset", 9),
-        ADULT1("Adult", 1),
-        ADULT2("Adult", 2),
-        ADULT3("Adult", 3),
-        ADULT4("Adult", 4),
-        ADULT5("Adult", 5),
-        ADULT6("Adult", 6),
-        ADULT7("Adult", 7),
-        ADULT8("Adult", 8),
-        ADULT9("Adult", 9),
+        ADULT1("Adult", 1, 30162),
+        ADULT2("Adult", 2, 30162),
+        ADULT3("Adult", 3, 30162),
+        ADULT4("Adult", 4, 30162),
+        ADULT5("Adult", 5, 30162),
+        ADULT6("Adult", 6, 30162),
+        ADULT7("Adult", 7, 30162),
+        ADULT8("Adult", 8, 30162),
+        ADULT9("Adult", 9, 30162),
+        ADULT1000("Adult", 9, 1000),
+        ADULT2000("Adult", 9, 2000),
+        ADULT3000("Adult", 9, 3000),
+        ADULT4000("Adult", 9, 4000),
+        ADULT5000("Adult", 9, 5000),
+        ADULT6000("Adult", 9, 6000),
+        ADULT7000("Adult", 9, 7000),
+        ADULT8000("Adult", 9, 8000),
+        ADULT9000("Adult", 9, 9000),
+        ADULT10000("Adult", 9, 10000),
+        ADULT11000("Adult", 9, 11000),
+        ADULT12000("Adult", 9, 12000),
+        ADULT13000("Adult", 9, 13000),
+        ADULT14000("Adult", 9, 14000),
+        ADULT15000("Adult", 9, 15000),
+        ADULT16000("Adult", 9, 16000),
+        ADULT17000("Adult", 9, 17000),
+        ADULT18000("Adult", 9, 18000),
+        ADULT19000("Adult", 9, 19000),
+        ADULT20000("Adult", 9, 20000),
+        ADULT21000("Adult", 9, 21000),
+        ADULT22000("Adult", 9, 22000),
+        ADULT23000("Adult", 9, 23000),
+        ADULT24000("Adult", 9, 24000),
+        ADULT25000("Adult", 9, 25000),
+        ADULT26000("Adult", 9, 26000),
+        ADULT27000("Adult", 9, 27000),
+        ADULT28000("Adult", 9, 28000),
+        ADULT29000("Adult", 9, 29000),
+        ADULT30000("Adult", 9, 30000),
         CUP1("Cup", 1),
         CUP2("Cup", 2),
         CUP3("Cup", 3),
@@ -101,67 +132,112 @@ public class BenchmarkSetup {
         CUP7("Cup", 7),
         CUP8("Cup", 8);
 
-        private final int qis;
+        private final int    qis;
         private final String name;
-        
-        private BenchmarkDataset(String name, int val) {
+        private final int    numberOfRecords;
+
+        /**
+         * Constructor for original datasets.
+         * 
+         * @param name
+         */
+        private BenchmarkDataset(String name) {
+            this(name, -1, -1);
+        }
+
+        /**
+         * Constructor for selecting only a certain number of QIs of a dataset.
+         * 
+         * @param name
+         * @param qis
+         */
+        private BenchmarkDataset(String name, int qis) {
+            this(name, qis, -1);
+        }
+
+        /**
+         * Constructor for subsets of datasets.
+         * 
+         * @param name
+         * @param val
+         * @param numberOfRecords
+         */
+        private BenchmarkDataset(String name, int val, int numberOfRecords) {
             this.name = name;
             this.qis = val;
+            this.numberOfRecords = numberOfRecords;
         }
-        
+
         @Override
         public String toString() {
             return this.name;
         }
-        
+
         public int getNumQIs() {
             return this.qis;
+        }
+
+        public int getNumRecords() {
+            return this.numberOfRecords;
         }
     }
 
     public static enum BenchmarkPrivacyModel {
-        K5_ANONYMITY {
-            @Override
-            public String toString() {
-                return "5-anonymity";
-            }
-        },
-        K20_ANONYMITY {
-            @Override
-            public String toString() {
-                return "20-anonymity";
-            }
+        K5_ANONYMITY("5-anonymity", 5),
+        K10_ANONYMITY("10-anonymity", 10),
+        K20_ANONYMITY("20-anonymity", 20),
+        K25_ANONYMITY("25-anonymity", 25),
+        K50_ANONYMITY("50-anonymity", 50);
+
+        private final String name;
+        private final int    strength;
+
+        private BenchmarkPrivacyModel(String name, int strength) {
+            this.name = name;
+            this.strength = strength;
+        }
+
+        @Override
+        public String toString() {
+            return this.name;
+        }
+
+        public int getStrength() {
+            return this.strength;
         }
     }
 
     public static enum BenchmarkAlgorithm {
-        RECURSIVE_GLOBAL_RECODING {
-            @Override
-            public String toString() {
-                return "RGR";
-            }
-        },
-        TASSA {
-            @Override
-            public String toString() {
-                return "Tassa & Goldberger";
-            }
+        RECURSIVE_GLOBAL_RECODING("RGR"),
+        TASSA("Tassa & Goldberger"),
+        FLASH("Flash");
+
+        private final String name;
+
+        private BenchmarkAlgorithm(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return this.name;
         }
     }
 
     public static enum BenchmarkUtilityMeasure {
-        DISCERNIBILITY {
-            @Override
-            public String toString() {
-                return "Discernibility";
-            }
-        },
-        LOSS {
-            @Override
-            public String toString() {
-                return "Loss";
-            }
-        },
+        DISCERNIBILITY("Discernibility"),
+        LOSS("Loss");
+
+        private final String name;
+
+        private BenchmarkUtilityMeasure(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return this.name;
+        }
     }
 
     /**
@@ -179,27 +255,28 @@ public class BenchmarkSetup {
                                                     double suppression) throws IOException {
         ARXConfiguration config = ARXConfiguration.create();
         switch (utility) {
-        case DISCERNIBILITY:
-            config.setMetric(Metric.createDiscernabilityMetric(false));
-            break;
-        case LOSS:
-            config.setMetric(Metric.createLossMetric(AggregateFunction.GEOMETRIC_MEAN));
-            break;
-        default:
-            throw new IllegalArgumentException("");
+            case DISCERNIBILITY:
+                config.setMetric(Metric.createDiscernabilityMetric(false));
+                break;
+            case LOSS:
+                config.setMetric(Metric.createLossMetric(AggregateFunction.GEOMETRIC_MEAN));
+                break;
+            default:
+                throw new IllegalArgumentException("");
         }
 
         config.setMaxOutliers(suppression);
 
         switch (criterion) {
-        case K5_ANONYMITY:
-            config.addCriterion(new KAnonymity(5));
-            break;
-        case K20_ANONYMITY:
-            config.addCriterion(new KAnonymity(20));
-            break;
-        default:
-            throw new RuntimeException("Invalid criterion");
+            case K5_ANONYMITY:
+            case K10_ANONYMITY:
+            case K20_ANONYMITY:
+            case K25_ANONYMITY:
+            case K50_ANONYMITY:
+                config.addCriterion(new KAnonymity(criterion.getStrength()));
+                break;
+            default:
+                throw new RuntimeException("Invalid criterion");
         }
         return config;
     }
@@ -218,67 +295,101 @@ public class BenchmarkSetup {
         Data data = null;
         DataSource source = null;
         switch (dataset) {
-        case ADULT:
-            data = Data.create("data/adult.csv", ';');
-            break;
-        case ADULT1:
-        case ADULT2:
-        case ADULT3:
-        case ADULT4:
-        case ADULT5:
-        case ADULT6:
-        case ADULT7:
-        case ADULT8:
-        case ADULT9:
-            source = DataSource.createCSVSource("data/adult.csv", ';', true);
-            for(String attribute : getQuasiIdentifyingAttributes(dataset)) {
-                source.addColumn(attribute);
-            }
-            data = Data.create(source);
-            break;
-        case ADULT_SUBSET:
-            data = Data.create("data/adult_subset.csv", ';');
-            break;
-        case ATUS:
-            data = Data.create("data/atus.csv", ';');
-            break;
-        case ATUS_SUBSET:
-            data = Data.create("data/atus_subset.csv", ';');
-            break;
-        case CUP:
-            data = Data.create("data/cup.csv", ';');
-            break;
-        case CUP1:
-        case CUP2:
-        case CUP3:
-        case CUP4:
-        case CUP5:
-        case CUP6:
-        case CUP7:
-        case CUP8:
-            source = DataSource.createCSVSource("data/cup.csv", ';', true);
-            for(String attribute : getQuasiIdentifyingAttributes(dataset)) {
-                source.addColumn(attribute);
-            }
-            data = Data.create(source);
-            break;
-        case CUP_SUBSET:
-            data = Data.create("data/cup_subset.csv", ';');
-            break;
-        case FARS:
-            data = Data.create("data/fars.csv", ';');
-            break;
-        case FARS_SUBSET:
-            data = Data.create("data/fars_subset.csv", ';');
-            break;
-        case IHIS:
-            data = Data.create("data/ihis.csv", ';');
-            break;
-        case IHIS_SUBSET:
-            data = Data.create("data/ihis_subset.csv", ';');
-            break;
-        default:
-            throw new RuntimeException("Invalid dataset");
+            case ADULT:
+                data = Data.create("data/adult.csv", ';');
+                break;
+            case ADULT1:
+            case ADULT2:
+            case ADULT3:
+            case ADULT4:
+            case ADULT5:
+            case ADULT6:
+            case ADULT7:
+            case ADULT8:
+            case ADULT9:
+                source = DataSource.createCSVSource("data/adult.csv", ';', true);
+                for (String attribute : getQuasiIdentifyingAttributes(dataset)) {
+                    source.addColumn(attribute);
+                }
+                data = Data.create(source);
+                break;
+            case ADULT_SUBSET:
+                data = Data.create("data/adult_subset.csv", ';');
+                break;
+            case ATUS:
+                data = Data.create("data/atus.csv", ';');
+                break;
+            case ATUS_SUBSET:
+                data = Data.create("data/atus_subset.csv", ';');
+                break;
+            case CUP:
+                data = Data.create("data/cup.csv", ';');
+                break;
+            case CUP1:
+            case CUP2:
+            case CUP3:
+            case CUP4:
+            case CUP5:
+            case CUP6:
+            case CUP7:
+            case CUP8:
+                source = DataSource.createCSVSource("data/cup.csv", ';', true);
+                for (String attribute : getQuasiIdentifyingAttributes(dataset)) {
+                    source.addColumn(attribute);
+                }
+                data = Data.create(source);
+                break;
+            case CUP_SUBSET:
+                data = Data.create("data/cup_subset.csv", ';');
+                break;
+            case FARS:
+                data = Data.create("data/fars.csv", ';');
+                break;
+            case FARS_SUBSET:
+                data = Data.create("data/fars_subset.csv", ';');
+                break;
+            case IHIS:
+                data = Data.create("data/ihis.csv", ';');
+                break;
+            case IHIS_SUBSET:
+                data = Data.create("data/ihis_subset.csv", ';');
+                break;
+            case ADULT1000:
+            case ADULT2000:
+            case ADULT3000:
+            case ADULT4000:
+            case ADULT5000:
+            case ADULT6000:
+            case ADULT7000:
+            case ADULT8000:
+            case ADULT9000:
+            case ADULT10000:
+            case ADULT11000:
+            case ADULT12000:
+            case ADULT13000:
+            case ADULT14000:
+            case ADULT15000:
+            case ADULT16000:
+            case ADULT17000:
+            case ADULT18000:
+            case ADULT19000:
+            case ADULT20000:
+            case ADULT21000:
+            case ADULT22000:
+            case ADULT23000:
+            case ADULT24000:
+            case ADULT25000:
+            case ADULT26000:
+            case ADULT27000:
+            case ADULT28000:
+            case ADULT29000:
+            case ADULT30000:
+                data = getDataSubset(BenchmarkDataset.ADULT, criterion, dataset.getNumRecords());
+                // immediately return data for subsets because QIs are already
+                // set
+                return data;
+            default:
+                throw new RuntimeException("Invalid dataset");
         }
 
         for (String qi : getQuasiIdentifyingAttributes(dataset)) {
@@ -332,40 +443,70 @@ public class BenchmarkSetup {
     public static Hierarchy
             getHierarchy(BenchmarkDataset dataset, String attribute) throws IOException {
         switch (dataset) {
-        case ADULT:
-        case ADULT1:
-        case ADULT2:
-        case ADULT3:
-        case ADULT4:
-        case ADULT5:
-        case ADULT6:
-        case ADULT7:
-        case ADULT8:
-        case ADULT9:
-        case ADULT_SUBSET:
-            return Hierarchy.create("hierarchies/adult_hierarchy_" + attribute + ".csv", ';');
-        case ATUS:
-        case ATUS_SUBSET:
-            return Hierarchy.create("hierarchies/atus_hierarchy_" + attribute + ".csv", ';');
-        case CUP:
-        case CUP1:
-        case CUP2:
-        case CUP3:
-        case CUP4:
-        case CUP5:
-        case CUP6:
-        case CUP7:
-        case CUP8:
-        case CUP_SUBSET:
-            return Hierarchy.create("hierarchies/cup_hierarchy_" + attribute + ".csv", ';');
-        case FARS:
-        case FARS_SUBSET:
-            return Hierarchy.create("hierarchies/fars_hierarchy_" + attribute + ".csv", ';');
-        case IHIS:
-        case IHIS_SUBSET:
-            return Hierarchy.create("hierarchies/ihis_hierarchy_" + attribute + ".csv", ';');
-        default:
-            throw new RuntimeException("Invalid dataset");
+            case ADULT:
+            case ADULT1:
+            case ADULT2:
+            case ADULT3:
+            case ADULT4:
+            case ADULT5:
+            case ADULT6:
+            case ADULT7:
+            case ADULT8:
+            case ADULT9:
+            case ADULT1000:
+            case ADULT2000:
+            case ADULT3000:
+            case ADULT4000:
+            case ADULT5000:
+            case ADULT6000:
+            case ADULT7000:
+            case ADULT8000:
+            case ADULT9000:
+            case ADULT10000:
+            case ADULT11000:
+            case ADULT12000:
+            case ADULT13000:
+            case ADULT14000:
+            case ADULT15000:
+            case ADULT16000:
+            case ADULT17000:
+            case ADULT18000:
+            case ADULT19000:
+            case ADULT20000:
+            case ADULT21000:
+            case ADULT22000:
+            case ADULT23000:
+            case ADULT24000:
+            case ADULT25000:
+            case ADULT26000:
+            case ADULT27000:
+            case ADULT28000:
+            case ADULT29000:
+            case ADULT30000:
+            case ADULT_SUBSET:
+                return Hierarchy.create("hierarchies/adult_hierarchy_" + attribute + ".csv", ';');
+            case ATUS:
+            case ATUS_SUBSET:
+                return Hierarchy.create("hierarchies/atus_hierarchy_" + attribute + ".csv", ';');
+            case CUP:
+            case CUP1:
+            case CUP2:
+            case CUP3:
+            case CUP4:
+            case CUP5:
+            case CUP6:
+            case CUP7:
+            case CUP8:
+            case CUP_SUBSET:
+                return Hierarchy.create("hierarchies/cup_hierarchy_" + attribute + ".csv", ';');
+            case FARS:
+            case FARS_SUBSET:
+                return Hierarchy.create("hierarchies/fars_hierarchy_" + attribute + ".csv", ';');
+            case IHIS:
+            case IHIS_SUBSET:
+                return Hierarchy.create("hierarchies/ihis_hierarchy_" + attribute + ".csv", ';');
+            default:
+                throw new RuntimeException("Invalid dataset");
         }
     }
 
@@ -377,88 +518,118 @@ public class BenchmarkSetup {
      */
     public static String[] getQuasiIdentifyingAttributes(BenchmarkDataset dataset) {
         final String[] adultAttributes = new String[] {
-                                                       "sex",
-                                                       "age",
-                                                       "race",
-                                                       "marital-status",
-                                                       "education",
-                                                       "native-country",
-                                                       "workclass",
-                                                       "occupation",
-                                                       "salary-class" };
+                "sex",
+                "age",
+                "race",
+                "marital-status",
+                "education",
+                "native-country",
+                "workclass",
+                "occupation",
+                "salary-class" };
         final String[] cupAttributes = new String[] {
-                                                     "AGE",
-                                                     "GENDER",
-                                                     "INCOME",
-                                                     "MINRAMNT",
-                                                     "NGIFTALL",
-                                                     "STATE",
-                                                     "ZIP",
-                                                     "RAMNTALL" };
-        
+                "AGE",
+                "GENDER",
+                "INCOME",
+                "MINRAMNT",
+                "NGIFTALL",
+                "STATE",
+                "ZIP",
+                "RAMNTALL" };
+
         switch (dataset) {
-        case ADULT:
-        case ADULT_SUBSET:
-        case ADULT9:
-            return adultAttributes;
-        case ADULT1:
-        case ADULT2:
-        case ADULT3:
-        case ADULT4:
-        case ADULT5:
-        case ADULT6:
-        case ADULT7:
-        case ADULT8:
-            return Arrays.copyOf(adultAttributes, dataset.getNumQIs());
-        case ATUS:
-        case ATUS_SUBSET:
-            return new String[] {
-                    "Age",
-                    "Birthplace",
-                    "Citizenship status",
-                    "Labor force status",
-                    "Marital status",
-                    "Race",
-                    "Region",
-                    "Sex",
-                    "Highest level of school completed" };
-        case CUP:
-        case CUP_SUBSET:
-        case CUP8:
-            return cupAttributes;
-        case CUP1:
-        case CUP2:
-        case CUP3:
-        case CUP4:
-        case CUP5:
-        case CUP6:
-        case CUP7:
-            return Arrays.copyOf(cupAttributes, dataset.getNumQIs());
-        case FARS:
-        case FARS_SUBSET:
-            return new String[] {
-                    "iage",
-                    "ideathday",
-                    "ideathmon",
-                    "ihispanic",
-                    "iinjury",
-                    "irace",
-                    "isex",
-                    "istatenum" };
-        case IHIS:
-        case IHIS_SUBSET:
-            return new String[] {
-                    "AGE",
-                    "MARSTAT",
-                    "PERNUM",
-                    "QUARTER",
-                    "RACEA",
-                    "REGION",
-                    "SEX",
-                    "YEAR",
-                    "EDUC" };
-        default:
-            throw new RuntimeException("Invalid dataset");
+            case ADULT:
+            case ADULT_SUBSET:
+            case ADULT9:
+            case ADULT1000:
+            case ADULT2000:
+            case ADULT3000:
+            case ADULT4000:
+            case ADULT5000:
+            case ADULT6000:
+            case ADULT7000:
+            case ADULT8000:
+            case ADULT9000:
+            case ADULT10000:
+            case ADULT11000:
+            case ADULT12000:
+            case ADULT13000:
+            case ADULT14000:
+            case ADULT15000:
+            case ADULT16000:
+            case ADULT17000:
+            case ADULT18000:
+            case ADULT19000:
+            case ADULT20000:
+            case ADULT21000:
+            case ADULT22000:
+            case ADULT23000:
+            case ADULT24000:
+            case ADULT25000:
+            case ADULT26000:
+            case ADULT27000:
+            case ADULT28000:
+            case ADULT29000:
+            case ADULT30000:
+                return adultAttributes;
+            case ADULT1:
+            case ADULT2:
+            case ADULT3:
+            case ADULT4:
+            case ADULT5:
+            case ADULT6:
+            case ADULT7:
+            case ADULT8:
+                return Arrays.copyOf(adultAttributes, dataset.getNumQIs());
+            case ATUS:
+            case ATUS_SUBSET:
+                return new String[] {
+                        "Age",
+                        "Birthplace",
+                        "Citizenship status",
+                        "Labor force status",
+                        "Marital status",
+                        "Race",
+                        "Region",
+                        "Sex",
+                        "Highest level of school completed" };
+            case CUP:
+            case CUP_SUBSET:
+            case CUP8:
+                return cupAttributes;
+            case CUP1:
+            case CUP2:
+            case CUP3:
+            case CUP4:
+            case CUP5:
+            case CUP6:
+            case CUP7:
+                return Arrays.copyOf(cupAttributes, dataset.getNumQIs());
+            case FARS:
+            case FARS_SUBSET:
+                return new String[] {
+                        "iage",
+                        "ideathday",
+                        "ideathmon",
+                        "ihispanic",
+                        "iinjury",
+                        "irace",
+                        "isex",
+                        "istatenum" };
+            case IHIS:
+            case IHIS_SUBSET:
+                return new String[] {
+                        "AGE",
+                        "MARSTAT",
+                        "PERNUM",
+                        "QUARTER",
+                        "RACEA",
+                        "REGION",
+                        "SEX",
+                        "YEAR",
+                        "EDUC" };
+            default:
+                throw new RuntimeException("Invalid dataset");
         }
     }
 
@@ -496,7 +667,9 @@ public class BenchmarkSetup {
         } else {
             return new BenchmarkPrivacyModel[] {
                     BenchmarkPrivacyModel.K5_ANONYMITY,
-                    BenchmarkPrivacyModel.K20_ANONYMITY };
+                    BenchmarkPrivacyModel.K10_ANONYMITY,
+                    BenchmarkPrivacyModel.K25_ANONYMITY,
+                    BenchmarkPrivacyModel.K50_ANONYMITY };
         }
     }
 
@@ -540,6 +713,24 @@ public class BenchmarkSetup {
     }
 
     /**
+     * @return The number of runs for this benchmark.
+     */
+    public int getNumberOfRuns() {
+        return this.numberOfRuns;
+    }
+
+    /**
+     * The value is in depencance of the number of runs (numberOfRuns) of this
+     * benchmark. If numberOfRuns > 1, it will return 10% of numberOfRuns
+     * (rounded up to the next integer). If numberOfRuns <= 1, it will return
+     * 
+     * @return The number of warmup runs for this benchmark.
+     */
+    public int getNumberOfWarmups() {
+        return (this.numberOfRuns > 1) ? (int) Math.ceil(numberOfRuns / 10.0) : 0;
+    }
+
+    /**
      * Reads an xml config file to create a customized BenchmarkSetup
      * 
      * @param configFile
@@ -568,9 +759,19 @@ public class BenchmarkSetup {
         // Read datasets
         NodeList nList = doc.getElementsByTagName("dataset");
         if (nList.getLength() > 0) {
-            datasets = new BenchmarkDataset[nList.getLength()];
-            for (int i = 0; i < nList.getLength(); i++) {
-                datasets[i] = BenchmarkDataset.valueOf(nList.item(i).getTextContent().toUpperCase());
+            if (nList.getLength() == 1 &&
+                nList.item(0).getTextContent().toUpperCase().equals("ADULT_ALL_SUBSETS")) {
+                datasets = new BenchmarkDataset[30];
+                for (int records = 1; records <= 30; records += 1) {
+                    datasets[records - 1] = BenchmarkDataset.valueOf("ADULT" + (records * 1000));
+                }
+            } else {
+                datasets = new BenchmarkDataset[nList.getLength()];
+                for (int i = 0; i < nList.getLength(); i++) {
+                    datasets[i] = BenchmarkDataset.valueOf(nList.item(i)
+                                                                .getTextContent()
+                                                                .toUpperCase());
+                }
             }
         }
 
@@ -616,31 +817,26 @@ public class BenchmarkSetup {
             }
         }
 
-        // Read suppressionLimits
-        nList = doc.getElementsByTagName("suppressionLimit");
+        // Read number of runs for runtime benchmarking
+        nList = doc.getElementsByTagName("outputFile");
         if (nList.getLength() > 0) {
-            suppressionLimits = new double[nList.getLength()];
-            for (int i = 0; i < nList.getLength(); i++) {
-                suppressionLimits[i] = Double.valueOf(nList.item(i).getTextContent());
+            outputFile = nList.item(0).getTextContent();
+        }
+
+        // Read number of runs for runtime benchmarking
+        nList = doc.getElementsByTagName("plotFile");
+        if (nList.getLength() > 0) {
+            plotFile = nList.item(0).getTextContent();
+            // trim ".pdf" at the end, since plotter adds it automatically
+            if (plotFile.toLowerCase().endsWith(".pdf")) {
+                plotFile = plotFile.substring(0, plotFile.lastIndexOf(".pdf"));
             }
         }
 
-        // Read file names for output files
-        nList = doc.getChildNodes();
+        // Read number of runs for runtime benchmarking
+        nList = doc.getElementsByTagName("numberOfRuns");
         if (nList.getLength() > 0) {
-            for (int i = 0; i < nList.getLength(); i++) {
-                String nodeName = nList.item(i).getNodeName();
-                if (nodeName.equals("outputFile")) {
-                    outputFile = nList.item(i).getTextContent();
-                } else if (nodeName.equals("plotFile")) {
-                    plotFile = nList.item(i).getTextContent();
-                    // trim ".pdf" at the end, since plotter adds it
-                    // automatically
-                    if (plotFile.toLowerCase().endsWith(".pdf")) {
-                        plotFile = plotFile.substring(0, plotFile.lastIndexOf(".pdf"));
-                    }
-                }
-            }
+            numberOfRuns = Integer.valueOf(nList.item(0).getTextContent());
         }
 
         return true;

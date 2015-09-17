@@ -42,24 +42,26 @@ import de.linearbits.subframe.analyzer.ValueBuffer;
  * 
  * @author Fabian Stahnke
  */
-public class BenchmarkExperimentRecordScaling {
+public class BenchmarkExperimentQIScaling {
 
     /** The benchmark instance */
-    private static final Benchmark BENCHMARK      = new Benchmark(new String[] {
+    private static final Benchmark BENCHMARK         = new Benchmark(new String[] {
             "Dataset",
             "UtilityMeasure",
             "PrivacyModel",
             "Algorithm",
-            "Suppression"                        });
+            "Suppression"                           });
 
     /** UTILITY */
-    private static final int       UTILITY        = BENCHMARK.addMeasure("Utility");
-    /** VARIANCE */
-    private static final int       VARIANCE       = BENCHMARK.addMeasure("Variance");
+    private static final int       QIS              = BENCHMARK.addMeasure("QIs");
+    /** UTILITY */
+    private static final int       UTILITY           = BENCHMARK.addMeasure("Utility");
     /** RUNTIME */
-    private static final int       RUNTIME        = BENCHMARK.addMeasure("Runtime");
+    private static final int       RUNTIME           = BENCHMARK.addMeasure("Runtime");
     /** Number of runs for each benchmark setting */
-    private static final int       NUMBER_OF_RUNS = 5;
+    private static final int       NUMBER_OF_RUNS    = 5;
+    /** Number of warmup runs */
+    private static final int       NUMBER_OF_WARMUPS = (int) Math.ceil(NUMBER_OF_RUNS / 10.0);
 
     /**
      * Main entry point
@@ -70,10 +72,11 @@ public class BenchmarkExperimentRecordScaling {
     public static void main(String[] args) throws IOException {
 
         // Init
+        BENCHMARK.addAnalyzer(QIS, new ValueBuffer());
         BENCHMARK.addAnalyzer(UTILITY, new ValueBuffer());
         BENCHMARK.addAnalyzer(RUNTIME, new ValueBuffer());
 
-        BenchmarkSetup setup = new BenchmarkSetup("benchmarkConfig/tassaRGRscaling.xml");
+        BenchmarkSetup setup = new BenchmarkSetup("benchmarkConfig/tassaRGR-QIDScaling.xml");
         BenchmarkMetadataUtility metadata = new BenchmarkMetadataUtility(setup);
         File resultFile = new File(setup.getOutputFile());
         resultFile.getParentFile().mkdirs();
@@ -82,32 +85,39 @@ public class BenchmarkExperimentRecordScaling {
         for (BenchmarkPrivacyModel model : setup.getPrivacyModels()) {
             for (BenchmarkUtilityMeasure measure : setup.getUtilityMeasures()) {
                 for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
-                    for (double suppression : setup.getSuppressionLimits()) {
-                        for (int subsetCount = 1000; subsetCount <= 30000; subsetCount += 1000) {
-                            System.out.println("Performing run: " + measure + " / " + model +
-                                               " / " + algorithm + " / subset-" + subsetCount);
+                    for (BenchmarkDataset dataset : setup.getDatasets()) {
 
-                            // New run
-                            if (algorithm == BenchmarkAlgorithm.TASSA) {
+                        // New run
+                        if (algorithm == BenchmarkAlgorithm.TASSA) {
+                            System.out.println("Performing run: " + dataset + " / " + measure +
+                                               " / " + model + " / " + algorithm + " / QIs: " +
+                                               dataset.getNumQIs());
+                            performExperiment(metadata,
+                                              dataset,
+                                              measure,
+                                              model,
+                                              algorithm,
+                                              0.0,
+                                              dataset.getNumQIs());
+
+                            // Write after each experiment
+                            BENCHMARK.getResults().write(resultFile);
+                        } else {
+                            for (double suppression : setup.getSuppressionLimits()) {
+                                System.out.println("Performing run: " + dataset + " / " + measure +
+                                                   " / " + model + " / " + algorithm + " / QIs: " +
+                                                   dataset.getNumQIs() + " / " + suppression);
                                 performExperiment(metadata,
-                                                  BenchmarkDataset.ADULT,
-                                                  measure,
-                                                  model,
-                                                  algorithm,
-                                                  0.0,
-                                                  subsetCount);
-                            } else {
-                                performExperiment(metadata,
-                                                  BenchmarkDataset.ADULT,
+                                                  dataset,
                                                   measure,
                                                   model,
                                                   algorithm,
                                                   suppression,
-                                                  subsetCount);
-                            }
+                                                  dataset.getNumQIs());
 
-                            // Write after each experiment
-                            BENCHMARK.getResults().write(resultFile);
+                                // Write after each experiment
+                                BENCHMARK.getResults().write(resultFile);
+                            }
                         }
                     }
                 }
@@ -132,9 +142,9 @@ public class BenchmarkExperimentRecordScaling {
                                           final BenchmarkPrivacyModel model,
                                           final BenchmarkAlgorithm algorithm,
                                           final double suppressed,
-                                          int subsetCount) throws IOException {
+                                          final int qidCount) throws IOException {
 
-        Data data = BenchmarkSetup.getDataSubset(dataset, model, subsetCount);
+        Data data = BenchmarkSetup.getData(dataset, model);
         ARXConfiguration config = BenchmarkSetup.getConfiguration(dataset,
                                                                   measure,
                                                                   model,
@@ -186,23 +196,20 @@ public class BenchmarkExperimentRecordScaling {
                         if (run == NUMBER_OF_RUNS - 1) {
 
                             double utilityMean = calculateArithmeticMean(utilityResults);
-                            double variance = calculateVariance(utilityResults);
                             double runtime = calculateArithmeticMean(runtimes);
 
                             BENCHMARK.addRun(dataset, measure, model, algorithm, suppressed);
+                            BENCHMARK.addValue(QIS, qidCount);
                             BENCHMARK.addValue(UTILITY, utilityMean);
                             BENCHMARK.addValue(RUNTIME, runtime);
                         }
 
-                        // Run complete
                         run++;
-                        System.out.print(run + " ");
+                        // Run complete
+                        if (run % NUMBER_OF_WARMUPS == 0 || run == NUMBER_OF_RUNS) {
+                            System.out.print(run + " ");
+                        }
                     }
-                }
-
-                @Override
-                public boolean isWarmup() {
-                    return isWarmup;
                 }
 
                 @Override
@@ -220,7 +227,9 @@ public class BenchmarkExperimentRecordScaling {
 
             System.out.print("Warmup... ");
             observer.setWarmup(true);
-            algorithmImplementation.execute();
+            for (int i = 0; i < NUMBER_OF_WARMUPS; i++) {
+                algorithmImplementation.execute();
+            }
             observer.setWarmup(false);
             System.out.println("done!");
 
@@ -233,27 +242,6 @@ public class BenchmarkExperimentRecordScaling {
         } else {
             throw new UnsupportedOperationException("Unimplemented Algorithm: " + algorithm);
         }
-    }
-
-    /**
-     * Get the variance for a set of values (without Bessel's correction).
-     * 
-     * @param values
-     *            A set of sample values.
-     * @return The sample variance.
-     */
-    private static double calculateVariance(double[] values) {
-
-        double arithmeticMean = calculateArithmeticMean(values);
-
-        double variance = 0d;
-        for (double value : values) {
-            variance += Math.pow(value - arithmeticMean, 2);
-        }
-        variance /= values.length;
-
-        return variance;
-
     }
 
     /**

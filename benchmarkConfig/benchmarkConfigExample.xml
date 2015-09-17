@@ -1,26 +1,37 @@
 <?xml version="1.0"?>
-<!-- add customized settings in the config section.
-     If the xml doesn't contain vales for a setting,
-     its default values are used. -->
+<!-- Add customized settings in the config section. If the xml doesn't contain 
+	vales for a setting, its default values are used. -->
 <config>
-    <!-- add datasets by their file name in CAPS -->
-    <dataset>ADULT_SUBSET</dataset>
-    <dataset>CUP_SUBSET</dataset>
-    <!-- add implemented algorithms -->
-    <algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
-    <algorithm>TASSA</algorithm>
-    <!-- add privacy models -->
-    <privacyModel>K5_ANONYMITY</privacyModel>
-    <privacyModel>K20_ANONYMITY</privacyModel>
-    <!-- add utility measures -->
-    <utilityMeasure>LOSS</utilityMeasure>
-    <utilityMeasure>DISCERNIBILITY</utilityMeasure>
-    <!-- add suppression limits. can be any double value between 0 and 1 -->
-    <suppressionLimit>0.02</suppressionLimit>
-    <suppressionLimit>0.05</suppressionLimit>
-    <suppressionLimit>0.1</suppressionLimit>
-    <suppressionLimit>1.0</suppressionLimit>
-    <!-- set paths for output files -->
-    <outputFile>results/experiment1.csv</outputFile>
-    <plotFile>results/experiment1.pdf</plotFile>
+	<!-- Add datasets by their file name in CAPS. ALL_ADULT_SUBSETS can be used, 
+		to add the adult subsets from 1,000 to 30,000 records. But this only works, 
+		if it is the only "dataset" element. -->
+	<dataset>ADULT</dataset>
+	<dataset>CUP</dataset>
+
+	<!-- Add implemented algorithms -->
+	<algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
+	<algorithm>TASSA</algorithm>
+
+	<!-- Add privacy models -->
+	<privacyModel>K5_ANONYMITY</privacyModel>
+	<privacyModel>K20_ANONYMITY</privacyModel>
+
+	<!-- Add utility measures -->
+	<utilityMeasure>LOSS</utilityMeasure>
+	<utilityMeasure>DISCERNIBILITY</utilityMeasure>
+
+	<!-- Add suppression limits. can be any double value between 0 and 1 -->
+	<suppressionLimit>0.02</suppressionLimit>
+	<suppressionLimit>0.05</suppressionLimit>
+	<suppressionLimit>0.1</suppressionLimit>
+	<suppressionLimit>1.0</suppressionLimit>
+
+	<!-- Set paths for output files -->
+	<outputFile>results/experiment1.csv</outputFile>
+	<plotFile>results/experiment1.pdf</plotFile>
+
+	<!-- Set number of runs. Number of warmups will be 10% of that. Rounded 
+		UP to a natural number, so for 4 runs there is 1 warmup. However, for 1 run 
+		there is no warmup. -->
+	<numberOfRuns>5</numberOfRuns>
 </config>
