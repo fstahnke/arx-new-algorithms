@@ -34,6 +34,12 @@ public class RecursiveTest {
             public void setWarmup(boolean isWarmup) {
                 
             }
+
+            @Override
+            public void notifyTransformations(int[][] transformations, int[] weight) {
+                // TODO Auto-generated method stub
+                
+            }
     		
     	};
         

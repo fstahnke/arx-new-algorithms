@@ -8,4 +8,6 @@ public interface IBenchmarkObserver {
     
     public void notifyFinished(long timestamp, String[][] output, int[] transformation);
     
+    public void notifyTransformations(int[][] transformations, int[] weight);
+    
 }

@@ -234,6 +234,12 @@ public class BenchmarkExperimentUtilityAndRuntime {
                 public void setWarmup(boolean isWarmup) {
                     this.isWarmup = isWarmup;
                 }
+
+                @Override
+                public void notifyTransformations(int[][] transformations, int[] weight) {
+                    // TODO Auto-generated method stub
+                    
+                }
             };
 
             org.deidentifier.arx.benchmark.BenchmarkAlgorithm algorithmImplementation = null;

@@ -50,6 +50,12 @@ public class TassaTest {
             @Override
             public void setWarmup(boolean isWarmup) {
             }
+
+            @Override
+            public void notifyTransformations(int[][] transformations, int[] weight) {
+                // TODO Auto-generated method stub
+                
+            }
             
         }, data, config);
         algorithm.setLogging(true);
