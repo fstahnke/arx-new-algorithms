@@ -44,14 +44,15 @@ import de.linearbits.subframe.analyzer.ValueBuffer;
  * @author Fabian Stahnke
  */
 public class BenchmarkExperimentUtilityAndRuntime {
+    
 
     /** The benchmark instance */
-    private static final Benchmark BENCHMARK       = new Benchmark(new String[] {
+    private static final Benchmark BENCHMARK        = new Benchmark(new String[] {
             "Dataset",
             "UtilityMeasure",
             "PrivacyModel",
             "Algorithm",
-            "Suppression"                         });
+            "Suppression"                          });
 
     /**
      * Choose benchmarkConfig to run and comment others out.
@@ -60,20 +61,24 @@ public class BenchmarkExperimentUtilityAndRuntime {
     // "benchmarkConfig/tassaRGR-RecordScaling.xml";
     // private static final String benchmarkConfig =
     // "benchmarkConfig/tassaRGR-QIScaling.xml";
-//    private static final String    benchmarkConfig = "benchmarkConfig/tassaRGR-QIScaling_short.xml";
-//     private static final String benchmarkConfig =
-//     "benchmarkConfig/tassaRGR-KScaling.xml";
-     private static final String benchmarkConfig =
-     "benchmarkConfig/tassaRGRFlash-Utility.xml";
+    // private static final String benchmarkConfig =
+    // "benchmarkConfig/tassaRGR-QIScaling_short.xml";
+    // private static final String benchmarkConfig =
+    // "benchmarkConfig/tassaRGR-KScaling.xml";
+    // private static final String benchmarkConfig =
+    // "benchmarkConfig/tassaRGRFlash-Utility.xml";
+    private static final String    benchmarkConfig  = "benchmarkConfig/testConfig.xml";
 
+    /** PRIVACY STRENGTH */
+    private static final int       PRIVACY_STRENGTH = BENCHMARK.addMeasure("Privacy Strength");
     /** NUMBER OF RECORDS */
-    private static final int       RECORDS         = BENCHMARK.addMeasure("Records");
+    private static final int       RECORDS          = BENCHMARK.addMeasure("Records");
     /** NUMBER OF QIs */
-    private static final int       QIS             = BENCHMARK.addMeasure("QIs");
+    private static final int       QIS              = BENCHMARK.addMeasure("QIs");
     /** UTILITY */
-    private static final int       UTILITY         = BENCHMARK.addMeasure("Utility");
+    private static final int       UTILITY          = BENCHMARK.addMeasure("Utility");
     /** RUNTIME */
-    private static final int       RUNTIME         = BENCHMARK.addMeasure("Runtime");
+    private static final int       RUNTIME          = BENCHMARK.addMeasure("Runtime");
     /** Number of runs for each benchmark setting */
     private static int             numberOfRuns;
     /** Number of warmup runs */
@@ -85,9 +90,10 @@ public class BenchmarkExperimentUtilityAndRuntime {
      * @param args
      * @throws IOException
      */
-    public static void main(String[] args) throws IOException {
+    public static void executeBenchmark(String benchmarkConfig) throws IOException {
 
         // Init
+        BENCHMARK.addAnalyzer(PRIVACY_STRENGTH, new ValueBuffer());
         BENCHMARK.addAnalyzer(RECORDS, new ValueBuffer());
         BENCHMARK.addAnalyzer(QIS, new ValueBuffer());
         BENCHMARK.addAnalyzer(UTILITY, new ValueBuffer());
@@ -216,6 +222,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
                             double runtime = calculateArithmeticMean(runtimes);
 
                             BENCHMARK.addRun(dataset, measure, model, algorithm, suppressed);
+                            BENCHMARK.addValue(PRIVACY_STRENGTH, model.getStrength());
                             BENCHMARK.addValue(RECORDS, output.length);
                             BENCHMARK.addValue(QIS, output[0].length);
                             BENCHMARK.addValue(UTILITY, utilityMean);
@@ -238,7 +245,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
                 @Override
                 public void notifyTransformations(int[][] transformations, int[] weight) {
                     // TODO Auto-generated method stub
-                    
+
                 }
             };
 
