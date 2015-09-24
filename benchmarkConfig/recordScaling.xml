@@ -11,5 +11,5 @@
     <suppressionLimit>0.1</suppressionLimit>
     <outputFile>results/tassaRGR-RecordScaling.csv</outputFile>
     <plotFile>results/tassaRGR-RecordScaling.pdf</plotFile>
-    <numberOfRuns>5</numberOfRuns>
+    <numberOfRuns>1</numberOfRuns>
 </config>

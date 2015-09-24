@@ -44,30 +44,31 @@ import de.linearbits.subframe.analyzer.ValueBuffer;
  * @author Fabian Stahnke
  */
 public class BenchmarkExperimentUtilityAndRuntime {
-    
 
     /** The benchmark instance */
-    private static final Benchmark BENCHMARK        = new Benchmark(new String[] {
-            "Dataset",
-            "UtilityMeasure",
-            "PrivacyModel",
-            "Algorithm",
-            "Suppression"                          });
+    private static final Benchmark BENCHMARK = new Benchmark(new String[] {
+                                                                            "Dataset",
+                                                                            "UtilityMeasure",
+                                                                            "PrivacyModel",
+                                                                            "Algorithm",
+                                                                            "Suppression" });
 
     /** PRIVACY STRENGTH */
-    private static final int       PRIVACY_STRENGTH = BENCHMARK.addMeasure("Privacy Strength");
+    private static final int PRIVACY_STRENGTH = BENCHMARK.addMeasure("Privacy Strength");
     /** NUMBER OF RECORDS */
-    private static final int       RECORDS          = BENCHMARK.addMeasure("Records");
+    private static final int RECORDS          = BENCHMARK.addMeasure("Records");
     /** NUMBER OF QIs */
-    private static final int       QIS              = BENCHMARK.addMeasure("QIs");
+    private static final int QIS              = BENCHMARK.addMeasure("QIs");
     /** UTILITY */
-    private static final int       UTILITY          = BENCHMARK.addMeasure("Utility");
+    private static final int UTILITY          = BENCHMARK.addMeasure("Utility");
     /** RUNTIME */
-    private static final int       RUNTIME          = BENCHMARK.addMeasure("Runtime");
+    private static final int RUNTIME          = BENCHMARK.addMeasure("Runtime");
+    /** GENERALIZATION VARIANCE */
+    private static final int VARIANCE         = BENCHMARK.addMeasure("Variance");
     /** Number of runs for each benchmark setting */
-    private static int             numberOfRuns;
+    private static int       numberOfRuns;
     /** Number of warmup runs */
-    private static int             numberOfWarmups;
+    private static int       numberOfWarmups;
 
     /**
      * Main entry point
@@ -83,6 +84,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
         BENCHMARK.addAnalyzer(QIS, new ValueBuffer());
         BENCHMARK.addAnalyzer(UTILITY, new ValueBuffer());
         BENCHMARK.addAnalyzer(RUNTIME, new ValueBuffer());
+        BENCHMARK.addAnalyzer(VARIANCE, new ValueBuffer());
 
         BenchmarkSetup setup = new BenchmarkSetup(benchmarkConfig);
         BenchmarkMetadataUtility metadata = new BenchmarkMetadataUtility(setup);
@@ -105,7 +107,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
 
                             System.out.println("Performing run: " + dataset.name() + " / " +
                                                measure + " / " + model + " / " + algorithm + " / " +
-                                               suppression);
+                                               suppression + " / QIs: " + dataset.getNumQIs() + " / Records: " + dataset.getNumRecords());
 
                             performExperiment(metadata,
                                               dataset,
@@ -156,8 +158,9 @@ public class BenchmarkExperimentUtilityAndRuntime {
         // Calculate max generalization levels
         final int maxGeneralizationLevels[] = new int[header.length];
         for (int i = 0; i < maxGeneralizationLevels.length; i++) {
-            maxGeneralizationLevels[i] = data.getDefinition()
-                                             .getHierarchy(data.getHandle().getAttributeName(i))[0].length - 1;
+            maxGeneralizationLevels[i] = data.getDefinition().getHierarchy(data.getHandle()
+                                                                               .getAttributeName(i))[0].length -
+                                         1;
         }
 
         if (algorithm == BenchmarkAlgorithm.TASSA ||
@@ -165,10 +168,10 @@ public class BenchmarkExperimentUtilityAndRuntime {
             algorithm == BenchmarkAlgorithm.FLASH) {
             IBenchmarkObserver observer = new IBenchmarkObserver() {
 
-                private boolean  isWarmup       = false;
-                private int      run            = 0;
+                private boolean isWarmup = false;
+                private int run = 0;
                 private double[] utilityResults = new double[numberOfRuns];
-                private double[] runtimes       = new double[numberOfRuns];
+                private double[] runtimes = new double[numberOfRuns];
 
                 @Override
                 public void notify(long timestamp, String[][] output, int[] transformation) {
@@ -176,7 +179,10 @@ public class BenchmarkExperimentUtilityAndRuntime {
                 }
 
                 @Override
-                public void notifyFinished(long timestamp, String[][] output, int[] transformation) {
+                public void notifyFinished(long timestamp,
+                                           String[][] output,
+                                           int[][] transformations,
+                                           int[] weights) {
 
                     if (!isWarmup) {
                         // Obtain utility
@@ -193,8 +199,8 @@ public class BenchmarkExperimentUtilityAndRuntime {
 
                         // Normalize
                         utility -= metadata.getLowerBound(dataset, measure);
-                        utility /= (metadata.getUpperBound(dataset, measure) - metadata.getLowerBound(dataset,
-                                                                                                      measure));
+                        utility /= (metadata.getUpperBound(dataset, measure) -
+                                    metadata.getLowerBound(dataset, measure));
 
                         // Save intermediary results
                         utilityResults[run] = utility;
@@ -205,18 +211,21 @@ public class BenchmarkExperimentUtilityAndRuntime {
 
                             double utilityMean = calculateArithmeticMean(utilityResults);
                             double runtime = calculateArithmeticMean(runtimes);
-
+                            double variance = calculateGeneralizationVariance(transformations, weights, maxGeneralizationLevels);
+                            
                             BENCHMARK.addRun(dataset, measure, model, algorithm, suppressed);
                             BENCHMARK.addValue(PRIVACY_STRENGTH, model.getStrength());
                             BENCHMARK.addValue(RECORDS, output.length);
                             BENCHMARK.addValue(QIS, output[0].length);
                             BENCHMARK.addValue(UTILITY, utilityMean);
                             BENCHMARK.addValue(RUNTIME, runtime);
+                            BENCHMARK.addValue(VARIANCE, variance);
                         }
 
                         run++;
                         // Run complete
-                        if (numberOfRuns > 1 && (run % numberOfWarmups == 0 || run == numberOfRuns)) {
+                        if (numberOfRuns > 1 &&
+                            (run % numberOfWarmups == 0 || run == numberOfRuns)) {
                             System.out.print(run + " ");
                         }
                     }
@@ -225,12 +234,6 @@ public class BenchmarkExperimentUtilityAndRuntime {
                 @Override
                 public void setWarmup(boolean isWarmup) {
                     this.isWarmup = isWarmup;
-                }
-
-                @Override
-                public void notifyTransformations(int[][] transformations, int[] weight) {
-                    // TODO Auto-generated method stub
-
                 }
             };
 
@@ -291,9 +294,16 @@ public class BenchmarkExperimentUtilityAndRuntime {
      *            The maximum generalization level of each attribute.
      * @return
      */
-    private static double[] calculateGeneralizationVariances(int[][] transformations,
-                                                             int[] weight,
+    private static double calculateGeneralizationVariance(int[][] transformations,
+                                                             int[] weights,
                                                              int[] maxGeneralizationLevels) {
+
+        // Check if last row of transformations is negative. If it is replace it
+        // with maxGeneralizationLevels
+        if (transformations[transformations.length - 1][0] < 0) {
+            transformations[transformations.length - 1] = maxGeneralizationLevels;
+        }
+
         // Add up all generalization levels
         double[] averageDegrees = new double[transformations[0].length];
         Arrays.fill(averageDegrees, 0.0);
@@ -304,21 +314,23 @@ public class BenchmarkExperimentUtilityAndRuntime {
         }
         // Normalize
         for (int i = 0; i < averageDegrees.length; i++) {
-            averageDegrees[i] /= transformations.length;
+            averageDegrees[i] /= (1.0 * transformations.length * maxGeneralizationLevels[i]);
         }
+        
         // Add up all variances
         double[] variances = new double[transformations[0].length];
         Arrays.fill(variances, 0.0);
         for (int[] row : transformations) {
             for (int i = 0; i < row.length; i++) {
-                variances[i] += Math.pow(row[i], 2);
+                double degree = 1.0 * row[i] / maxGeneralizationLevels[i];
+                variances[i] += Math.pow(degree - averageDegrees[i], 2);
             }
         }
         // Normalize
         for (int i = 0; i < variances.length; i++) {
             variances[i] /= transformations.length;
         }
-        return variances;
+        return calculateArithmeticMean(variances);
     }
 
 }

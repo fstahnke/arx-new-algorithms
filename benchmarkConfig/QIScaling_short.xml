@@ -12,12 +12,12 @@
 	<dataset>ADULT7</dataset>
 	<!-- <dataset>ADULT8</dataset> -->
 	<!-- <dataset>ADULT9</dataset> -->
-	<dataset>CUP1</dataset>
-	<dataset>CUP2</dataset>
-	<dataset>CUP3</dataset>
-	<dataset>CUP4</dataset>
-	<dataset>CUP5</dataset>
-	<dataset>CUP6</dataset>
+<!-- 	<dataset>CUP1</dataset> -->
+<!-- 	<dataset>CUP2</dataset> -->
+<!-- 	<dataset>CUP3</dataset> -->
+<!-- 	<dataset>CUP4</dataset> -->
+<!-- 	<dataset>CUP5</dataset> -->
+<!-- 	<dataset>CUP6</dataset> -->
 	<!-- <dataset>CUP7</dataset> -->
 	<!-- <dataset>CUP8</dataset> -->
 	<algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
@@ -29,5 +29,5 @@
 	<suppressionLimit>0.1</suppressionLimit>
 	<outputFile>results/tassaRGR-QIScaling_short.csv</outputFile>
 	<plotFile>results/tassaRGR-QIScaling_short.pdf</plotFile>
-	<numberOfRuns>100</numberOfRuns>
+	<numberOfRuns>20</numberOfRuns>
 </config>

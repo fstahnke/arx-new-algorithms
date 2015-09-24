@@ -25,19 +25,13 @@ public class RecursiveTest {
 			}
 
             @Override
-            public void notifyFinished(long timestamp, String[][] output, int[] transformation) {
+            public void notifyFinished(long timestamp, String[][] output, int[][] transformations, int[] weights) {
                 System.out.println("Iteration");
                 
             }
 
             @Override
             public void setWarmup(boolean isWarmup) {
-                
-            }
-
-            @Override
-            public void notifyTransformations(int[][] transformations, int[] weight) {
-                // TODO Auto-generated method stub
                 
             }
     		

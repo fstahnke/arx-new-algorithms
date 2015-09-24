@@ -19,16 +19,23 @@ public class BenchmarkManager {
     public static void main(String[] args) throws IOException {
         BenchmarkExperimentUtilityAndRuntime utilityBenchmark = new BenchmarkExperimentUtilityAndRuntime();
 
-        utilityBenchmark.execute(kScalingConfig);
-        utilityBenchmark.execute(recordScalingConfig);
-        utilityBenchmark.execute(qiScalingConfig);
-        utilityBenchmark.execute(qiScalingConfigS);
-//        utilityBenchmark.execute(utilityVarianceConfig);
+        double startTime = System.currentTimeMillis();
+        
+//        utilityBenchmark.execute(kScalingConfig);
+//        utilityBenchmark.execute(recordScalingConfig);
+//        utilityBenchmark.execute(qiScalingConfig);
+//        utilityBenchmark.execute(qiScalingConfigS);
+        utilityBenchmark.execute(utilityVarianceConfig);
 //        utilityBenchmark.execute(ruleOutConfig);
+        
+        double elapsedTime = System.currentTimeMillis() - startTime;
+        System.out.println("Total Runtime: " + elapsedTime + " ms");
+        double estimatedTime = elapsedTime * 6.0 / 1000.0;
+        System.out.println("Estimated time for long tests: " + estimatedTime + " sec. (" + (estimatedTime / 60.0) + " min)");
         
         BenchmarkExperimentRGRIterations iterationsBenchmark = new BenchmarkExperimentRGRIterations();
         
-        iterationsBenchmark.execute(iterationConfig);
+//        iterationsBenchmark.execute(iterationConfig);
         
         
         

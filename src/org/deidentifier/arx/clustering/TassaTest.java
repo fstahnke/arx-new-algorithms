@@ -42,19 +42,13 @@ public class TassaTest {
             }
 
             @Override
-            public void notifyFinished(long timestamp, String[][] output, int[] transformation) {
+            public void notifyFinished(long timestamp, String[][] output, int[][] transformations, int[] weights) {
              // Empty by design
                 
             }
 
             @Override
             public void setWarmup(boolean isWarmup) {
-            }
-
-            @Override
-            public void notifyTransformations(int[][] transformations, int[] weight) {
-                // TODO Auto-generated method stub
-                
             }
             
         }, data, config);
