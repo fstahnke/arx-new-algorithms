@@ -3,12 +3,15 @@
     <dataset>ADULT</dataset>
     <algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
     <algorithm>FLASH</algorithm>
-    <algorithm>TASSA</algorithm>
+<!--     <algorithm>TASSA</algorithm> -->
     <privacyModel>K5_ANONYMITY</privacyModel>
     <utilityMeasure>LOSS</utilityMeasure>
     <suppressionLimit>0.0</suppressionLimit>
+    <suppressionLimit>0.01</suppressionLimit>
     <suppressionLimit>0.02</suppressionLimit>
+    <suppressionLimit>0.03</suppressionLimit>
     <suppressionLimit>0.05</suppressionLimit>
+    <suppressionLimit>0.07</suppressionLimit>
     <suppressionLimit>0.1</suppressionLimit>
     <suppressionLimit>0.15</suppressionLimit>
     <suppressionLimit>0.2</suppressionLimit>
@@ -28,9 +31,9 @@
     <suppressionLimit>0.9</suppressionLimit>
     <suppressionLimit>0.95</suppressionLimit>
     <suppressionLimit>1.0</suppressionLimit>
-    <outputFile>results/tassaRGRFlash-suppressionScaling.csv</outputFile>
-    <plotFile>results/tassaRGRFlash-suppressionScaling.pdf</plotFile>
+    <outputFile>results/RGRFlash-suppressionScaling.csv</outputFile>
+    <plotFile>results/RGRFlash-suppressionScaling.pdf</plotFile>
     
     <!-- set the number of runs -->
-    <numberOfRuns>1</numberOfRuns>
+    <numberOfRuns>5</numberOfRuns>
 </config>
