@@ -42,12 +42,14 @@ public class BenchmarkAlgorithmFlash extends BenchmarkAlgorithm {
         int[] transformation = result.getGlobalOptimum().getTransformation();
         
         // Get handle for input data and result
-        DataHandle inHandle = data.getHandle();
         DataHandle outHandle = result.getOutput(false);
 
         // Convert input and output to array of string arrays
         DataConverter converter = new DataConverter();
         String[][] output = converter.toArray(outHandle);
+        
+        outHandle.release();
+        data.getHandle().release();
         
         // Notify listenener and return output
         super.updated(output, transformation);
