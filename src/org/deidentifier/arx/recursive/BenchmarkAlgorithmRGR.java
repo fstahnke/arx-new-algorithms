@@ -138,14 +138,16 @@ public class BenchmarkAlgorithmRGR extends BenchmarkAlgorithm {
             if (anythingChanged) {
                 addTransformation(transformation, oldOutliers - numOutliers);
             } else {
-                int[] maxTransformation = new int[transformation.length];
-                Arrays.fill(maxTransformation, -1);
-                addTransformation(maxTransformation, numOutliers);
                 break;
             }
 
             super.updated(output, transformation);
 
+        }
+        if (numOutliers > 0) {
+            int[] maxTransformation = new int[transformation.length];
+            Arrays.fill(maxTransformation, -1);
+            addTransformation(maxTransformation, numOutliers);
         }
         super.finished(output, transformations, weights);
         return output;

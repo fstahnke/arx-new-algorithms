@@ -114,6 +114,10 @@ public class TassaCluster {
         return generalizationManager.getTransformation(records.getQuick(0),
                                                        generalizationLevels);
     }
+    
+    public int[] getGeneralization() {
+        return generalizationLevels;
+    }
 
     public void removeRecord(int recordId) {
         this.records.remove(this.records.indexOf(recordId));

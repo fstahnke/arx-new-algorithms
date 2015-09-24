@@ -21,7 +21,7 @@ public class BenchmarkManager {
 
         double startTime = System.currentTimeMillis();
         
-        utilityBenchmark.execute(kScalingConfig);
+//        utilityBenchmark.execute(kScalingConfig);
         utilityBenchmark.execute(recordScalingConfig);
         utilityBenchmark.execute(qiScalingConfig);
         utilityBenchmark.execute(qiScalingConfigS);

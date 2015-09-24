@@ -297,38 +297,44 @@ public class BenchmarkExperimentUtilityAndRuntime {
     private static double calculateGeneralizationVariance(int[][] transformations,
                                                              int[] weights,
                                                              int[] maxGeneralizationLevels) {
-
+        int numberOfRecords = 0;
+        for (int i : weights) {
+            numberOfRecords += i;
+        }
+        
         // Check if last row of transformations is negative. If it is replace it
         // with maxGeneralizationLevels
         if (transformations[transformations.length - 1][0] < 0) {
             transformations[transformations.length - 1] = maxGeneralizationLevels;
         }
 
-        // Add up all generalization levels
+        // Add up all generalization levels (weighted by number of records)
         double[] averageDegrees = new double[transformations[0].length];
         Arrays.fill(averageDegrees, 0.0);
-        for (int[] row : transformations) {
-            for (int i = 0; i < row.length; i++) {
-                averageDegrees[i] += row[i];
+        for (int i = 0; i < transformations.length; i++) {
+            int[] row = transformations[i];
+            for (int j = 0; j < row.length; j++) {
+                averageDegrees[j] += row[j] * weights[i];
             }
         }
         // Normalize
         for (int i = 0; i < averageDegrees.length; i++) {
-            averageDegrees[i] /= (1.0 * transformations.length * maxGeneralizationLevels[i]);
+            averageDegrees[i] /= (1.0 * numberOfRecords * maxGeneralizationLevels[i]);
         }
         
         // Add up all variances
         double[] variances = new double[transformations[0].length];
         Arrays.fill(variances, 0.0);
-        for (int[] row : transformations) {
-            for (int i = 0; i < row.length; i++) {
-                double degree = 1.0 * row[i] / maxGeneralizationLevels[i];
-                variances[i] += Math.pow(degree - averageDegrees[i], 2);
+        for (int i = 0; i < transformations.length; i++) {
+            int[] row = transformations[i];
+            for (int j = 0; j < row.length; j++) {
+                double degree = 1.0 * row[j] / maxGeneralizationLevels[j];
+                variances[j] += Math.pow(degree - averageDegrees[j], 2) * weights[i];
             }
         }
         // Normalize
         for (int i = 0; i < variances.length; i++) {
-            variances[i] /= transformations.length;
+            variances[i] /= numberOfRecords;
         }
         return calculateArithmeticMean(variances);
     }
