@@ -45,11 +45,24 @@ import de.linearbits.subframe.render.LaTeX;
 import de.linearbits.subframe.render.PlotGroup;
 
 /**
- * BenchmarkAnalysis analyzing utility and suppression of RGR.
+ * BenchmarkAnalysis analyzing scaling of the different algorithms.
+ * x-Axis: Scaling factor (records, QIs, K-value)
+ * y-Axis: Time
+ * Plot-Type: Line Plot
  * 
  * @author Fabian Prasser
  */
-public class BenchmarkAnalysis1 {
+public class BenchmarkAnalysisScaling {
+
+    /**
+     * Choose benchmarkConfig to run and comment others out.
+     */
+    // private static final String benchmarkConfig =
+    // "benchmarkConfig/tassaRGR-RecordScaling.xml";
+    // private static final String benchmarkConfig =
+    // "benchmarkConfig/tassaRGR-QIScaling.xml";
+    // private static final String benchmarkConfig =
+    // "benchmarkConfig/tassaRGR-KScaling.xml";
 
     /**
      * Main

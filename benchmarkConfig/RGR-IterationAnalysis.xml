@@ -26,4 +26,7 @@
     <!-- set paths for output files -->
     <outputFile>results/RGR-IterationAnalysis.csv</outputFile>
     <plotFile>results/RGR-IterationAnalysis.pdf</plotFile>
+    
+    <!-- set the number of runs -->
+    <numberOfRuns>1</numberOfRuns>
 </config>
