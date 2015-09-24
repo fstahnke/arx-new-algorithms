@@ -13,7 +13,9 @@
     <utilityMeasure>DISCERNIBILITY</utilityMeasure>
     <suppressionLimit>0.05</suppressionLimit>
     <suppressionLimit>0.1</suppressionLimit>
-    <outputFile>results/tassaRGRFlash-KScaling.csv</outputFile>
-    <plotFile>results/tassaRGRFlash-KScaling.pdf</plotFile>
-    <numberOfRuns>5</numberOfRuns>
+    <outputFile>results/tassaRGRFlash-Utility.csv</outputFile>
+    <plotFile>results/tassaRGRFlash-Utility.pdf</plotFile>
+    
+    <!-- set the number of runs -->
+    <numberOfRuns>1</numberOfRuns>
 </config>

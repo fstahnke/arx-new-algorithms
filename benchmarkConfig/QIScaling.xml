@@ -18,6 +18,7 @@
     <dataset>CUP7</dataset>
     <dataset>CUP8</dataset>
     <algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
+    <algorithm>FLASH</algorithm>
     <algorithm>TASSA</algorithm>
     <privacyModel>K5_ANONYMITY</privacyModel>
     <utilityMeasure>LOSS</utilityMeasure>

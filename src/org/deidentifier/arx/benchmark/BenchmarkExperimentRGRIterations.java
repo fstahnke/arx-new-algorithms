@@ -119,7 +119,7 @@ public class BenchmarkExperimentRGRIterations {
      * @param args
      * @throws IOException
      */
-    public static void main(String[] args) throws IOException {
+    public void execute(String benchmarkConfig) throws IOException {
 
         // Init
         BENCHMARK.addAnalyzer(STEP, new ValueBuffer());
@@ -134,7 +134,7 @@ public class BenchmarkExperimentRGRIterations {
         BENCHMARK.addAnalyzer(UTILITY, new ValueBuffer());
         BENCHMARK.addAnalyzer(TIME, new ValueBuffer());
 
-        BenchmarkSetup setup = new BenchmarkSetup("benchmarkConfig/generalizationDegreeRGR.xml");
+        BenchmarkSetup setup = new BenchmarkSetup(benchmarkConfig);
         BenchmarkMetadataUtility metadata = new BenchmarkMetadataUtility(setup);
         File resultFile = new File(setup.getOutputFile());
         resultFile.getParentFile().mkdirs();
@@ -333,7 +333,7 @@ public class BenchmarkExperimentRGRIterations {
             implementation.execute();
 
         } else {
-            throw new UnsupportedOperationException("TODO: Implement");
+            throw new UnsupportedOperationException("Algorithm not supported: " + algorithm);
         }
     }
 

@@ -21,6 +21,7 @@
 	<!-- <dataset>CUP7</dataset> -->
 	<!-- <dataset>CUP8</dataset> -->
 	<algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
+	<algorithm>FLASH</algorithm>
 	<!-- <algorithm>TASSA</algorithm> -->
 	<privacyModel>K5_ANONYMITY</privacyModel>
 	<utilityMeasure>LOSS</utilityMeasure>
@@ -28,5 +29,5 @@
 	<suppressionLimit>0.1</suppressionLimit>
 	<outputFile>results/tassaRGR-QIScaling_short.csv</outputFile>
 	<plotFile>results/tassaRGR-QIScaling_short.pdf</plotFile>
-	<numberOfRuns>200</numberOfRuns>
+	<numberOfRuns>100</numberOfRuns>
 </config>

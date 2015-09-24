@@ -8,6 +8,7 @@
 	
     <!-- add implemented algorithms -->
     <algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
+    <algorithm>FLASH</algorithm>
 	<algorithm>TASSA</algorithm>
 	
     <!-- add privacy models -->
@@ -25,4 +26,7 @@
     <!-- set paths for output files -->
     <outputFile>results/tassaRGR-ruleOut.csv</outputFile>
     <plotFile>results/tassaRGR-ruleOut.pdf</plotFile>
+    
+    <!-- set the number of runs -->
+    <numberOfRuns>1</numberOfRuns>
 </config>

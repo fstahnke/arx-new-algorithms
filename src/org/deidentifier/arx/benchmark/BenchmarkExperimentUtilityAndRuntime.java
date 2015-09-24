@@ -75,7 +75,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
      * @param args
      * @throws IOException
      */
-    public static void executeBenchmark(String benchmarkConfig) throws IOException {
+    public void execute(String benchmarkConfig) throws IOException {
 
         // Init
         BENCHMARK.addAnalyzer(PRIVACY_STRENGTH, new ValueBuffer());

@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<config>
+    <dataset>ADULT</dataset>
+    <algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
+    <algorithm>FLASH</algorithm>
+    <algorithm>TASSA</algorithm>
+    <privacyModel>K5_ANONYMITY</privacyModel>
+    <utilityMeasure>LOSS</utilityMeasure>
+    <suppressionLimit>0.0</suppressionLimit>
+    <suppressionLimit>0.02</suppressionLimit>
+    <suppressionLimit>0.05</suppressionLimit>
+    <suppressionLimit>0.1</suppressionLimit>
+    <suppressionLimit>0.15</suppressionLimit>
+    <suppressionLimit>0.2</suppressionLimit>
+    <suppressionLimit>0.25</suppressionLimit>
+    <suppressionLimit>0.3</suppressionLimit>
+    <suppressionLimit>0.35</suppressionLimit>
+    <suppressionLimit>0.4</suppressionLimit>
+    <suppressionLimit>0.45</suppressionLimit>
+    <suppressionLimit>0.5</suppressionLimit>
+    <suppressionLimit>0.55</suppressionLimit>
+    <suppressionLimit>0.6</suppressionLimit>
+    <suppressionLimit>0.65</suppressionLimit>
+    <suppressionLimit>0.7</suppressionLimit>
+    <suppressionLimit>0.75</suppressionLimit>
+    <suppressionLimit>0.8</suppressionLimit>
+    <suppressionLimit>0.85</suppressionLimit>
+    <suppressionLimit>0.9</suppressionLimit>
+    <suppressionLimit>0.95</suppressionLimit>
+    <suppressionLimit>1.0</suppressionLimit>
+    <outputFile>results/tassaRGRFlash-suppressionScaling.csv</outputFile>
+    <plotFile>results/tassaRGRFlash-suppressionScaling.pdf</plotFile>
+    
+    <!-- set the number of runs -->
+    <numberOfRuns>1</numberOfRuns>
+</config>
