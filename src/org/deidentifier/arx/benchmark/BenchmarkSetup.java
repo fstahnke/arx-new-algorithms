@@ -59,10 +59,12 @@ public class BenchmarkSetup {
      * Create new BenchmarkSetup instance with xml for configuration
      * 
      * @param configFile
-     *            path to xml benchmark configuration
+     *            path to xml benchmark configuration. If null, default values will be used.
      */
     public BenchmarkSetup(String configFile) {
-        readXML(configFile);
+        if (configFile != null && !configFile.equals("")) {
+            readXML(configFile);
+        }
     }
 
     /**

@@ -54,21 +54,6 @@ public class BenchmarkExperimentUtilityAndRuntime {
             "Algorithm",
             "Suppression"                          });
 
-    /**
-     * Choose benchmarkConfig to run and comment others out.
-     */
-    // private static final String benchmarkConfig =
-    // "benchmarkConfig/tassaRGR-RecordScaling.xml";
-    // private static final String benchmarkConfig =
-    // "benchmarkConfig/tassaRGR-QIScaling.xml";
-    // private static final String benchmarkConfig =
-    // "benchmarkConfig/tassaRGR-QIScaling_short.xml";
-    // private static final String benchmarkConfig =
-    // "benchmarkConfig/tassaRGR-KScaling.xml";
-    // private static final String benchmarkConfig =
-    // "benchmarkConfig/tassaRGRFlash-Utility.xml";
-    private static final String    benchmarkConfig  = "benchmarkConfig/testConfig.xml";
-
     /** PRIVACY STRENGTH */
     private static final int       PRIVACY_STRENGTH = BENCHMARK.addMeasure("Privacy Strength");
     /** NUMBER OF RECORDS */
