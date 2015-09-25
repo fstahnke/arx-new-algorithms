@@ -1,18 +1,18 @@
 <?xml version="1.0"?>
 <config>
-<!--     <dataset>ADULT</dataset> -->
+    <dataset>ADULT</dataset>
     <dataset>CUP</dataset>
 <!--     <algorithm>RECURSIVE_GLOBAL_RECODING</algorithm> -->
 <!--     <algorithm>FLASH</algorithm> -->
-    <algorithm>TASSA</algorithm>
-<!--     <privacyModel>K5_ANONYMITY</privacyModel> -->
+<!--     <algorithm>TASSA</algorithm> -->
+    <privacyModel>K5_ANONYMITY</privacyModel>
     <privacyModel>K10_ANONYMITY</privacyModel>
     <privacyModel>K25_ANONYMITY</privacyModel>
     <privacyModel>K50_ANONYMITY</privacyModel>
     <utilityMeasure>LOSS</utilityMeasure>
     <suppressionLimit>0.05</suppressionLimit>
     <suppressionLimit>0.1</suppressionLimit>
-    <outputFile>results/tassaRGRFlash-KScaling_tassa_CUP.csv</outputFile>
+    <outputFile>results/tassaRGRFlash-KScaling_rgr_newMetric.csv</outputFile>
     <plotFile>results/tassaRGRFlash-KScaling.pdf</plotFile>
-    <numberOfRuns>2</numberOfRuns>
+    <numberOfRuns>5</numberOfRuns>
 </config>
