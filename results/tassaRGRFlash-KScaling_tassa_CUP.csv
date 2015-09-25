@@ -1,0 +1,5 @@
+;;;;;Privacy Strength;Records;QIs;Utility;Runtime;Variance
+Dataset;UtilityMeasure;PrivacyModel;Algorithm;Suppression;Value;Value;Value;Value;Value;Value
+Cup;Loss;10-anonymity;Tassa & Goldberger;0.0;10.0;63442.0;8.0;1.5820746591542327E-5;712300.0;0.019747367835669778
+Cup;Loss;25-anonymity;Tassa & Goldberger;0.0;25.0;63442.0;8.0;1.5820746591542327E-5;220195.0;0.027496135967730543
+Cup;Loss;50-anonymity;Tassa & Goldberger;0.0;50.0;63442.0;8.0;1.5820746591542327E-5;122032.5;0.03539738560888898
