@@ -1,6 +1,0 @@
-;;;;;Utility;Runtime
-Dataset;UtilityMeasure;PrivacyModel;Algorithm;Suppression;Value;Value
-Adult 1,000;Loss;5-anonymity;RGR;1.0;0.41054288664634264;1321.8
-Adult 2,000;Loss;5-anonymity;RGR;1.0;0.3333743275899333;1883.2
-Adult 3,000;Loss;5-anonymity;RGR;1.0;0.3283304571586483;2201.4
-Adult 4,000;Loss;5-anonymity;RGR;1.0;0.3148824426556719;2732.8
