@@ -7,7 +7,7 @@
     <algorithm>TASSA</algorithm>
     <privacyModel>K5_ANONYMITY</privacyModel>
     <utilityMeasure>LOSS</utilityMeasure>
-    <utilityMeasure>DISCERNIBILITY</utilityMeasure>
+<!--     <utilityMeasure>DISCERNIBILITY</utilityMeasure> -->
     <suppressionLimit>0.1</suppressionLimit>
     <outputFile>results/tassaRGR-RecordScaling.csv</outputFile>
     <plotFile>results/tassaRGR-RecordScaling.pdf</plotFile>

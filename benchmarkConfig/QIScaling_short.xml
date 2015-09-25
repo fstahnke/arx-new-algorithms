@@ -29,5 +29,5 @@
 	<suppressionLimit>0.1</suppressionLimit>
 	<outputFile>results/tassaRGR-QIScaling_short.csv</outputFile>
 	<plotFile>results/tassaRGR-QIScaling_short.pdf</plotFile>
-	<numberOfRuns>100</numberOfRuns>
+	<numberOfRuns>200</numberOfRuns>
 </config>

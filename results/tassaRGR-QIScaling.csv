@@ -1,299 +1,47 @@
-;;;;;Privacy Strength;Records;QIs;Utility;Runtime
-Dataset;UtilityMeasure;PrivacyModel;Algorithm;Suppression;Value;Value;Value;Value;Value
-Adult;Loss;5-anonymity;RGR;0.05;5.0;30162.0;9.0;0.2739245195979827;2341.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;30162.0;9.0;0.21340347468849327;2329.0
-Cup;Loss;5-anonymity;RGR;0.05;5.0;63441.0;8.0;0.1241035526615249;9769.0
-Cup;Loss;5-anonymity;RGR;0.1;5.0;63441.0;8.0;0.1233346195032465;10412.0
-Adult;Loss;5-anonymity;Flash;0.05;5.0;30162.0;9.0;0.2925002644589774;1468.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;30162.0;9.0;0.25510998050475003;1964.0
-Cup;Loss;5-anonymity;Flash;0.05;5.0;63441.0;8.0;0.14729676771402941;8765.0
-Cup;Loss;5-anonymity;Flash;0.1;5.0;63441.0;8.0;0.14729676771402941;9347.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;30163.0;9.0;0.06972039953115453;227024.0
-Cup;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;63442.0;8.0;0.07889906116382832;1827967.0
-Adult;Loss;10-anonymity;RGR;0.05;10.0;30162.0;9.0;0.3279955017685254;1511.0
-Adult;Loss;10-anonymity;RGR;0.1;10.0;30162.0;9.0;0.2671190498438023;1981.0
-Cup;Loss;10-anonymity;RGR;0.05;10.0;63441.0;8.0;0.1640595114527775;9687.0
-Cup;Loss;10-anonymity;RGR;0.1;10.0;63441.0;8.0;0.13353601075666918;11188.0
-Adult;Loss;10-anonymity;Flash;0.05;10.0;30162.0;9.0;0.34562306001411075;1352.0
-Adult;Loss;10-anonymity;Flash;0.1;10.0;30162.0;9.0;0.30304863488816813;1746.0
-Cup;Loss;10-anonymity;Flash;0.05;10.0;63441.0;8.0;0.18061795039104184;9042.0
-Cup;Loss;10-anonymity;Flash;0.1;10.0;63441.0;8.0;0.18311174227997387;9983.0
-Adult;Loss;10-anonymity;Tassa & Goldberger;0.0;10.0;30163.0;9.0;0.10833476487006093;114820.0
-Cup;Loss;10-anonymity;Tassa & Goldberger;0.0;10.0;63442.0;8.0;0.10288944465848802;739319.0
-Adult;Loss;25-anonymity;RGR;0.05;25.0;30162.0;9.0;0.425274928528981;1150.0
-Adult;Loss;25-anonymity;RGR;0.1;25.0;30162.0;9.0;0.34366627698962005;1621.0
-Cup;Loss;25-anonymity;RGR;0.05;25.0;63441.0;8.0;0.20630625150559403;9516.0
-Cup;Loss;25-anonymity;RGR;0.1;25.0;63441.0;8.0;0.1715167800210165;10336.0
-Adult;Loss;25-anonymity;Flash;0.05;25.0;30162.0;9.0;0.4381663882476645;1101.0
-Adult;Loss;25-anonymity;Flash;0.1;25.0;30162.0;9.0;0.37309198701848406;1505.0
-Cup;Loss;25-anonymity;Flash;0.05;25.0;63441.0;8.0;0.23185636022522216;9340.0
-Cup;Loss;25-anonymity;Flash;0.1;25.0;63441.0;8.0;0.20643292239941094;9485.0
-Adult;Loss;25-anonymity;Tassa & Goldberger;0.0;25.0;30163.0;9.0;0.17148328983049424;58927.0
-Cup;Loss;25-anonymity;Tassa & Goldberger;0.0;25.0;63442.0;8.0;0.1356151609525358;246330.0
-Adult;Loss;50-anonymity;RGR;0.05;50.0;30162.0;9.0;0.49533445441259755;861.0
-Adult;Loss;50-anonymity;RGR;0.1;50.0;30162.0;9.0;0.4133312323086077;1266.0
-Cup;Loss;50-anonymity;RGR;0.05;50.0;63441.0;8.0;0.24645669624058558;7777.0
-Cup;Loss;50-anonymity;RGR;0.1;50.0;63441.0;8.0;0.219393000251435;9396.0
-Adult;Loss;50-anonymity;Flash;0.05;50.0;30162.0;9.0;0.5028728976415537;802.0
-Adult;Loss;50-anonymity;Flash;0.1;50.0;30162.0;9.0;0.43847434012765574;1165.0
-Cup;Loss;50-anonymity;Flash;0.05;50.0;63441.0;8.0;0.2624112690921138;7194.0
-Cup;Loss;50-anonymity;Flash;0.1;50.0;63441.0;8.0;0.24908403679346192;8724.0
-Adult;Loss;50-anonymity;Tassa & Goldberger;0.0;50.0;30163.0;9.0;0.2334718267489521;32276.0
-Cup;Loss;50-anonymity;Tassa & Goldberger;0.0;50.0;63442.0;8.0;0.16734529473554538;125120.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;1000.0;9.0;0.4684374984581413;184.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;2000.0;9.0;0.4026102302731712;260.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;3000.0;9.0;0.39427072511004574;338.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;4000.0;9.0;0.34791525755563396;410.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;5000.0;9.0;0.35309285697514226;481.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;6000.0;9.0;0.35019333524882135;549.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;7000.0;9.0;0.33489154966970575;603.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;8000.0;9.0;0.29354259079904194;748.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;9000.0;9.0;0.2911577821406957;745.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;10000.0;9.0;0.2879202326051533;791.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;11000.0;9.0;0.28841234551871275;906.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;12000.0;9.0;0.2711660025461879;994.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;13000.0;9.0;0.2672162915556942;1051.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;14000.0;9.0;0.26817491414723316;1115.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;15000.0;9.0;0.262789767759489;1109.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;16000.0;9.0;0.2629120311182258;1216.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;17000.0;9.0;0.2613250294594528;1268.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;18000.0;9.0;0.2623408622518735;1447.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;19000.0;9.0;0.25879045759821223;1422.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;20000.0;9.0;0.2576933392522424;1558.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;21000.0;9.0;0.2481394525870033;1600.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;22000.0;9.0;0.24720313125061122;1707.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;23000.0;9.0;0.21883193585280633;1603.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;24000.0;9.0;0.21808281768652887;1792.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;25000.0;9.0;0.21737800676890565;1836.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;26000.0;9.0;0.21660596639416707;1908.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;27000.0;9.0;0.21705947534173525;2145.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;28000.0;9.0;0.21610400960882764;2091.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;29000.0;9.0;0.21527547311456424;2130.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;30000.0;9.0;0.21348078824461494;2220.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;1000.0;9.0;0.49557089246962854;125.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;2000.0;9.0;0.4271978260803577;197.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;3000.0;9.0;0.4177722236420372;275.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;4000.0;9.0;0.38020146360229673;330.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;5000.0;9.0;0.3786922141790558;413.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;6000.0;9.0;0.37347497224409887;471.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;7000.0;9.0;0.35681666801029505;531.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;8000.0;9.0;0.3327318243038532;619.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;9000.0;9.0;0.3269727438532556;634.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;10000.0;9.0;0.32437520054276037;691.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;11000.0;9.0;0.3221279300188607;826.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;12000.0;9.0;0.30849944221003617;870.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;13000.0;9.0;0.30306342034123485;907.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;14000.0;9.0;0.3005328796255376;976.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;15000.0;9.0;0.29773471950572195;1001.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;16000.0;9.0;0.29730983810343536;1094.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;17000.0;9.0;0.2951847534005213;1100.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;18000.0;9.0;0.29310770460041746;1241.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;19000.0;9.0;0.2909938959357822;1222.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;20000.0;9.0;0.2884444862835825;1376.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;21000.0;9.0;0.29275917920175815;1408.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;22000.0;9.0;0.29031443129580403;1510.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;23000.0;9.0;0.2661282869549522;1342.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;24000.0;9.0;0.2645680495260052;1513.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;25000.0;9.0;0.26302118026650734;1550.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;26000.0;9.0;0.2612048426508219;1679.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;27000.0;9.0;0.26022723083495575;1843.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;28000.0;9.0;0.2580088199367118;1831.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;29000.0;9.0;0.2558391055170087;1871.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;30000.0;9.0;0.255218763943235;1881.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;1001.0;9.0;0.22703159624680253;198.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;2001.0;9.0;0.18208173144208767;556.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;3001.0;9.0;0.16207762521812763;1203.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;4001.0;9.0;0.1443381167346813;2968.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;5001.0;9.0;0.1359056115629056;4687.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;6001.0;9.0;0.12567172538114485;6601.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;7001.0;9.0;0.11971523457704081;9292.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;8001.0;9.0;0.1142935306083518;12028.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;9001.0;9.0;0.10955370404398176;15076.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;10001.0;9.0;0.1051063861984223;18903.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;11001.0;9.0;0.10215089084742723;23232.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;12001.0;9.0;0.09785667036047378;28041.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;13001.0;9.0;0.09463483513502373;32517.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;14001.0;9.0;0.09289446436311735;39097.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;15001.0;9.0;0.09030713134711266;44908.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;16001.0;9.0;0.08782704479403694;52021.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;17001.0;9.0;0.08612085227417825;61577.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;18001.0;9.0;0.08423156690791853;70783.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;19001.0;9.0;0.08303149601261521;78871.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;20001.0;9.0;0.08150785737002421;90591.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;21001.0;9.0;0.07968089353187688;102596.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;22001.0;9.0;0.07828721337765189;113871.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;23001.0;9.0;0.07696357012850405;130103.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;24001.0;9.0;0.07616287707268321;140858.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;25001.0;9.0;0.07501773344691236;141840.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;26001.0;9.0;0.07396706311659934;178728.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;27001.0;9.0;0.07273206313547302;204038.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;28001.0;9.0;0.07126223919859756;207474.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;29001.0;9.0;0.0704466407911627;225312.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;30001.0;9.0;0.07005617332980965;243556.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;1000.0;9.0;0.022210876181323082;233.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;2000.0;9.0;0.022005026975969774;288.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;3000.0;9.0;0.014389408861519308;370.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;4000.0;9.0;0.014492469105344494;446.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;5000.0;9.0;0.015229948662006445;518.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;6000.0;9.0;0.007907780102880856;619.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;7000.0;9.0;0.008055830438000925;695.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;8000.0;9.0;0.012432835914665733;777.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;9000.0;9.0;0.012447764794533458;852.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;10000.0;9.0;0.007616719156986808;954.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;11000.0;9.0;0.0075084840574675335;1008.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;12000.0;9.0;0.0074860697921748575;1131.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;13000.0;9.0;0.007470035765889056;1195.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;14000.0;9.0;0.007669044626867466;1256.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;15000.0;9.0;0.007650478230401358;1386.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;16000.0;9.0;0.0074578702335111316;1503.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;17000.0;9.0;0.004412364144917183;1601.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;18000.0;9.0;0.004338968402961744;1648.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;19000.0;9.0;0.00747998535436228;1742.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;20000.0;9.0;0.007490811719387328;1816.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;21000.0;9.0;0.007496368984862507;1948.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;22000.0;9.0;0.004325574820351818;2014.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;23000.0;9.0;0.007433432854900888;2062.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;24000.0;9.0;0.007431819012658707;2163.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;25000.0;9.0;0.00439791232086226;2208.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;26000.0;9.0;0.004319177484346687;2427.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;27000.0;9.0;0.00432898462322812;2504.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;28000.0;9.0;0.004330098439297942;2581.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;29000.0;9.0;0.00433096114643592;2607.0
-Adult;Discernibility;5-anonymity;RGR;0.1;5.0;30000.0;9.0;0.004333345447463182;2738.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;1000.0;9.0;0.05594866250200224;126.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;2000.0;9.0;0.03594678049405248;251.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;3000.0;9.0;0.026356906249305263;332.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;4000.0;9.0;0.02247808217242487;417.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;5000.0;9.0;0.021822448356718472;500.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;6000.0;9.0;0.019060004237754592;593.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;7000.0;9.0;0.01790140313817385;668.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;8000.0;9.0;0.016429603592999404;750.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;9000.0;9.0;0.015778929131611875;843.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;10000.0;9.0;0.015107714393740554;943.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;11000.0;9.0;0.013593759901070344;998.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;12000.0;9.0;0.012898618147832455;1159.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;13000.0;9.0;0.011928559787562899;1172.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;14000.0;9.0;0.012095605059023016;1238.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;15000.0;9.0;0.011848649738166534;1387.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;16000.0;9.0;0.01120580828429002;1474.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;17000.0;9.0;0.01128929360534186;1554.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;18000.0;9.0;0.010834125851593006;1636.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;19000.0;9.0;0.010110710163103243;1689.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;20000.0;9.0;0.0098901543908782;1804.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;21000.0;9.0;0.009876677317716976;1941.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;22000.0;9.0;0.009823255213832434;1986.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;23000.0;9.0;0.009476427766252661;2061.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;24000.0;9.0;0.009389715112475891;2122.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;25000.0;9.0;0.009195550768935445;2213.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;26000.0;9.0;0.009125334358461528;2331.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;27000.0;9.0;0.008994218883507647;2449.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;28000.0;9.0;0.008507203781842497;2500.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;29000.0;9.0;0.008364089705679232;2541.0
-Adult;Discernibility;5-anonymity;Flash;0.1;5.0;30000.0;9.0;0.007799145249756316;2646.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;1001.0;9.0;0.011073402210475734;186.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;2001.0;9.0;0.0026618258008741175;538.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;3001.0;9.0;0.0016830439518907983;1681.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;4001.0;9.0;0.0012509914336878258;2971.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;5001.0;9.0;9.924059717048065E-4;4640.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;6001.0;9.0;8.16292893859029E-4;6721.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;7001.0;9.0;7.0148947659638E-4;9250.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;8001.0;9.0;5.979570034203934E-4;12370.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;9001.0;9.0;5.360955617535658E-4;15693.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;10001.0;9.0;4.7093960096848025E-4;18914.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;11001.0;9.0;4.2511006249875907E-4;22909.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;12001.0;9.0;3.837266612064549E-4;27645.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;13001.0;9.0;3.4753174577595026E-4;33583.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;14001.0;9.0;3.197308441590318E-4;38543.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;15001.0;9.0;2.948600286779638E-4;45846.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;16001.0;9.0;2.8307104947774083E-4;51625.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;17001.0;9.0;2.5474082542658195E-4;60442.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;18001.0;9.0;2.3926032778785294E-4;69959.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;19001.0;9.0;2.2566381324153355E-4;81440.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;20001.0;9.0;2.0901691599567264E-4;90405.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;21001.0;9.0;2.0048366181642756E-4;101992.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;22001.0;9.0;1.8745762458993064E-4;118246.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;23001.0;9.0;1.7716025323799523E-4;125514.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;24001.0;9.0;1.6802078392458427E-4;140837.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;25001.0;9.0;1.5953296390772118E-4;158270.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;26001.0;9.0;1.5398316266707093E-4;176094.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;27001.0;9.0;1.478011789291419E-4;196734.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;28001.0;9.0;1.373839253808946E-4;207305.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;29001.0;9.0;4.076778642546651E-4;224813.0
-Adult;Discernibility;5-anonymity;Tassa & Goldberger;0.0;5.0;30001.0;9.0;1.2743061510632229E-4;252595.0
-Adult;Loss;5-anonymity;RGR;0.05;5.0;30162.0;1.0;0.0;7.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;30162.0;1.0;0.0;6.0
-Adult;Loss;5-anonymity;RGR;0.05;5.0;30162.0;2.0;5.2004844153133075E-5;7.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;30162.0;2.0;5.2004844153133075E-5;8.0
-Adult;Loss;5-anonymity;RGR;0.05;5.0;30162.0;3.0;0.00717525927839039;10.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;30162.0;3.0;0.0019462611260819599;10.0
-Adult;Loss;5-anonymity;RGR;0.05;5.0;30162.0;4.0;0.022601680984825193;12.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;30162.0;4.0;0.020372703660657417;13.0
-Adult;Loss;5-anonymity;RGR;0.05;5.0;30162.0;5.0;0.06443245707273121;37.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;30162.0;5.0;0.06422186447278538;32.0
-Adult;Loss;5-anonymity;RGR;0.05;5.0;30162.0;6.0;0.14787009506958537;82.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;30162.0;6.0;0.10013796203702777;95.0
-Adult;Loss;5-anonymity;RGR;0.05;5.0;30162.0;7.0;0.17380903676691684;240.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;30162.0;7.0;0.11898739366565395;276.0
-Adult;Loss;5-anonymity;RGR;0.05;5.0;30162.0;8.0;0.2662807974084261;846.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;30162.0;8.0;0.20176665430484206;1066.0
-Adult;Loss;5-anonymity;RGR;0.05;5.0;30162.0;9.0;0.2739245195979827;1548.0
-Adult;Loss;5-anonymity;RGR;0.1;5.0;30162.0;9.0;0.21340347468849327;2188.0
-Cup;Loss;5-anonymity;RGR;0.05;5.0;63441.0;1.0;5.0153972696132637E-5;11.0
-Cup;Loss;5-anonymity;RGR;0.1;5.0;63441.0;1.0;5.0153972696132637E-5;14.0
-Cup;Loss;5-anonymity;RGR;0.05;5.0;63441.0;2.0;0.0016328979355383114;15.0
-Cup;Loss;5-anonymity;RGR;0.1;5.0;63441.0;2.0;3.2693247649057057E-4;16.0
-Cup;Loss;5-anonymity;RGR;0.05;5.0;63441.0;3.0;0.016917755308790066;21.0
-Cup;Loss;5-anonymity;RGR;0.1;5.0;63441.0;3.0;0.016917755308790066;20.0
-Cup;Loss;5-anonymity;RGR;0.05;5.0;63441.0;4.0;0.02947426050523413;33.0
-Cup;Loss;5-anonymity;RGR;0.1;5.0;63441.0;4.0;0.029355823352077353;37.0
-Cup;Loss;5-anonymity;RGR;0.05;5.0;63441.0;5.0;0.07642912491780254;133.0
-Cup;Loss;5-anonymity;RGR;0.1;5.0;63441.0;5.0;0.07561637872061291;145.0
-Cup;Loss;5-anonymity;RGR;0.05;5.0;63441.0;6.0;0.11068747468900422;399.0
-Cup;Loss;5-anonymity;RGR;0.1;5.0;63441.0;6.0;0.10971133947779545;493.0
-Cup;Loss;5-anonymity;RGR;0.05;5.0;63441.0;7.0;0.11452806759220077;3084.0
-Cup;Loss;5-anonymity;RGR;0.1;5.0;63441.0;7.0;0.11369977256595608;2947.0
-Cup;Loss;5-anonymity;RGR;0.05;5.0;63441.0;8.0;0.1241035526615249;9570.0
-Cup;Loss;5-anonymity;RGR;0.1;5.0;63441.0;8.0;0.1233346195032465;10116.0
-Adult;Loss;5-anonymity;Flash;0.05;5.0;30162.0;1.0;0.0;5.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;30162.0;1.0;0.0;4.0
-Adult;Loss;5-anonymity;Flash;0.05;5.0;30162.0;2.0;7.665578716158693E-4;6.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;30162.0;2.0;7.665578716158693E-4;6.0
-Adult;Loss;5-anonymity;Flash;0.05;5.0;30162.0;3.0;0.014551260874977899;7.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;30162.0;3.0;0.014551260874977899;7.0
-Adult;Loss;5-anonymity;Flash;0.05;5.0;30162.0;4.0;0.030329804637335672;8.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;30162.0;4.0;0.030329804637335672;9.0
-Adult;Loss;5-anonymity;Flash;0.05;5.0;30162.0;5.0;0.09391152965002658;29.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;30162.0;5.0;0.09391152965002658;23.0
-Adult;Loss;5-anonymity;Flash;0.05;5.0;30162.0;6.0;0.16362913655109548;74.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;30162.0;6.0;0.14249100722528538;77.0
-Adult;Loss;5-anonymity;Flash;0.05;5.0;30162.0;7.0;0.19562985815864833;206.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;30162.0;7.0;0.17404355524222237;213.0
-Adult;Loss;5-anonymity;Flash;0.05;5.0;30162.0;8.0;0.28621524943868065;783.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;30162.0;8.0;0.24600112110693256;923.0
-Adult;Loss;5-anonymity;Flash;0.05;5.0;30162.0;9.0;0.2925002644589774;1420.0
-Adult;Loss;5-anonymity;Flash;0.1;5.0;30162.0;9.0;0.25510998050475003;1939.0
-Cup;Loss;5-anonymity;Flash;0.05;5.0;63441.0;1.0;5.516936996579076E-4;9.0
-Cup;Loss;5-anonymity;Flash;0.1;5.0;63441.0;1.0;5.516936996579076E-4;10.0
-Cup;Loss;5-anonymity;Flash;0.05;5.0;63441.0;2.0;0.002789927629267377;10.0
-Cup;Loss;5-anonymity;Flash;0.1;5.0;63441.0;2.0;0.002789927629267377;11.0
-Cup;Loss;5-anonymity;Flash;0.05;5.0;63441.0;3.0;0.02010747894153005;16.0
-Cup;Loss;5-anonymity;Flash;0.1;5.0;63441.0;3.0;0.02010747894153005;15.0
-Cup;Loss;5-anonymity;Flash;0.05;5.0;63441.0;4.0;0.06255836266099955;24.0
-Cup;Loss;5-anonymity;Flash;0.1;5.0;63441.0;4.0;0.06255836266099955;29.0
-Cup;Loss;5-anonymity;Flash;0.05;5.0;63441.0;5.0;0.08620285814284667;121.0
-Cup;Loss;5-anonymity;Flash;0.1;5.0;63441.0;5.0;0.08620285814284667;133.0
-Cup;Loss;5-anonymity;Flash;0.05;5.0;63441.0;6.0;0.13682072445325844;365.0
-Cup;Loss;5-anonymity;Flash;0.1;5.0;63441.0;6.0;0.13682072445325844;464.0
-Cup;Loss;5-anonymity;Flash;0.05;5.0;63441.0;7.0;0.13666435564355062;2426.0
-Cup;Loss;5-anonymity;Flash;0.1;5.0;63441.0;7.0;0.13666435564355062;2545.0
-Cup;Loss;5-anonymity;Flash;0.05;5.0;63441.0;8.0;0.14729676771402941;8616.0
-Cup;Loss;5-anonymity;Flash;0.1;5.0;63441.0;8.0;0.14729676771402941;9256.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;30163.0;1.0;2.3207240659095518E-4;203035.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;30163.0;2.0;3.937744480350416E-4;58720.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;30163.0;3.0;0.0016986374865992971;281194.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;30163.0;4.0;0.005419436474692102;181163.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;30163.0;5.0;0.017118676532183158;128280.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;30163.0;6.0;0.02535155861330774;238656.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;30163.0;7.0;0.03484129333079256;248465.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;30163.0;8.0;0.06293133542332904;242950.0
-Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;30163.0;9.0;0.06941199847287126;246290.0
+;;;;;Privacy Strength;Records;QIs;Utility;Runtime;Variance
+Dataset;UtilityMeasure;PrivacyModel;Algorithm;Suppression;Value;Value;Value;Value;Value;Value
+Adult;Loss;5-anonymity;RGR;0.05;5.0;30162.0;1.0;0.0;9.9;0.0
+Adult;Loss;5-anonymity;RGR;0.1;5.0;30162.0;1.0;0.0;7.3;0.0
+Adult;Loss;5-anonymity;RGR;0.05;5.0;30162.0;2.0;5.200484415313307E-5;12.8;9.110782324922685E-5
+Adult;Loss;5-anonymity;RGR;0.1;5.0;30162.0;2.0;5.200484415313307E-5;9.8;9.110782324922685E-5
+Adult;Loss;5-anonymity;RGR;0.05;5.0;30162.0;3.0;0.007175259278390389;14.7;0.004630677724091452
+Adult;Loss;5-anonymity;RGR;0.1;5.0;30162.0;3.0;0.0019462611260819599;14.3;0.003063441978149386
+Adult;Loss;5-anonymity;RGR;0.05;5.0;30162.0;4.0;0.02260168098482519;17.9;0.0031987360697473786
+Adult;Loss;5-anonymity;RGR;0.1;5.0;30162.0;4.0;0.020372703660657413;17.6;0.004971001267525563
+Adult;Loss;5-anonymity;RGR;0.05;5.0;30162.0;5.0;0.06443245707273122;41.2;0.013351544176502365
+Adult;Loss;5-anonymity;RGR;0.1;5.0;30162.0;5.0;0.0642218644727854;34.8;0.005771167781265388
+Adult;Loss;5-anonymity;RGR;0.05;5.0;30162.0;6.0;0.14787009506958534;85.9;0.004781147310372046
+Adult;Loss;5-anonymity;RGR;0.1;5.0;30162.0;6.0;0.10013796203702777;96.2;0.008813986971147821
+Adult;Loss;5-anonymity;RGR;0.05;5.0;30162.0;7.0;0.17380903676691686;219.0;0.009085246327460769
+Adult;Loss;5-anonymity;RGR;0.1;5.0;30162.0;7.0;0.11898739366565395;274.9;0.011683965729568868
+Adult;Loss;5-anonymity;RGR;0.05;5.0;30162.0;8.0;0.2662807974084261;769.1;0.007949590536528172
+Adult;Loss;5-anonymity;RGR;0.1;5.0;30162.0;8.0;0.20176665430484203;1005.0;0.009129087311790884
+Adult;Loss;5-anonymity;RGR;0.05;5.0;30162.0;9.0;0.27392451959798264;1439.4;0.00679869395536883
+Adult;Loss;5-anonymity;RGR;0.1;5.0;30162.0;9.0;0.21340347468849324;2082.6;0.00825795131434258
+Adult;Loss;5-anonymity;Flash;0.05;5.0;30162.0;1.0;0.0;5.5;0.0
+Adult;Loss;5-anonymity;Flash;0.1;5.0;30162.0;1.0;0.0;4.5;0.0
+Adult;Loss;5-anonymity;Flash;0.05;5.0;30162.0;2.0;7.665578716158692E-4;6.0;7.288625859938148E-4
+Adult;Loss;5-anonymity;Flash;0.1;5.0;30162.0;2.0;7.665578716158692E-4;5.7;7.288625859938148E-4
+Adult;Loss;5-anonymity;Flash;0.05;5.0;30162.0;3.0;0.014551260874977903;7.4;0.013892033172274354
+Adult;Loss;5-anonymity;Flash;0.1;5.0;30162.0;3.0;0.014551260874977903;7.5;0.013892033172274354
+Adult;Loss;5-anonymity;Flash;0.05;5.0;30162.0;4.0;0.03032980463733568;8.5;0.013661925736953085
+Adult;Loss;5-anonymity;Flash;0.1;5.0;30162.0;4.0;0.03032980463733568;9.2;0.013661925736953085
+Adult;Loss;5-anonymity;Flash;0.05;5.0;30162.0;5.0;0.09391152965002658;25.6;0.03559576972817928
+Adult;Loss;5-anonymity;Flash;0.1;5.0;30162.0;5.0;0.09391152965002658;22.5;0.03559576972817928
+Adult;Loss;5-anonymity;Flash;0.05;5.0;30162.0;6.0;0.1636291365510955;68.1;0.022387613217820592
+Adult;Loss;5-anonymity;Flash;0.1;5.0;30162.0;6.0;0.14249100722528538;71.0;0.04994056892198612
+Adult;Loss;5-anonymity;Flash;0.05;5.0;30162.0;7.0;0.19562985815864836;188.3;0.027119940003352803
+Adult;Loss;5-anonymity;Flash;0.1;5.0;30162.0;7.0;0.17404355524222237;200.3;0.06146222650119706
+Adult;Loss;5-anonymity;Flash;0.05;5.0;30162.0;8.0;0.28621524943868065;707.7;0.023729947502933703
+Adult;Loss;5-anonymity;Flash;0.1;5.0;30162.0;8.0;0.24600112110693256;871.2;0.04344182656060184
+Adult;Loss;5-anonymity;Flash;0.05;5.0;30162.0;9.0;0.2925002644589774;1311.5;0.022718919398229228
+Adult;Loss;5-anonymity;Flash;0.1;5.0;30162.0;9.0;0.25510998050475;1822.7;0.04285250744201811
+Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;30163.0;1.0;3.315320094188223E-5;245018.9;0.0
+Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;30163.0;2.0;3.4844315531528335E-5;60445.1;7.169877430678285E-4
+Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;30163.0;3.0;3.426234492667556E-5;287530.1;0.0021723651335387732
+Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;30163.0;4.0;3.3985098990889054E-5;189335.7;0.0060620691334212036
+Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;30163.0;5.0;3.387793192087427E-5;134006.9;0.017029027176181526
+Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;30163.0;6.0;3.382601988101381E-5;245926.6;0.024087801118466794
+Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;30163.0;7.0;3.372798445144284E-5;256551.8;0.0306946095334778
+Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;30163.0;8.0;3.366446953807604E-5;264074.0;0.04564645019729683
+Adult;Loss;5-anonymity;Tassa & Goldberger;0.0;5.0;30163.0;9.0;3.393045491460352E-5;252479.5;0.04751160877179743

@@ -13,32 +13,27 @@ public class BenchmarkManager {
     private static final String kScalingConfig        = "benchmarkConfig/kScaling.xml";
     private static final String utilityVarianceConfig = "benchmarkConfig/utilityVariance.xml";
     private static final String ruleOutConfig         = "benchmarkConfig/ruleOut.xml";
-    
-    private static final String iterationConfig = "benchmarkConfig/rgrIterationAnalysis.xml";
+    private static final String suppressionScaling    = "benchmarkConfig/suppressionScaling.xml";
+
+    private static final String iterationConfig       = "benchmarkConfig/rgrIterationAnalysis.xml";
 
     public static void main(String[] args) throws IOException {
-        BenchmarkExperimentUtilityAndRuntime utilityBenchmark = new BenchmarkExperimentUtilityAndRuntime();
 
         double startTime = System.currentTimeMillis();
-        
-//        utilityBenchmark.execute(kScalingConfig);
-        utilityBenchmark.execute(recordScalingConfig);
-        utilityBenchmark.execute(qiScalingConfig);
-        utilityBenchmark.execute(qiScalingConfigS);
-//        utilityBenchmark.execute(utilityVarianceConfig);
-//        utilityBenchmark.execute(ruleOutConfig);
-        
+
+//         new BenchmarkExperimentUtilityAndRuntime().execute(qiScalingConfig);
+//         new BenchmarkExperimentUtilityAndRuntime().execute(qiScalingConfigS);
+//         new BenchmarkExperimentUtilityAndRuntime().execute(recordScalingConfig);
+         new BenchmarkExperimentUtilityAndRuntime().execute(kScalingConfig);
+//         new BenchmarkExperimentUtilityAndRuntime().execute(utilityVarianceConfig);
+//         new BenchmarkExperimentUtilityAndRuntime().execute(ruleOutConfig);
+        // new BenchmarkExperimentUtilityAndRuntime().execute(suppressionScaling);
+
         double elapsedTime = System.currentTimeMillis() - startTime;
-        System.out.println("Total Runtime: " + elapsedTime + " ms");
-        double estimatedTime = elapsedTime * 6.0 / 1000.0;
-        System.out.println("Estimated time for long tests: " + estimatedTime + " sec");
-        
-        BenchmarkExperimentRGRIterations iterationsBenchmark = new BenchmarkExperimentRGRIterations();
-        
-//        iterationsBenchmark.execute(iterationConfig);
-        
-        
-        
+        System.out.println("Total Runtime: " + (elapsedTime / 1000.0) + " sec (" +
+                           (elapsedTime / 60000) + " min)");
+
+        // new BenchmarkExperimentRGRIterations().execute(iterationConfig);
 
     }
 
