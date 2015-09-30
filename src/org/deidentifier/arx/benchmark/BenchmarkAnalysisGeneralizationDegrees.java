@@ -61,7 +61,7 @@ public class BenchmarkAnalysisGeneralizationDegrees {
     public static void main(String[] args) throws IOException, ParseException {
 
         List<PlotGroup> groups = new ArrayList<PlotGroup>();
-        BenchmarkSetup setup = new BenchmarkSetup("benchmarkConfig/generalizationDegreeRGR.xml");
+        BenchmarkSetup setup = new BenchmarkSetup("benchmarkConfig/rgrIterationAnalysis.xml");
         CSVFile file = new CSVFile(new File(setup.getOutputFile()));
 
         // Repeat for each data set

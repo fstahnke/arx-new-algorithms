@@ -55,8 +55,8 @@ public class BenchmarkAnalysisQiScaling {
     /**
      * Choose benchmarkConfig to run and comment others out.
      */
-//     private static final String benchmarkConfig =
-//     "benchmarkConfig/recordScaling.xml";
+    // private static final String benchmarkConfig =
+    // "benchmarkConfig/recordScaling.xml";
     private static final String benchmarkConfig = "benchmarkConfig/QIScaling.xml";
     // private static final String benchmarkConfig =
     // "benchmarkConfig/kScaling.xml";
@@ -73,8 +73,20 @@ public class BenchmarkAnalysisQiScaling {
         List<PlotGroup> groups = new ArrayList<PlotGroup>();
         BenchmarkSetup setup = new BenchmarkSetup(benchmarkConfig);
         CSVFile file = new CSVFile(new File(setup.getOutputFile()));
+
+        groups.add(analyze(file,
+                           BenchmarkDataset.ADULT,
+                           BenchmarkUtilityMeasure.LOSS,
+                           BenchmarkPrivacyModel.K5_ANONYMITY,
+                           null,
+                           0.05));
+        groups.add(analyze(file,
+                           BenchmarkDataset.ADULT,
+                           BenchmarkUtilityMeasure.LOSS,
+                           BenchmarkPrivacyModel.K5_ANONYMITY,
+                           null,
+                           0.1));
         
-        groups.add(analyze(file, null, null, null, null, 0d));
         LaTeX.plot(groups, setup.getPlotFile());
 
     }
@@ -101,49 +113,49 @@ public class BenchmarkAnalysisQiScaling {
         // Selects according rows
         Selector<String[]> selectorRGR = file.getSelectorBuilder()
                                              .field("Dataset")
-                                             .equals(BenchmarkDataset.ADULT.toString())
+                                             .equals(data.toString())
                                              .and()
                                              .field("UtilityMeasure")
-                                             .equals(BenchmarkUtilityMeasure.LOSS.toString())
+                                             .equals(measure.toString())
                                              .and()
                                              .field("PrivacyModel")
-                                             .equals(BenchmarkPrivacyModel.K5_ANONYMITY.toString())
+                                             .equals(model.toString())
                                              .and()
                                              .field("Algorithm")
                                              .equals(BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING.toString())
                                              .and()
                                              .field("Suppression")
-                                             .equals("0.1")
+                                             .equals(String.valueOf(suppression))
                                              .build();
 
         // Selects according rows
         Selector<String[]> selectorFlash = file.getSelectorBuilder()
                                                .field("Dataset")
-                                               .equals(BenchmarkDataset.ADULT.toString())
+                                               .equals(data.toString())
                                                .and()
                                                .field("UtilityMeasure")
-                                               .equals(BenchmarkUtilityMeasure.LOSS.toString())
+                                               .equals(measure.toString())
                                                .and()
                                                .field("PrivacyModel")
-                                               .equals(BenchmarkPrivacyModel.K5_ANONYMITY.toString())
+                                               .equals(model.toString())
                                                .and()
                                                .field("Algorithm")
                                                .equals(BenchmarkAlgorithm.FLASH.toString())
                                                .and()
                                                .field("Suppression")
-                                               .equals("0.1")
+                                               .equals(String.valueOf(suppression))
                                                .build();
 
         // Selects according rows
         Selector<String[]> selectorTassa = file.getSelectorBuilder()
                                                .field("Dataset")
-                                               .equals(BenchmarkDataset.ADULT.toString())
+                                               .equals(data.toString())
                                                .and()
                                                .field("UtilityMeasure")
-                                               .equals(BenchmarkUtilityMeasure.LOSS.toString())
+                                               .equals(measure.toString())
                                                .and()
                                                .field("PrivacyModel")
-                                               .equals(BenchmarkPrivacyModel.K5_ANONYMITY.toString())
+                                               .equals(model.toString())
                                                .and()
                                                .field("Algorithm")
                                                .equals(BenchmarkAlgorithm.TASSA.toString())
@@ -185,14 +197,16 @@ public class BenchmarkAnalysisQiScaling {
         }
         int tassaScalingFactor = 100;
         for (Point2D point : tassaSeries.getData()) {
-            series.getData().add(new Point3D(point.x, "Time (Tassa) [divided by " + tassaScalingFactor + "]", String.valueOf((Double.valueOf(point.y) / tassaScalingFactor))));
+            series.getData()
+                  .add(new Point3D(point.x,
+                                   "Time (Tassa) [divided by " + tassaScalingFactor + "]",
+                                   String.valueOf((Double.valueOf(point.y) / tassaScalingFactor))));
         }
 
         // Plot
         List<Plot<?>> plots = new ArrayList<Plot<?>>();
-        plots.add(new PlotLinesClustered(BenchmarkDataset.ADULT.toString() + " / " +
-                                         BenchmarkUtilityMeasure.LOSS.toString() + " / " +
-                                         BenchmarkPrivacyModel.K5_ANONYMITY.toString() + " / 0.1",
+        plots.add(new PlotLinesClustered(data.toString() + " / " + measure.toString() + " / " +
+                                         model.toString() + " / " + suppression,
                                          new Labels("QIs", "Time [ms]"),
                                          series));
 
@@ -202,7 +216,7 @@ public class BenchmarkAnalysisQiScaling {
         params.keypos = KeyPos.TOP_LEFT;
         params.size = 1.0d;
         params.ratio = 0.5d;
-        return new PlotGroup("Scaling of anonymization algorithms with quasi-identifiers. ",
+        return new PlotGroup("Scaling of anonymization algorithms with number of quasi-identifiers. ",
                              plots,
                              params,
                              1.0d);

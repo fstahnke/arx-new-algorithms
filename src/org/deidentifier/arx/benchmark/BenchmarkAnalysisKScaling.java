@@ -55,11 +55,11 @@ public class BenchmarkAnalysisKScaling {
     /**
      * Choose benchmarkConfig to run and comment others out.
      */
-//     private static final String benchmarkConfig =
-//     "benchmarkConfig/recordScaling.xml";
-//    private static final String benchmarkConfig = "benchmarkConfig/QIScaling.xml";
-     private static final String benchmarkConfig =
-     "benchmarkConfig/kScaling.xml";
+    // private static final String benchmarkConfig =
+    // "benchmarkConfig/recordScaling.xml";
+    // private static final String benchmarkConfig =
+    // "benchmarkConfig/QIScaling.xml";
+    private static final String benchmarkConfig = "benchmarkConfig/kScaling.xml";
 
     /**
      * Main
@@ -73,9 +73,20 @@ public class BenchmarkAnalysisKScaling {
         List<PlotGroup> groups = new ArrayList<PlotGroup>();
         BenchmarkSetup setup = new BenchmarkSetup(benchmarkConfig);
         CSVFile file = new CSVFile(new File(setup.getOutputFile()));
-        
-        groups.add(analyze(file, null, null, null, null, 0d));
-        LaTeX.plot(groups, setup.getPlotFile());
+
+        groups.add(analyze(file,
+                           BenchmarkDataset.ADULT,
+                           BenchmarkUtilityMeasure.LOSS,
+                           null,
+                           null,
+                           0.05));
+        groups.add(analyze(file,
+                           BenchmarkDataset.ADULT,
+                           BenchmarkUtilityMeasure.LOSS,
+                           null,
+                           null,
+                           0.1));
+        LaTeX.plot(groups, setup.getPlotFile(), true);
 
     }
 
@@ -97,46 +108,44 @@ public class BenchmarkAnalysisKScaling {
                                      BenchmarkPrivacyModel model,
                                      BenchmarkAlgorithm algorithm,
                                      double suppression) throws ParseException {
-        
-        BenchmarkDataset dataSet = BenchmarkDataset.ADULT;
-        
+
         // Selects according rows
         Selector<String[]> selectorRGR = file.getSelectorBuilder()
                                              .field("Dataset")
-                                             .equals(dataSet.toString())
+                                             .equals(data.toString())
                                              .and()
                                              .field("UtilityMeasure")
-                                             .equals(BenchmarkUtilityMeasure.LOSS.toString())
+                                             .equals(measure.toString())
                                              .and()
                                              .field("Algorithm")
                                              .equals(BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING.toString())
                                              .and()
                                              .field("Suppression")
-                                             .equals("0.1")
+                                             .equals(String.valueOf(suppression))
                                              .build();
 
         // Selects according rows
         Selector<String[]> selectorFlash = file.getSelectorBuilder()
                                                .field("Dataset")
-                                               .equals(dataSet.toString())
+                                               .equals(data.toString())
                                                .and()
                                                .field("UtilityMeasure")
-                                               .equals(BenchmarkUtilityMeasure.LOSS.toString())
+                                               .equals(measure.toString())
                                                .and()
                                                .field("Algorithm")
                                                .equals(BenchmarkAlgorithm.FLASH.toString())
                                                .and()
                                                .field("Suppression")
-                                               .equals("0.1")
+                                               .equals(String.valueOf(suppression))
                                                .build();
 
         // Selects according rows
         Selector<String[]> selectorTassa = file.getSelectorBuilder()
                                                .field("Dataset")
-                                               .equals(dataSet.toString())
+                                               .equals(data.toString())
                                                .and()
                                                .field("UtilityMeasure")
-                                               .equals(BenchmarkUtilityMeasure.LOSS.toString())
+                                               .equals(measure.toString())
                                                .and()
                                                .field("Algorithm")
                                                .equals(BenchmarkAlgorithm.TASSA.toString())
@@ -171,21 +180,24 @@ public class BenchmarkAnalysisKScaling {
                                        new Field("PrivacyModel")); // Value
         series.getData().clear();
         for (Point2D point : rgrSeries.getData()) {
-            series.getData().add(new Point3D(point.x, "Time (RGR)", point.y));
+            series.getData().add(new Point3D(point.x, "RGR", point.y));
         }
         for (Point2D point : flashSeries.getData()) {
-            series.getData().add(new Point3D(point.x, "Time (Flash)", point.y));
+            series.getData().add(new Point3D(point.x, "Flash", point.y));
         }
         int tassaScalingFactor = 10;
         for (Point2D point : tassaSeries.getData()) {
-            series.getData().add(new Point3D(point.x, "Time (Tassa) [divided by " + tassaScalingFactor + "]", String.valueOf((Double.valueOf(point.y) / tassaScalingFactor))));
+            series.getData()
+                  .add(new Point3D(point.x,
+                                   "Tassa [divided by " + tassaScalingFactor + "]",
+                                   String.valueOf((Double.valueOf(point.y) / tassaScalingFactor))));
         }
 
         // Plot
         List<Plot<?>> plots = new ArrayList<Plot<?>>();
-        plots.add(new PlotLinesClustered(dataSet.toString() + " / " +
-                                         BenchmarkUtilityMeasure.LOSS.toString() + " / 0.1",
-                                         new Labels("Privacy Strength", "Time [ms]"),
+        plots.add(new PlotLinesClustered(data.toString() + " / " + measure.toString() + " / " +
+                                         suppression,
+                                         new Labels("k", "Time [ms] (RGR / Flash)"),
                                          series));
 
         GnuPlotParams params = new GnuPlotParams();
@@ -194,7 +206,7 @@ public class BenchmarkAnalysisKScaling {
         params.keypos = KeyPos.TOP_LEFT;
         params.size = 1.0d;
         params.ratio = 0.5d;
-        return new PlotGroup("Scaling of anonymization algorithms with quasi-identifiers. ",
+        return new PlotGroup("Scaling of anonymization algorithms with k. ",
                              plots,
                              params,
                              1.0d);
