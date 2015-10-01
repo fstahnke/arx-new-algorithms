@@ -211,10 +211,8 @@ public class BenchmarkExperimentUtilityAndRuntime {
 
                             double utilityMean = calculateArithmeticMean(utilityResults);
                             double runtime = calculateArithmeticMean(runtimes);
-//                            double variance = calculateGeneralizationVariance(transformations,
-//                                                                              weights,
-//                                                                              maxGeneralizationLevels);
-                            double variance = getVariance(output, header, hierarchies);
+                            double variance = getVariance(output, header, hierarchies, false);
+                            // TODO: Implement (true) as well
 
                             BENCHMARK.addRun(dataset, measure, model, algorithm, suppressed);
                             BENCHMARK.addValue(PRIVACY_STRENGTH, model.getStrength());
@@ -271,7 +269,8 @@ public class BenchmarkExperimentUtilityAndRuntime {
 
     private static double getVariance(String[][] output,
                                       String[] header,
-                                      Map<String, String[][]> hierarchies) {
+                                      Map<String, String[][]> hierarchies,
+                                      boolean ignoreSuppressed) {
         
         final int numberOfRecords = output.length;
         final int numberOfAttributes = output[0].length;
@@ -279,12 +278,12 @@ public class BenchmarkExperimentUtilityAndRuntime {
 
         // Create maps with the generalization level for each string
         ArrayList<Map<String, Integer>> stringToLevelMaps = new ArrayList<Map<String, Integer>>();
-        for (int att = 0; att < numberOfAttributes; att++) {
-            String attribute = header[att];
+        for (int columnIndex = 0; columnIndex < numberOfAttributes; columnIndex++) {
+            String attribute = header[columnIndex];
             Map<String, Integer> map = new HashMap<String, Integer>();
             stringToLevelMaps.add(map);
             for (String[] row : hierarchies.get(attribute)) {
-                maxGeneralizationLevels[att] = row.length;
+                maxGeneralizationLevels[columnIndex] = row.length;
                 for (int level = row.length - 1; level >= 0; level--) {
                     if (map.containsKey(row[level])) {
                         int lvl = Math.max(map.get(row[level]), level);
@@ -296,33 +295,40 @@ public class BenchmarkExperimentUtilityAndRuntime {
             }
         }
 
-        // Add up all generalization levels (weighted by number of records)
+        // Compute average generalization degree per attribute
         double[] averageDegrees = new double[numberOfAttributes];
         Arrays.fill(averageDegrees, 0.0);
-        for (int rowNumber = 0; rowNumber < numberOfRecords; rowNumber++) {
-            String[] row = output[rowNumber];
-            for (int attNumber = 0; attNumber < numberOfAttributes; attNumber++) {
-                averageDegrees[attNumber] += stringToLevelMaps.get(attNumber).get(row[attNumber]);
+        int numberOfTuplesConsidered = 0;
+        for (int rowIndex = 0; rowIndex < numberOfRecords; rowIndex++) {
+            String[] row = output[rowIndex];
+            if (!ignoreSuppressed || !isSuppressed(row)) {    
+                for (int columnIndex = 0; columnIndex < numberOfAttributes; columnIndex++) {
+                    averageDegrees[columnIndex] +=    (double)stringToLevelMaps.get(columnIndex).get(row[columnIndex]) / 
+                                                    maxGeneralizationLevels[columnIndex];
+                }
+                numberOfTuplesConsidered++;
             }
         }
-        // Normalize
         for (int i = 0; i < averageDegrees.length; i++) {
-            averageDegrees[i] /= (1.0 * numberOfRecords * maxGeneralizationLevels[i]);
+            averageDegrees[i] /= numberOfTuplesConsidered;
         }
 
-        // Add up all variances
+        // Compute variances
         double[] variances = new double[numberOfAttributes];
         Arrays.fill(variances, 0.0);
-        for (int rowNumber = 0; rowNumber < numberOfRecords; rowNumber++) {
-            String[] row = output[rowNumber];
-            for (int attNumber = 0; attNumber < numberOfAttributes; attNumber++) {
-                double degree = 1.0 * stringToLevelMaps.get(attNumber).get(row[attNumber]) / maxGeneralizationLevels[attNumber];
-                variances[attNumber] += Math.pow(degree - averageDegrees[attNumber], 2);
+        for (int rowIndex = 0; rowIndex < numberOfRecords; rowIndex++) {
+            String[] row = output[rowIndex];
+            if (!ignoreSuppressed || !isSuppressed(row)) {    
+                for (int columnIndex = 0; columnIndex < numberOfAttributes; columnIndex++) {
+                    double degree = (double) stringToLevelMaps.get(columnIndex).get(row[columnIndex]) / 
+                                             maxGeneralizationLevels[columnIndex];
+                    variances[columnIndex] += Math.pow(degree - averageDegrees[columnIndex], 2);
+                }
             }
         }
         // Normalize
         for (int i = 0; i < variances.length; i++) {
-            variances[i] /= numberOfRecords;
+            variances[i] /= numberOfTuplesConsidered;
         }
         return calculateArithmeticMean(variances);
 
@@ -342,5 +348,19 @@ public class BenchmarkExperimentUtilityAndRuntime {
         }
         arithmeticMean /= values.length;
         return arithmeticMean;
+    }
+    
+    /**
+     * Is this row suppressed?
+     * @param row
+     * @return
+     */
+    private static boolean isSuppressed(String[] row) {
+        for (String s : row) {
+            if (!s.equals("*")) {
+                return false;
+            }
+        }
+        return true;
     }
 }
