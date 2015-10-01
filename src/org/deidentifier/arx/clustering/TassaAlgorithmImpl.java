@@ -300,7 +300,7 @@ public class TassaAlgorithmImpl {
         for (int i = 0; i < numRecords; i++) {
             recordIds.add(i);
         }
-//        recordIds.shuffle();
+        recordIds.shuffle();
         int offset = 0;
 
         // Calculate
