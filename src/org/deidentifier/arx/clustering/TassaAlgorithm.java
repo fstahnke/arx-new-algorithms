@@ -86,7 +86,7 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
             this.initialInformationLoss = algorithm.getInititalInformationLoss();
             this.informationLoss = algorithm.getFinalInformationLoss();
             this.clustering = algorithm.getClustering();
-            final String[][] outputTable = getOutputTable(algorithm.getOutputBuffer());
+            final String[][] outputTable = getOutputTableWithoutHeader(algorithm.getOutputBuffer());
             super.updated(outputTable, new int[outputTable[0].length]);
             
             super.finished(outputTable, algorithm.getGeneralizationLevels(), weights);
@@ -111,10 +111,10 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
                 }
                 this.informationLoss = algorithm.getFinalInformationLoss();
                 delta = Math.abs(informationLoss - base);
-                String[][] outputTable = getOutputTable(algorithm.getOutputBuffer());
+                String[][] outputTable = getOutputTableWithoutHeader(algorithm.getOutputBuffer());
                 super.updated(outputTable, new int[outputTable[0].length]);
             }
-            String[][] outputTable = getOutputTable(algorithm.getOutputBuffer());
+            String[][] outputTable = getOutputTableWithoutHeader(algorithm.getOutputBuffer());
             super.finished(outputTable, algorithm.getGeneralizationLevels(), weights);
             return outputTable;
         }
@@ -201,6 +201,29 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
         for (int dataEntry = 1; dataEntry < result.length; dataEntry++) {
             for (int attribute = 0; attribute < result[0].length; attribute++) {
                 result[dataEntry][attribute] = mapping[attribute][buffer[dataEntry - 1][attribute]];
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Helper
+     * 
+     * @param buffer
+     * @return
+     */
+    private String[][] getOutputTableWithoutHeader(int[][] buffer) {
+
+        String[][] result = new String[buffer.length][buffer[0].length];
+        String[][] mapping = arxInterface.getDataManager()
+                                         .getDataGeneralized()
+                                         .getDictionary()
+                                         .getMapping();
+
+        for (int dataEntry = 0; dataEntry < result.length; dataEntry++) {
+            for (int attribute = 0; attribute < result[0].length; attribute++) {
+                result[dataEntry][attribute] = mapping[attribute][buffer[dataEntry][attribute]];
             }
         }
 

@@ -33,6 +33,7 @@ import de.linearbits.subframe.analyzer.Analyzer;
 import de.linearbits.subframe.graph.Field;
 import de.linearbits.subframe.graph.Labels;
 import de.linearbits.subframe.graph.Plot;
+import de.linearbits.subframe.graph.PlotHistogramClustered;
 import de.linearbits.subframe.graph.PlotLinesClustered;
 import de.linearbits.subframe.graph.Point2D;
 import de.linearbits.subframe.graph.Point3D;
@@ -50,14 +51,14 @@ import de.linearbits.subframe.render.PlotGroup;
  * 
  * @author Fabian Prasser
  */
-public class BenchmarkAnalysisQiScaling {
+public class BenchmarkAnalysisBoxPlots {
 
     /**
      * Choose benchmarkConfig to run and comment others out.
      */
     // private static final String benchmarkConfig =
     // "benchmarkConfig/recordScaling.xml";
-    private static final String benchmarkConfig = "benchmarkConfig/QIScaling.xml";
+    private static final String benchmarkConfig = "benchmarkConfig/utilityVariance.xml";
     // private static final String benchmarkConfig =
     // "benchmarkConfig/kScaling.xml";
 
@@ -76,17 +77,17 @@ public class BenchmarkAnalysisQiScaling {
 
         groups.add(analyze(file,
                            BenchmarkDataset.ADULT,
-                           BenchmarkUtilityMeasure.LOSS,
+                           BenchmarkUtilityMeasure.DISCERNIBILITY,
                            BenchmarkPrivacyModel.K5_ANONYMITY,
                            null,
                            0.05));
         groups.add(analyze(file,
                            BenchmarkDataset.ADULT,
-                           BenchmarkUtilityMeasure.LOSS,
+                           BenchmarkUtilityMeasure.DISCERNIBILITY,
                            BenchmarkPrivacyModel.K5_ANONYMITY,
                            null,
                            0.1));
-        
+
         LaTeX.plot(groups, setup.getPlotFile(), true);
 
     }
@@ -112,15 +113,15 @@ public class BenchmarkAnalysisQiScaling {
 
         // Selects according rows
         Selector<String[]> selectorRGR = file.getSelectorBuilder()
-                                             .field("Dataset")
-                                             .equals(data.toString())
-                                             .and()
+                                              .field("Dataset")
+                                              .equals(data.toString())
+                                              .and()
                                              .field("UtilityMeasure")
                                              .equals(measure.toString())
                                              .and()
-                                             .field("PrivacyModel")
-                                             .equals(model.toString())
-                                             .and()
+//                                             .field("PrivacyModel")
+//                                             .equals(model.toString())
+//                                             .and()
                                              .field("Algorithm")
                                              .equals(BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING.toString())
                                              .and()
@@ -130,15 +131,15 @@ public class BenchmarkAnalysisQiScaling {
 
         // Selects according rows
         Selector<String[]> selectorFlash = file.getSelectorBuilder()
-                                               .field("Dataset")
-                                               .equals(data.toString())
-                                               .and()
+                                                .field("Dataset")
+                                                .equals(data.toString())
+                                                .and()
                                                .field("UtilityMeasure")
                                                .equals(measure.toString())
                                                .and()
-                                               .field("PrivacyModel")
-                                               .equals(model.toString())
-                                               .and()
+//                                               .field("PrivacyModel")
+//                                               .equals(model.toString())
+//                                               .and()
                                                .field("Algorithm")
                                                .equals(BenchmarkAlgorithm.FLASH.toString())
                                                .and()
@@ -148,15 +149,15 @@ public class BenchmarkAnalysisQiScaling {
 
         // Selects according rows
         Selector<String[]> selectorTassa = file.getSelectorBuilder()
-                                               .field("Dataset")
-                                               .equals(data.toString())
-                                               .and()
+                                                .field("Dataset")
+                                                .equals(data.toString())
+                                                .and()
                                                .field("UtilityMeasure")
                                                .equals(measure.toString())
                                                .and()
-                                               .field("PrivacyModel")
-                                               .equals(model.toString())
-                                               .and()
+//                                               .field("PrivacyModel")
+//                                               .equals(model.toString())
+//                                               .and()
                                                .field("Algorithm")
                                                .equals(BenchmarkAlgorithm.TASSA.toString())
                                                .and()
@@ -167,20 +168,20 @@ public class BenchmarkAnalysisQiScaling {
         // Read data into 2D series
         Series2D rgrSeries = new Series2D(file,
                                           selectorRGR,
-                                          new Field("QIs", Analyzer.VALUE),
-                                          new Field("Runtime", Analyzer.VALUE));
+                                          new Field("Privacy Strength", Analyzer.VALUE),
+                                          new Field("Utility", Analyzer.VALUE));
 
         // Read data into 2D series
         Series2D flashSeries = new Series2D(file,
                                             selectorFlash,
-                                            new Field("QIs", Analyzer.VALUE),
-                                            new Field("Runtime", Analyzer.VALUE));
+                                            new Field("Privacy Strength", Analyzer.VALUE),
+                                            new Field("Utility", Analyzer.VALUE));
 
         // Read data into 2D series
         Series2D tassaSeries = new Series2D(file,
                                             selectorTassa,
-                                            new Field("QIs", Analyzer.VALUE),
-                                            new Field("Runtime", Analyzer.VALUE));
+                                            new Field("Privacy Strength", Analyzer.VALUE),
+                                            new Field("Utility", Analyzer.VALUE));
 
         // Dirty hack for creating a 3D series from two 2D series'
         Series3D series = new Series3D(file,
@@ -190,25 +191,25 @@ public class BenchmarkAnalysisQiScaling {
                                        new Field("PrivacyModel")); // Value
         series.getData().clear();
         for (Point2D point : rgrSeries.getData()) {
-            series.getData().add(new Point3D(point.x, "Time (RGR)", point.y));
+            series.getData().add(new Point3D(point.x, "RGR", point.y));
         }
         for (Point2D point : flashSeries.getData()) {
-            series.getData().add(new Point3D(point.x, "Time (Flash)", point.y));
+            series.getData().add(new Point3D(point.x, "Flash", point.y));
         }
-        int tassaScalingFactor = 100;
         for (Point2D point : tassaSeries.getData()) {
-            series.getData()
-                  .add(new Point3D(point.x,
-                                   "Time (Tassa) [divided by " + tassaScalingFactor + "]",
-                                   String.valueOf((Double.valueOf(point.y) / tassaScalingFactor))));
+            series.getData().add(new Point3D(point.x, "Tassa", point.y));
         }
 
         // Plot
         List<Plot<?>> plots = new ArrayList<Plot<?>>();
-        plots.add(new PlotLinesClustered(data.toString() + " / " + measure.toString() + " / " +
-                                         model.toString() + " / " + suppression,
-                                         new Labels("QIs", "Time [ms]"),
-                                         series));
+//        plots.add(new PlotLinesClustered(data.toString() + " / " + measure.toString() + " / " +
+//                                         model.toString() + " / " + suppression,
+//                                         new Labels("QIs", "Time [ms]"),
+//                                         series));
+
+        plots.add(new PlotHistogramClustered("Comparison of utility",
+                                             new Labels("Dataset", "Utility"),
+                                             series));
 
         GnuPlotParams params = new GnuPlotParams();
         params.colorize = true;
@@ -216,7 +217,7 @@ public class BenchmarkAnalysisQiScaling {
         params.keypos = KeyPos.TOP_LEFT;
         params.size = 1.0d;
         params.ratio = 0.5d;
-        return new PlotGroup("Scaling of anonymization algorithms with number of quasi-identifiers. ",
+        return new PlotGroup("Comparison of utility of RGR, Flash and Tassa with different datasets. ",
                              plots,
                              params,
                              1.0d);

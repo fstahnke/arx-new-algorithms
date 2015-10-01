@@ -86,7 +86,7 @@ public class BenchmarkAnalysisRecordScaling {
                            BenchmarkPrivacyModel.K5_ANONYMITY,
                            null,
                            0.1));
-        LaTeX.plot(groups, setup.getPlotFile());
+        LaTeX.plot(groups, setup.getPlotFile(), true);
 
     }
 

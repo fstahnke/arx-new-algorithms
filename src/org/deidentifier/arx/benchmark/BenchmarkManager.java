@@ -25,11 +25,11 @@ public class BenchmarkManager {
 //         new BenchmarkExperimentUtilityAndRuntime().execute(qiScalingConfigS);
 //         new BenchmarkExperimentUtilityAndRuntime().execute(recordScalingConfig);
 //         new BenchmarkExperimentUtilityAndRuntime().execute(kScalingConfig);
-//         new BenchmarkExperimentUtilityAndRuntime().execute(utilityVarianceConfig);
+         new BenchmarkExperimentUtilityAndRuntime().execute(utilityVarianceConfig);
 //         new BenchmarkExperimentUtilityAndRuntime().execute(ruleOutConfig);
         // new BenchmarkExperimentUtilityAndRuntime().execute(suppressionScaling);
 
-         new BenchmarkExperimentRGRIterations().execute(iterationConfig);
+//         new BenchmarkExperimentRGRIterations().execute(iterationConfig);
 
          double elapsedTime = System.currentTimeMillis() - startTime;
          System.out.println("Total Runtime: " + (elapsedTime / 1000.0) + " sec (" +
