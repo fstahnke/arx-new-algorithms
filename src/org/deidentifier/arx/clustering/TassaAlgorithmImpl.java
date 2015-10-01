@@ -1,7 +1,6 @@
 package org.deidentifier.arx.clustering;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -45,7 +44,7 @@ public class TassaAlgorithmImpl {
     TassaAlgorithmImpl(ARXInterface iface) throws IOException {
         this.arxinterface = iface;
         this.outputBuffer = iface.getBuffer();
-        this.generalizationLevels = Arrays.copyOf(outputBuffer, outputBuffer.length);
+        this.generalizationLevels = new int[outputBuffer.length][outputBuffer[0].length];
         this.recordToCluster = new TassaCluster[arxinterface.getDataQI().length];
         this.numRecords = iface.getDataQI().length;
     }
@@ -301,7 +300,7 @@ public class TassaAlgorithmImpl {
         for (int i = 0; i < numRecords; i++) {
             recordIds.add(i);
         }
-        recordIds.shuffle();
+//        recordIds.shuffle();
         int offset = 0;
 
         // Calculate
