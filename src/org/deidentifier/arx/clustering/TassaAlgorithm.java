@@ -72,7 +72,7 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
     }
 
     @Override
-    public String[][] execute() throws IOException {
+    public void execute() throws IOException {
 
         this.statistics = null;
         this.clustering = null;
@@ -87,10 +87,7 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
             this.informationLoss = algorithm.getFinalInformationLoss();
             this.clustering = algorithm.getClustering();
             final String[][] outputTable = getOutputTableWithoutHeader(algorithm.getOutputBuffer());
-            super.updated(outputTable, new int[outputTable[0].length]);
-            
-            super.finished(outputTable, algorithm.getGeneralizationLevels(), weights);
-            return outputTable;
+            super.finished(outputTable);
         } else {
 
             TassaAlgorithmImpl algorithm = new TassaAlgorithmImpl(arxInterface);
@@ -111,12 +108,9 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
                 }
                 this.informationLoss = algorithm.getFinalInformationLoss();
                 delta = Math.abs(informationLoss - base);
-                String[][] outputTable = getOutputTableWithoutHeader(algorithm.getOutputBuffer());
-                super.updated(outputTable, new int[outputTable[0].length]);
+                super.updated(getOutputTableWithoutHeader(algorithm.getOutputBuffer()), null);
             }
-            String[][] outputTable = getOutputTableWithoutHeader(algorithm.getOutputBuffer());
-            super.finished(outputTable, algorithm.getGeneralizationLevels(), weights);
-            return outputTable;
+            super.finished(getOutputTableWithoutHeader(algorithm.getOutputBuffer()));
         }
     }
 
@@ -181,30 +175,6 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
      */
     public void setOmega(double omega) {
         this.omega = omega;
-    }
-
-    /**
-     * Helper
-     * 
-     * @param buffer
-     * @return
-     */
-    private String[][] getOutputTable(int[][] buffer) {
-
-        String[][] result = new String[buffer.length + 1][buffer[0].length];
-        result[0] = arxInterface.getDataManager().getHeader();
-        String[][] mapping = arxInterface.getDataManager()
-                                         .getDataGeneralized()
-                                         .getDictionary()
-                                         .getMapping();
-
-        for (int dataEntry = 1; dataEntry < result.length; dataEntry++) {
-            for (int attribute = 0; attribute < result[0].length; attribute++) {
-                result[dataEntry][attribute] = mapping[attribute][buffer[dataEntry - 1][attribute]];
-            }
-        }
-
-        return result;
     }
 
     /**

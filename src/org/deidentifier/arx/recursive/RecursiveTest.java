@@ -25,7 +25,7 @@ public class RecursiveTest {
 			}
 
             @Override
-            public void notifyFinished(long timestamp, String[][] output, int[][] transformations, int[] weights) {
+            public void notifyFinished(long timestamp, String[][] output) {
                 System.out.println("Iteration");
                 
             }

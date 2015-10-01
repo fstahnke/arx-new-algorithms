@@ -28,7 +28,7 @@ public class TassaTest {
 //        data.getDefinition().setAttributeType("sex", Hierarchy.create("hierarchies/adult_hierarchy_sex.csv", ';'));
 //        data.getDefinition().setAttributeType("workclass", Hierarchy.create("hierarchies/adult_hierarchy_workclass.csv", ';'));
         
-        final Data data = BenchmarkSetup.getData(BenchmarkDataset.ADULT, BenchmarkPrivacyModel.K20_ANONYMITY);
+        final Data data = BenchmarkSetup.getData(BenchmarkDataset.ADULT_SUBSET, BenchmarkPrivacyModel.K20_ANONYMITY);
         
         // Configurationa
         final ARXConfiguration config = ARXConfiguration.create();
@@ -42,7 +42,7 @@ public class TassaTest {
             }
 
             @Override
-            public void notifyFinished(long timestamp, String[][] output, int[][] transformations, int[] weights) {
+            public void notifyFinished(long timestamp, String[][] output) {
              // Empty by design
                 
             }

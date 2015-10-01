@@ -11,7 +11,7 @@ public abstract class BenchmarkAlgorithm {
         this.observer = observer;
     }
 
-    public abstract String[][] execute() throws IOException;
+    public abstract void execute() throws IOException;
 
     protected void start() {
         this.start = System.currentTimeMillis();
@@ -21,7 +21,7 @@ public abstract class BenchmarkAlgorithm {
         observer.notify(System.currentTimeMillis() - start, data, transformation);
     }
 
-    protected void finished(String[][] data, int[][] transformations, int[] weights) {
-        observer.notifyFinished(System.currentTimeMillis() - start, data, transformations, weights);
+    protected void finished(String[][] data) {
+        observer.notifyFinished(System.currentTimeMillis() - start, data);
     }
 }

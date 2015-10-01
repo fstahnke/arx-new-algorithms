@@ -34,7 +34,6 @@ import de.linearbits.subframe.graph.Field;
 import de.linearbits.subframe.graph.Labels;
 import de.linearbits.subframe.graph.Plot;
 import de.linearbits.subframe.graph.PlotHistogramClustered;
-import de.linearbits.subframe.graph.PlotLinesClustered;
 import de.linearbits.subframe.graph.Point2D;
 import de.linearbits.subframe.graph.Point3D;
 import de.linearbits.subframe.graph.Series2D;

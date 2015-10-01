@@ -2,7 +2,6 @@ package org.deidentifier.arx.recursive;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -26,9 +25,6 @@ public class BenchmarkAlgorithmRGR extends BenchmarkAlgorithm {
     private final ARXConfiguration config;
     private final ARXAnonymizer    anonymizer;
 
-    private int[][] transformations;
-    private int[]   weights;
-
     public BenchmarkAlgorithmRGR(IBenchmarkObserver listener,
                                  final Data data,
                                  final ARXConfiguration config) {
@@ -38,12 +34,11 @@ public class BenchmarkAlgorithmRGR extends BenchmarkAlgorithm {
         this.config = config;
     }
 
-    public String[][] execute() throws IOException {
+    public void execute() throws IOException {
         super.start();
 
         // Execute the first anonymization
         ARXResult result = anonymizer.anonymize(data, config);
-        int[] transformation = result.getGlobalOptimum().getTransformation();
 
         // Get handle for input data and result
         DataHandle inHandle = data.getHandle();
@@ -71,7 +66,6 @@ public class BenchmarkAlgorithmRGR extends BenchmarkAlgorithm {
             }
         }
         int numOutliers = indexes.size();
-        addTransformation(transformation, output.length - numOutliers);
         outHandle.release();
         inHandle.release();
 
@@ -84,7 +78,7 @@ public class BenchmarkAlgorithmRGR extends BenchmarkAlgorithm {
         // Prepare initial class size
         int minimalClassSize = getMinimalClassSize(config);
 
-        super.updated(output, transformation);
+        super.updated(output, result.getGlobalOptimum().getTransformation());
 
         // Repeat while possible
         while (numOutliers >= minimalClassSize) {
@@ -93,7 +87,6 @@ public class BenchmarkAlgorithmRGR extends BenchmarkAlgorithm {
             result = anonymizer.anonymize(outliers, config);
             inHandle = outliers.getHandle();
             outHandle = result.getOutput(false);
-            transformation = result.getGlobalOptimum().getTransformation();
 
             // Iterate over result and write all non-outliers to the output
             rowIter = outHandle.iterator();
@@ -127,30 +120,19 @@ public class BenchmarkAlgorithmRGR extends BenchmarkAlgorithm {
                     anythingChanged = true;
                 }
             }
-            // save number of old outliers to get number of newly generalized
-            // rows
-            int oldOutliers = numOutliers;
             numOutliers = indexes.size();
             outHandle.release();
             inHandle.release();
 
             // Prevent endless loops
-            if (anythingChanged) {
-                addTransformation(transformation, oldOutliers - numOutliers);
-            } else {
+            if (!anythingChanged) {
                 break;
             }
 
-            super.updated(output, transformation);
+            super.updated(output, result.getGlobalOptimum().getTransformation());
 
         }
-        if (numOutliers > 0) {
-            int[] maxTransformation = new int[transformation.length];
-            Arrays.fill(maxTransformation, -1);
-            addTransformation(maxTransformation, numOutliers);
-        }
-        super.finished(output, transformations, weights);
-        return output;
+        super.finished(output);
     }
 
     private int getMinimalClassSize(ARXConfiguration config) {
@@ -163,18 +145,5 @@ public class BenchmarkAlgorithmRGR extends BenchmarkAlgorithm {
         }
         if (result == Integer.MIN_VALUE) { throw new IllegalStateException("Invalid minimal class size"); }
         return result;
-    }
-
-    private void addTransformation(int[] transformation, int weight) {
-        if (transformations == null) {
-            transformations = new int[1][transformation.length];
-            transformations[0] = transformation;
-            weights = new int[] { weight };
-        } else {
-            transformations = Arrays.copyOf(transformations, (transformations.length + 1));
-            weights = Arrays.copyOf(weights, weights.length + 1);
-            transformations[transformations.length - 1] = transformation;
-            weights[transformations.length - 1] = weight;
-        }
     }
 }

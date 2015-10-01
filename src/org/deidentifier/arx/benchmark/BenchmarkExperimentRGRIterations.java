@@ -314,7 +314,7 @@ public class BenchmarkExperimentRGRIterations {
                 }
 
                 @Override
-                public void notifyFinished(long timestamp, String[][] output, int[][] transformations, int[] weights) {
+                public void notifyFinished(long timestamp, String[][] output) {
                 }
 
                 @Override
