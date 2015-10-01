@@ -58,6 +58,7 @@ public class BenchmarkAnalysisBoxPlots {
     // private static final String benchmarkConfig =
     // "benchmarkConfig/recordScaling.xml";
     private static final String benchmarkConfig = "benchmarkConfig/utilityVariance.xml";
+
     // private static final String benchmarkConfig =
     // "benchmarkConfig/kScaling.xml";
 
@@ -74,18 +75,14 @@ public class BenchmarkAnalysisBoxPlots {
         BenchmarkSetup setup = new BenchmarkSetup(benchmarkConfig);
         CSVFile file = new CSVFile(new File(setup.getOutputFile()));
 
-        groups.add(analyze(file,
-                           BenchmarkDataset.ADULT,
-                           BenchmarkUtilityMeasure.DISCERNIBILITY,
-                           BenchmarkPrivacyModel.K5_ANONYMITY,
-                           null,
-                           0.05));
-        groups.add(analyze(file,
-                           BenchmarkDataset.ADULT,
-                           BenchmarkUtilityMeasure.DISCERNIBILITY,
-                           BenchmarkPrivacyModel.K5_ANONYMITY,
-                           null,
-                           0.1));
+        // Each iteration in this loop is another Figure
+        for (BenchmarkDataset dataset : setup.getDatasets()) {
+            for (BenchmarkUtilityMeasure measure : setup.getUtilityMeasures()) {
+                for (double suppressionLimit : setup.getSuppressionLimits()) {
+                    groups.add(analyze(file, dataset, measure, null, null, suppressionLimit));
+                }
+            }
+        }
 
         LaTeX.plot(groups, setup.getPlotFile(), true);
 
@@ -112,15 +109,15 @@ public class BenchmarkAnalysisBoxPlots {
 
         // Selects according rows
         Selector<String[]> selectorRGR = file.getSelectorBuilder()
-                                              .field("Dataset")
-                                              .equals(data.toString())
-                                              .and()
+                                             .field("Dataset")
+                                             .equals(data.toString())
+                                             .and()
                                              .field("UtilityMeasure")
                                              .equals(measure.toString())
                                              .and()
-//                                             .field("PrivacyModel")
-//                                             .equals(model.toString())
-//                                             .and()
+                                             // .field("PrivacyModel")
+                                             // .equals(model.toString())
+                                             // .and()
                                              .field("Algorithm")
                                              .equals(BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING.toString())
                                              .and()
@@ -130,15 +127,15 @@ public class BenchmarkAnalysisBoxPlots {
 
         // Selects according rows
         Selector<String[]> selectorFlash = file.getSelectorBuilder()
-                                                .field("Dataset")
-                                                .equals(data.toString())
-                                                .and()
+                                               .field("Dataset")
+                                               .equals(data.toString())
+                                               .and()
                                                .field("UtilityMeasure")
                                                .equals(measure.toString())
                                                .and()
-//                                               .field("PrivacyModel")
-//                                               .equals(model.toString())
-//                                               .and()
+                                               // .field("PrivacyModel")
+                                               // .equals(model.toString())
+                                               // .and()
                                                .field("Algorithm")
                                                .equals(BenchmarkAlgorithm.FLASH.toString())
                                                .and()
@@ -148,15 +145,15 @@ public class BenchmarkAnalysisBoxPlots {
 
         // Selects according rows
         Selector<String[]> selectorTassa = file.getSelectorBuilder()
-                                                .field("Dataset")
-                                                .equals(data.toString())
-                                                .and()
+                                               .field("Dataset")
+                                               .equals(data.toString())
+                                               .and()
                                                .field("UtilityMeasure")
                                                .equals(measure.toString())
                                                .and()
-//                                               .field("PrivacyModel")
-//                                               .equals(model.toString())
-//                                               .and()
+                                               // .field("PrivacyModel")
+                                               // .equals(model.toString())
+                                               // .and()
                                                .field("Algorithm")
                                                .equals(BenchmarkAlgorithm.TASSA.toString())
                                                .and()
@@ -183,31 +180,32 @@ public class BenchmarkAnalysisBoxPlots {
                                             new Field("Utility", Analyzer.VALUE));
 
         // Dirty hack for creating a 3D series from two 2D series'
-        Series3D series = new Series3D(file,
-                                       selectorRGR,
-                                       new Field("Dataset"), // Cluster
+        Series3D series = new Series3D(file, selectorRGR, new Field("Dataset"), // Cluster
                                        new Field("UtilityMeasure"), // Type
                                        new Field("PrivacyModel")); // Value
         series.getData().clear();
         for (Point2D point : rgrSeries.getData()) {
-            series.getData().add(new Point3D(point.x, "RGR", point.y));
+            series.getData().add(new Point3D(point.x,
+                                             "RGR",
+                                             String.valueOf(1 - Double.valueOf(point.y))));
         }
         for (Point2D point : flashSeries.getData()) {
-            series.getData().add(new Point3D(point.x, "Flash", point.y));
+            series.getData().add(new Point3D(point.x,
+                                             "Flash",
+                                             String.valueOf(1 - Double.valueOf(point.y))));
         }
         for (Point2D point : tassaSeries.getData()) {
-            series.getData().add(new Point3D(point.x, "Tassa", point.y));
+            series.getData().add(new Point3D(point.x,
+                                             "Tassa",
+                                             String.valueOf(1 - Double.valueOf(point.y))));
         }
 
         // Plot
         List<Plot<?>> plots = new ArrayList<Plot<?>>();
-//        plots.add(new PlotLinesClustered(data.toString() + " / " + measure.toString() + " / " +
-//                                         model.toString() + " / " + suppression,
-//                                         new Labels("QIs", "Time [ms]"),
-//                                         series));
 
-        plots.add(new PlotHistogramClustered("Comparison of utility",
-                                             new Labels("Dataset", "Utility"),
+        plots.add(new PlotHistogramClustered(data.toString() + " / " + measure.toString() + " / " +
+                                                     String.valueOf(suppression),
+                                             new Labels("K", "Utility"),
                                              series));
 
         GnuPlotParams params = new GnuPlotParams();
@@ -216,7 +214,10 @@ public class BenchmarkAnalysisBoxPlots {
         params.keypos = KeyPos.TOP_LEFT;
         params.size = 1.0d;
         params.ratio = 0.5d;
-        return new PlotGroup("Comparison of utility of RGR, Flash and Tassa with different datasets. ",
+        if (measure != BenchmarkUtilityMeasure.DISCERNIBILITY) {
+            params.minY = 0d;
+        }
+        return new PlotGroup("Comparison of utility of RGR, Flash and Tassa with different K. ",
                              plots,
                              params,
                              1.0d);

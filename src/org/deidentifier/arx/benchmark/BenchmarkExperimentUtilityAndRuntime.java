@@ -48,25 +48,31 @@ import de.linearbits.subframe.analyzer.ValueBuffer;
 public class BenchmarkExperimentUtilityAndRuntime {
 
     /** The benchmark instance */
-    private static final Benchmark BENCHMARK        = new Benchmark(new String[] {
+    private static final Benchmark BENCHMARK              = new Benchmark(new String[] {
             "Dataset",
             "UtilityMeasure",
             "PrivacyModel",
             "Algorithm",
-            "Suppression"                          });
+            "Suppression"                                });
 
     /** PRIVACY STRENGTH */
-    private static final int       PRIVACY_STRENGTH = BENCHMARK.addMeasure("Privacy Strength");
+    private static final int       PRIVACY_STRENGTH       = BENCHMARK.addMeasure("Privacy Strength");
     /** NUMBER OF RECORDS */
-    private static final int       RECORDS          = BENCHMARK.addMeasure("Records");
+    private static final int       RECORDS                = BENCHMARK.addMeasure("Records");
     /** NUMBER OF QIs */
-    private static final int       QIS              = BENCHMARK.addMeasure("QIs");
+    private static final int       QIS                    = BENCHMARK.addMeasure("QIs");
     /** UTILITY */
-    private static final int       UTILITY          = BENCHMARK.addMeasure("Utility");
+    private static final int       UTILITY                = BENCHMARK.addMeasure("Utility");
     /** RUNTIME */
-    private static final int       RUNTIME          = BENCHMARK.addMeasure("Runtime");
+    private static final int       RUNTIME                = BENCHMARK.addMeasure("Runtime");
+    /** NUMBER OF SUPPRESSED TUPLES */
+    private static final int       SUPPRESSED             = BENCHMARK.addMeasure("Suppressed");
+    /** RATIO OF SUPPRESSED TUPLES */
+    private static final int       SUPPRESSED_RATIO       = BENCHMARK.addMeasure("Suppressed Ratio");
     /** GENERALIZATION VARIANCE */
-    private static final int       VARIANCE         = BENCHMARK.addMeasure("Variance");
+    private static final int       VARIANCE               = BENCHMARK.addMeasure("Variance");
+    /** GENERALIZATION VARIANCE WITHOUT SUPPRESSED TUPLES */
+    private static final int       VARIANCE_NOTSUPPRESSED = BENCHMARK.addMeasure("Variance (not suppressed)");
     /** Number of runs for each benchmark setting */
     private static int             numberOfRuns;
     /** Number of warmup runs */
@@ -86,7 +92,10 @@ public class BenchmarkExperimentUtilityAndRuntime {
         BENCHMARK.addAnalyzer(QIS, new ValueBuffer());
         BENCHMARK.addAnalyzer(UTILITY, new ValueBuffer());
         BENCHMARK.addAnalyzer(RUNTIME, new ValueBuffer());
+        BENCHMARK.addAnalyzer(SUPPRESSED, new ValueBuffer());
+        BENCHMARK.addAnalyzer(SUPPRESSED_RATIO, new ValueBuffer());
         BENCHMARK.addAnalyzer(VARIANCE, new ValueBuffer());
+        BENCHMARK.addAnalyzer(VARIANCE_NOTSUPPRESSED, new ValueBuffer());
 
         BenchmarkSetup setup = new BenchmarkSetup(benchmarkConfig);
         BenchmarkMetadataUtility metadata = new BenchmarkMetadataUtility(setup);
@@ -100,16 +109,16 @@ public class BenchmarkExperimentUtilityAndRuntime {
             for (BenchmarkUtilityMeasure measure : setup.getUtilityMeasures()) {
                 for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
                     for (BenchmarkDataset dataset : setup.getDatasets()) {
-                        for (double suppression : setup.getSuppressionLimits()) {
+                        for (double suppressionLimit : setup.getSuppressionLimits()) {
 
                             // Tassa doesn't support suppression limits
                             if (algorithm == BenchmarkAlgorithm.TASSA) {
-                                suppression = 0.0;
+                                suppressionLimit = 0.0;
                             }
 
                             System.out.println("Performing run: " + dataset.name() + " / " +
                                                measure + " / " + model + " / " + algorithm + " / " +
-                                               suppression + " / QIs: " + dataset.getNumQIs() +
+                                               suppressionLimit + " / QIs: " + dataset.getNumQIs() +
                                                " / Records: " + dataset.getNumRecords());
 
                             performExperiment(metadata,
@@ -117,7 +126,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
                                               measure,
                                               model,
                                               algorithm,
-                                              suppression);
+                                              suppressionLimit);
                             // Write after each experiment
                             BENCHMARK.getResults().write(resultFile);
                             // Break suppression limit loop for Tassa
@@ -139,7 +148,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
      * @param measure
      * @param model
      * @param algorithm
-     * @param suppressed
+     * @param suppressionLimit
      * @throws IOException
      */
     private static void performExperiment(final BenchmarkMetadataUtility metadata,
@@ -147,13 +156,13 @@ public class BenchmarkExperimentUtilityAndRuntime {
                                           final BenchmarkUtilityMeasure measure,
                                           final BenchmarkPrivacyModel model,
                                           final BenchmarkAlgorithm algorithm,
-                                          final double suppressed) throws IOException {
+                                          final double suppressionLimit) throws IOException {
 
         Data data = BenchmarkSetup.getData(dataset, model);
         ARXConfiguration config = BenchmarkSetup.getConfiguration(dataset,
                                                                   measure,
                                                                   model,
-                                                                  suppressed);
+                                                                  suppressionLimit);
 
         final Map<String, String[][]> hierarchies = new DataConverter().toMap(data.getDefinition());
         final String[] header = new DataConverter().getHeader(data.getHandle());
@@ -181,8 +190,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
                 }
 
                 @Override
-                public void notifyFinished(long timestamp,
-                                           String[][] output) {
+                public void notifyFinished(long timestamp, String[][] output) {
 
                     if (!isWarmup) {
                         // Obtain utility
@@ -205,6 +213,13 @@ public class BenchmarkExperimentUtilityAndRuntime {
                         // Save intermediary results
                         utilityResults[run] = utility;
                         runtimes[run] = timestamp;
+                        
+                        // Calculate suppressed tuples
+                        int suppressedTuples = 0;
+                        for (int i = 0; i < output.length; i++) {
+                            suppressedTuples += isSuppressed(output[i]) ? 1 : 0;
+                        }
+                        double suppressedRatio = (double) suppressedTuples / output.length;
 
                         // Write
                         if (run == numberOfRuns - 1) {
@@ -212,15 +227,21 @@ public class BenchmarkExperimentUtilityAndRuntime {
                             double utilityMean = calculateArithmeticMean(utilityResults);
                             double runtime = calculateArithmeticMean(runtimes);
                             double variance = getVariance(output, header, hierarchies, false);
-                            // TODO: Implement (true) as well
+                            double varianceNotSuppressed = getVariance(output,
+                                                                       header,
+                                                                       hierarchies,
+                                                                       true);
 
-                            BENCHMARK.addRun(dataset, measure, model, algorithm, suppressed);
+                            BENCHMARK.addRun(dataset, measure, model, algorithm, suppressionLimit);
                             BENCHMARK.addValue(PRIVACY_STRENGTH, model.getStrength());
                             BENCHMARK.addValue(RECORDS, output.length);
                             BENCHMARK.addValue(QIS, output[0].length);
                             BENCHMARK.addValue(UTILITY, utilityMean);
                             BENCHMARK.addValue(RUNTIME, runtime);
+                            BENCHMARK.addValue(SUPPRESSED, suppressedTuples);
+                            BENCHMARK.addValue(SUPPRESSED_RATIO, suppressedRatio);
                             BENCHMARK.addValue(VARIANCE, variance);
+                            BENCHMARK.addValue(VARIANCE_NOTSUPPRESSED, varianceNotSuppressed);
                         }
 
                         run++;
@@ -271,7 +292,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
                                       String[] header,
                                       Map<String, String[][]> hierarchies,
                                       boolean ignoreSuppressed) {
-        
+
         final int numberOfRecords = output.length;
         final int numberOfAttributes = output[0].length;
         final int[] maxGeneralizationLevels = new int[numberOfAttributes];
@@ -301,10 +322,11 @@ public class BenchmarkExperimentUtilityAndRuntime {
         int numberOfTuplesConsidered = 0;
         for (int rowIndex = 0; rowIndex < numberOfRecords; rowIndex++) {
             String[] row = output[rowIndex];
-            if (!ignoreSuppressed || !isSuppressed(row)) {    
+            if (!ignoreSuppressed || !isSuppressed(row)) {
                 for (int columnIndex = 0; columnIndex < numberOfAttributes; columnIndex++) {
-                    averageDegrees[columnIndex] +=    (double)stringToLevelMaps.get(columnIndex).get(row[columnIndex]) / 
-                                                    maxGeneralizationLevels[columnIndex];
+                    averageDegrees[columnIndex] += (double) stringToLevelMaps.get(columnIndex)
+                                                                             .get(row[columnIndex]) /
+                                                   maxGeneralizationLevels[columnIndex];
                 }
                 numberOfTuplesConsidered++;
             }
@@ -318,10 +340,11 @@ public class BenchmarkExperimentUtilityAndRuntime {
         Arrays.fill(variances, 0.0);
         for (int rowIndex = 0; rowIndex < numberOfRecords; rowIndex++) {
             String[] row = output[rowIndex];
-            if (!ignoreSuppressed || !isSuppressed(row)) {    
+            if (!ignoreSuppressed || !isSuppressed(row)) {
                 for (int columnIndex = 0; columnIndex < numberOfAttributes; columnIndex++) {
-                    double degree = (double) stringToLevelMaps.get(columnIndex).get(row[columnIndex]) / 
-                                             maxGeneralizationLevels[columnIndex];
+                    double degree = (double) stringToLevelMaps.get(columnIndex)
+                                                              .get(row[columnIndex]) /
+                                    maxGeneralizationLevels[columnIndex];
                     variances[columnIndex] += Math.pow(degree - averageDegrees[columnIndex], 2);
                 }
             }
@@ -349,17 +372,16 @@ public class BenchmarkExperimentUtilityAndRuntime {
         arithmeticMean /= values.length;
         return arithmeticMean;
     }
-    
+
     /**
      * Is this row suppressed?
+     * 
      * @param row
      * @return
      */
     private static boolean isSuppressed(String[] row) {
         for (String s : row) {
-            if (!s.equals("*")) {
-                return false;
-            }
+            if (!s.equals("*")) { return false; }
         }
         return true;
     }
