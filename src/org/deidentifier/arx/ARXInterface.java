@@ -67,10 +67,6 @@ public class ARXInterface {
             throw new RuntimeException("This data handle is locked. Please release it first");
         }
 
-        if (data.getDefinition().getSensitiveAttributes().size() > 1 && config.isProtectSensitiveAssociations()) {
-            throw new UnsupportedOperationException("Currently not supported!");
-        }
-
         // Encode data
         DataHandle handle = data.getHandle();
         handle.getDefinition().materializeHierarchies(handle);

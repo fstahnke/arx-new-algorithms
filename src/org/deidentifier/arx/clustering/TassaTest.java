@@ -13,7 +13,7 @@ import org.deidentifier.arx.criteria.KAnonymity;
 
 public class TassaTest {
     
-    private static final int K = 5;
+    private static final int K = 20;
     
     public static void main(String[] args) throws IOException {
         
@@ -29,7 +29,7 @@ public class TassaTest {
 //        data.getDefinition().setAttributeType("sex", Hierarchy.create("hierarchies/adult_hierarchy_sex.csv", ';'));
 //        data.getDefinition().setAttributeType("workclass", Hierarchy.create("hierarchies/adult_hierarchy_workclass.csv", ';'));
         
-        final Data data = BenchmarkSetup.getData(BenchmarkDataset.FARS, BenchmarkPrivacyModel.K5_ANONYMITY);
+        final Data data = BenchmarkSetup.getData(BenchmarkDataset.ADULT, BenchmarkPrivacyModel.K20_ANONYMITY);
         
         // Configurationa
         final ARXConfiguration config = ARXConfiguration.create();
