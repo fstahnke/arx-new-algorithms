@@ -168,7 +168,7 @@ public class BenchmarkExperimentGsScaling {
                                           final BenchmarkPrivacyModel model,
                                           final BenchmarkAlgorithm algorithm,
                                           final double suppressionLimit,
-                                          double gsFactor) throws IOException {
+                                          final double gsFactor) throws IOException {
 
         Data data = BenchmarkSetup.getData(dataset, model);
         ARXConfiguration config = BenchmarkSetup.getConfiguration(dataset,
