@@ -4,32 +4,20 @@ import java.io.IOException;
 
 public class BenchmarkManager {
 
-    /**
-     * Choose benchmarkConfig to run.
-     */
-    private static final String recordScalingConfig   = "benchmarkConfig/recordScaling.xml";
-    private static final String qiScalingConfig       = "benchmarkConfig/QIScaling.xml";
-    private static final String qiScalingConfigS      = "benchmarkConfig/QIScaling_short.xml";
-    private static final String kScalingConfig        = "benchmarkConfig/kScaling.xml";
-    private static final String utilityVarianceConfig = "benchmarkConfig/utilityVariance.xml";
-    private static final String ruleOutConfig         = "benchmarkConfig/ruleOut.xml";
-    private static final String suppressionScaling    = "benchmarkConfig/suppressionScaling.xml";
-
-    private static final String iterationConfig       = "benchmarkConfig/rgrIterationAnalysis.xml";
-
     public static void main(String[] args) throws IOException {
 
         double startTime = System.currentTimeMillis();
 
-//         new BenchmarkExperimentUtilityAndRuntime().execute(qiScalingConfig);
-//         new BenchmarkExperimentUtilityAndRuntime().execute(qiScalingConfigS);
-//         new BenchmarkExperimentUtilityAndRuntime().execute(recordScalingConfig);
-//         new BenchmarkExperimentUtilityAndRuntime().execute(kScalingConfig);
-         new BenchmarkExperimentUtilityAndRuntime().execute(utilityVarianceConfig);
-//         new BenchmarkExperimentUtilityAndRuntime().execute(ruleOutConfig);
-        // new BenchmarkExperimentUtilityAndRuntime().execute(suppressionScaling);
+//      new BenchmarkExperimentUtilityAndRuntime().execute("benchmarkConfig/QIScaling.xml");
+//      new BenchmarkExperimentUtilityAndRuntime().execute("benchmarkConfig/QIScaling_short.xml");
+//      new BenchmarkExperimentUtilityAndRuntime().execute("benchmarkConfig/recordScaling.xml");
+//      new BenchmarkExperimentUtilityAndRuntime().execute("benchmarkConfig/kScaling.xml");
+//      new BenchmarkExperimentUtilityAndRuntime().execute("benchmarkConfig/utilityVariance.xml");
+         new BenchmarkExperimentGsScaling().execute("benchmarkConfig/gsFactorScaling.xml");
+//      new BenchmarkExperimentUtilityAndRuntime().execute("benchmarkConfig/ruleOut.xml");
+//      new BenchmarkExperimentUtilityAndRuntime().execute("benchmarkConfig/suppressionScaling.xml");
 
-//         new BenchmarkExperimentRGRIterations().execute(iterationConfig);
+//      new BenchmarkExperimentRGRIterations().execute("benchmarkConfig/rgrIterationAnalysis.xml");
 
          double elapsedTime = System.currentTimeMillis() - startTime;
          System.out.println("Total Runtime: " + (elapsedTime / 1000.0) + " sec (" +

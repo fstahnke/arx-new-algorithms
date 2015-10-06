@@ -45,7 +45,7 @@ import de.linearbits.subframe.analyzer.ValueBuffer;
  * 
  * @author Fabian Stahnke
  */
-public class BenchmarkExperimentUtilityAndRuntime {
+public class BenchmarkExperimentGsScaling {
 
     /** The benchmark instance */
     private static final Benchmark BENCHMARK = new Benchmark(new String[] {
@@ -111,7 +111,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
                 for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
                     for (BenchmarkDataset dataset : setup.getDatasets()) {
                         for (double suppressionLimit : setup.getSuppressionLimits()) {
-                            for (double gsFactor : setup.getGsFactors()) {
+                            for (double gsFactor = 0d; gsFactor <= 1; gsFactor += 0.01) {
 
                                 // Tassa doesn't support suppression limits
                                 if (algorithm == BenchmarkAlgorithm.TASSA) {

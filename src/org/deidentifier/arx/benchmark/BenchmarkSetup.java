@@ -49,6 +49,7 @@ public class BenchmarkSetup {
     private BenchmarkPrivacyModel[]   privacyModels;
     private BenchmarkUtilityMeasure[] utilityMeasures;
     private double[]                  suppressionLimits;
+    private double[]                  gsFactors;
     private int                       numberOfRuns = 1;
 
     private String                    outputFile;
@@ -242,32 +243,57 @@ public class BenchmarkSetup {
         }
     }
 
+    
+    
+
     /**
      * Returns a configuration for the ARX framework
      * 
      * @param dataset
-     * @param suppression
-     * @param criteria
+     * @param utility
+     * @param criterion
+     * @param suppressionLimit Limits the ratio of suppressed tuples.
      * @return
      * @throws IOException
      */
     public static ARXConfiguration getConfiguration(BenchmarkDataset dataset,
                                                     BenchmarkUtilityMeasure utility,
                                                     BenchmarkPrivacyModel criterion,
-                                                    double suppression) throws IOException {
+                                                    double suppressionLimit) throws IOException {
+        // Take the default generalization/suppression factor of 0.5
+        return getConfiguration(dataset, utility, criterion, suppressionLimit, 0.5d);
+    }
+    
+
+    /**
+     * Returns a configuration for the ARX framework
+     * 
+     * @param dataset
+     * @param utility
+     * @param criterion
+     * @param suppressionLimit Limits the ratio of suppressed tuples.
+     * @param gsFactor The weight of generalization towards suppression. Smaller values mean more generalized tuples.
+     * @return
+     * @throws IOException
+     */
+    public static ARXConfiguration getConfiguration(BenchmarkDataset dataset,
+                                                    BenchmarkUtilityMeasure utility,
+                                                    BenchmarkPrivacyModel criterion,
+                                                    double suppressionLimit,
+                                                    double gsFactor) throws IOException {
         ARXConfiguration config = ARXConfiguration.create();
         switch (utility) {
             case DISCERNIBILITY:
                 config.setMetric(Metric.createDiscernabilityMetric(false));
                 break;
             case LOSS:
-                config.setMetric(Metric.createLossMetric(AggregateFunction.GEOMETRIC_MEAN));
+                config.setMetric(Metric.createLossMetric(gsFactor, AggregateFunction.GEOMETRIC_MEAN));
                 break;
             default:
                 throw new IllegalArgumentException("");
         }
 
-        config.setMaxOutliers(suppression);
+        config.setMaxOutliers(suppressionLimit);
 
         switch (criterion) {
             case K5_ANONYMITY:
@@ -698,6 +724,14 @@ public class BenchmarkSetup {
         }
     }
 
+    public double[] getGsFactors() {
+        if (gsFactors != null) {
+            return gsFactors;
+        } else {
+            return new double[] { 0.05d };
+        }
+    }
+
     public String getOutputFile() {
         if (outputFile != null) {
             return outputFile;
@@ -816,6 +850,15 @@ public class BenchmarkSetup {
             suppressionLimits = new double[nList.getLength()];
             for (int i = 0; i < nList.getLength(); i++) {
                 suppressionLimits[i] = Double.valueOf(nList.item(i).getTextContent());
+            }
+        }
+
+        // Read generalization/suppression-factors
+        nList = doc.getElementsByTagName("gsFactor");
+        if (nList.getLength() > 0) {
+            gsFactors = new double[nList.getLength()];
+            for (int i = 0; i < nList.getLength(); i++) {
+                gsFactors[i] = Double.valueOf(nList.item(i).getTextContent());
             }
         }
 
