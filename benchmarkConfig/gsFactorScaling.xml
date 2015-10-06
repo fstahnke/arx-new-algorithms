@@ -6,7 +6,8 @@
 	<dataset>ADULT</dataset>
 
 	<!-- add implemented algorithms -->
-	<algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
+<!-- 	<algorithm>RECURSIVE_GLOBAL_RECODING</algorithm> -->
+	<algorithm>FLASH</algorithm>
 
 	<!-- add privacy models -->
 	<privacyModel>K5_ANONYMITY</privacyModel>
@@ -23,13 +24,9 @@
 	<!-- Add gsFactors. Can be any double value between 0 and 1. Closer to 0 
 		means more suppression. -->
 	<gsFactor>0.0</gsFactor>
-	<gsFactor>0.01</gsFactor>
-	<gsFactor>0.02</gsFactor>
-	<gsFactor>0.05</gsFactor>
-	<gsFactor>0.0</gsFactor>
 
 	<!-- set paths for output files -->
-	<outputFile>results/tassaRGR-gsFactorScaling_adult.csv</outputFile>
+	<outputFile>results/tassaRGR-gsFactorScaling_adult_flash.csv</outputFile>
 	<plotFile>results/tassaRGR-gsFactorScaling.pdf</plotFile>
 
 	<!-- set the number of runs -->
