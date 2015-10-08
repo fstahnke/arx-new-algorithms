@@ -31,6 +31,7 @@ import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkDataset;
 import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkPrivacyModel;
 import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkUtilityMeasure;
 import org.deidentifier.arx.clustering.TassaAlgorithm;
+import org.deidentifier.arx.exceptions.RollbackRequiredException;
 import org.deidentifier.arx.recursive.BenchmarkAlgorithmRGR;
 import org.deidentifier.arx.utility.AggregateFunction;
 import org.deidentifier.arx.utility.DataConverter;
@@ -84,8 +85,9 @@ public class BenchmarkExperimentGsScaling {
      * 
      * @param args
      * @throws IOException
+     * @throws RollbackRequiredException 
      */
-    public void execute(String benchmarkConfig) throws IOException {
+    public void execute(String benchmarkConfig) throws IOException, RollbackRequiredException {
 
         // Init
         BENCHMARK.addAnalyzer(PRIVACY_STRENGTH, new ValueBuffer());
@@ -111,7 +113,7 @@ public class BenchmarkExperimentGsScaling {
                 for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
                     for (BenchmarkDataset dataset : setup.getDatasets()) {
                         for (double suppressionLimit : setup.getSuppressionLimits()) {
-                            for (double gsFactor = 0d; gsFactor <= 1; gsFactor += 0.01) {
+                            for (double gsFactor = 0d; gsFactor <= 1.0; gsFactor += 0.01) {
 
                                 // Tassa doesn't support suppression limits
                                 if (algorithm == BenchmarkAlgorithm.TASSA) {
@@ -161,6 +163,7 @@ public class BenchmarkExperimentGsScaling {
      * @param suppressionLimit
      * @param gsFactor
      * @throws IOException
+     * @throws RollbackRequiredException 
      */
     private static void performExperiment(final BenchmarkMetadataUtility metadata,
                                           final BenchmarkDataset dataset,
@@ -168,7 +171,7 @@ public class BenchmarkExperimentGsScaling {
                                           final BenchmarkPrivacyModel model,
                                           final BenchmarkAlgorithm algorithm,
                                           final double suppressionLimit,
-                                          final double gsFactor) throws IOException {
+                                          final double gsFactor) throws IOException, RollbackRequiredException {
 
         Data data = BenchmarkSetup.getData(dataset, model);
         ARXConfiguration config = BenchmarkSetup.getConfiguration(dataset,
@@ -282,7 +285,7 @@ public class BenchmarkExperimentGsScaling {
             if (algorithm == BenchmarkAlgorithm.TASSA) {
                 algorithmImplementation = new TassaAlgorithm(observer, data, config);
             } else if (algorithm == BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING) {
-                algorithmImplementation = new BenchmarkAlgorithmRGR(observer, data, config);
+                algorithmImplementation = new BenchmarkAlgorithmRGR(observer, data, config, gsFactor);
             } else if (algorithm == BenchmarkAlgorithm.FLASH) {
                 algorithmImplementation = new BenchmarkAlgorithmFlash(observer, data, config);
             }

@@ -51,7 +51,7 @@ import de.linearbits.subframe.render.PlotGroup;
  * 
  * @author Fabian Prasser
  */
-public class BenchmarkAnalysisGsScaling {
+public class BenchmarkAnalysisGsStepSizeScaling {
 
     /**
      * Choose benchmarkConfig to run and comment others out.
@@ -60,7 +60,7 @@ public class BenchmarkAnalysisGsScaling {
     // "benchmarkConfig/recordScaling.xml";
     // private static final String benchmarkConfig =
     // "benchmarkConfig/QIScaling.xml";
-    private static final String benchmarkConfig = "benchmarkConfig/gsFactorDynamicScaling.xml";
+    private static final String benchmarkConfig = "benchmarkConfig/gsStepSizeScaling.xml";
 
     /**
      * Main
@@ -77,15 +77,15 @@ public class BenchmarkAnalysisGsScaling {
 
         for (BenchmarkDataset dataset : setup.getDatasets()) {
             for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
-                for (double gsStepSize : setup.getGsStepSizes()) {
+//                for (double gsStepSize : setup.getGsStepSizes()) {
                     groups.add(analyzeUtility(file,
                                               setup,
                                               dataset,
                                               BenchmarkUtilityMeasure.LOSS,
                                               BenchmarkPrivacyModel.K5_ANONYMITY,
                                               algorithm,
-                                              0.0,
-                                              gsStepSize));
+                                              0.2,
+                                              0.05));
 
                     groups.add(analyzeRuntime(file,
                                               setup,
@@ -93,9 +93,9 @@ public class BenchmarkAnalysisGsScaling {
                                               BenchmarkUtilityMeasure.LOSS,
                                               BenchmarkPrivacyModel.K5_ANONYMITY,
                                               algorithm,
-                                              0.0,
-                                              gsStepSize));
-                }
+                                              0.2,
+                                              0.05));
+//                }
             }
         }
         LaTeX.plot(groups, setup.getPlotFile(), true);

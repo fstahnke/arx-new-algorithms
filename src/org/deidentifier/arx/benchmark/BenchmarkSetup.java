@@ -18,6 +18,9 @@
 package org.deidentifier.arx.benchmark;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -33,6 +36,7 @@ import org.deidentifier.arx.metric.Metric;
 import org.deidentifier.arx.metric.Metric.AggregateFunction;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -50,6 +54,7 @@ public class BenchmarkSetup {
     private BenchmarkUtilityMeasure[] utilityMeasures;
     private double[]                  suppressionLimits;
     private double[]                  gsFactors;
+    private double[]                  gsStepSizes;
     private int                       numberOfRuns = 1;
 
     private String                    outputFile;
@@ -60,7 +65,8 @@ public class BenchmarkSetup {
      * Create new BenchmarkSetup instance with xml for configuration
      * 
      * @param configFile
-     *            path to xml benchmark configuration. If null, default values will be used.
+     *            path to xml benchmark configuration. If null, default values
+     *            will be used.
      */
     public BenchmarkSetup(String configFile) {
         if (configFile != null && !configFile.equals("")) {
@@ -243,16 +249,14 @@ public class BenchmarkSetup {
         }
     }
 
-    
-    
-
     /**
      * Returns a configuration for the ARX framework
      * 
      * @param dataset
      * @param utility
      * @param criterion
-     * @param suppressionLimit Limits the ratio of suppressed tuples.
+     * @param suppressionLimit
+     *            Limits the ratio of suppressed tuples.
      * @return
      * @throws IOException
      */
@@ -263,7 +267,6 @@ public class BenchmarkSetup {
         // Take the default generalization/suppression factor of 0.5
         return getConfiguration(dataset, utility, criterion, suppressionLimit, 0.5d);
     }
-    
 
     /**
      * Returns a configuration for the ARX framework
@@ -271,8 +274,11 @@ public class BenchmarkSetup {
      * @param dataset
      * @param utility
      * @param criterion
-     * @param suppressionLimit Limits the ratio of suppressed tuples.
-     * @param gsFactor The weight of generalization towards suppression. Smaller values mean more generalized tuples.
+     * @param suppressionLimit
+     *            Limits the ratio of suppressed tuples.
+     * @param gsFactor
+     *            The weight of generalization towards suppression. Smaller
+     *            values mean more generalized tuples.
      * @return
      * @throws IOException
      */
@@ -716,6 +722,10 @@ public class BenchmarkSetup {
         }
     }
 
+    /**
+     * Get suppression limits.
+     * @return Suppression limits as defined in xml. Default is { 0.02, 0.05, 0.1, 1.0 }.
+     */
     public double[] getSuppressionLimits() {
         if (suppressionLimits != null) {
             return suppressionLimits;
@@ -724,11 +734,27 @@ public class BenchmarkSetup {
         }
     }
 
+    /**
+     * Get generalization/suppression factors.
+     * @return gsFactors as defined in xml. Default is 0.
+     */
     public double[] getGsFactors() {
         if (gsFactors != null) {
             return gsFactors;
         } else {
-            return new double[] { 0.05d };
+            return new double[] { 0.5d };
+        }
+    }
+
+    /**
+     * Get step sizes for RGR with dynamic gsFactor.
+     * @return Step sizes as defined in xml. Default is 0.
+     */
+    public double[] getGsStepSizes() {
+        if (gsStepSizes != null) {
+            return gsStepSizes;
+        } else {
+            return new double[] { 0.0d };
         }
     }
 
@@ -749,7 +775,7 @@ public class BenchmarkSetup {
     }
 
     /**
-     * @return The number of runs for this benchmark.
+     * @return The number of runs for this benchmark. Default is 1.
      */
     public int getNumberOfRuns() {
         return this.numberOfRuns;
@@ -846,44 +872,104 @@ public class BenchmarkSetup {
 
         // Read suppressionLimits
         nList = doc.getElementsByTagName("suppressionLimit");
-        if (nList.getLength() > 0) {
-            suppressionLimits = new double[nList.getLength()];
-            for (int i = 0; i < nList.getLength(); i++) {
-                suppressionLimits[i] = Double.valueOf(nList.item(i).getTextContent());
-            }
-        }
+        suppressionLimits = parseDoubleParameters(nList);
 
         // Read generalization/suppression-factors
         nList = doc.getElementsByTagName("gsFactor");
-        if (nList.getLength() > 0) {
-            gsFactors = new double[nList.getLength()];
-            for (int i = 0; i < nList.getLength(); i++) {
-                gsFactors[i] = Double.valueOf(nList.item(i).getTextContent());
-            }
-        }
+        gsFactors = parseDoubleParameters(nList);
+        
+        // Read gsStepSize for dynamic gsFactor
+        nList = doc.getElementsByTagName("gsStepSize");
+        gsStepSizes = parseDoubleParameters(nList);
 
         // Read number of runs for runtime benchmarking
         nList = doc.getElementsByTagName("outputFile");
-        if (nList.getLength() > 0) {
+        if (nList.getLength() == 1) {
             outputFile = nList.item(0).getTextContent();
+        } else if (nList.getLength() > 1) {
+            throw new IllegalArgumentException("XML config: Too many parameters for outputFile!");
         }
 
         // Read number of runs for runtime benchmarking
         nList = doc.getElementsByTagName("plotFile");
-        if (nList.getLength() > 0) {
+        if (nList.getLength() == 1) {
             plotFile = nList.item(0).getTextContent();
             // trim ".pdf" at the end, since plotter adds it automatically
             if (plotFile.toLowerCase().endsWith(".pdf")) {
                 plotFile = plotFile.substring(0, plotFile.lastIndexOf(".pdf"));
             }
+        } else if (nList.getLength() > 1) {
+            throw new IllegalArgumentException("XML config: Too many parameters for plotFile!");
         }
 
         // Read number of runs for runtime benchmarking
         nList = doc.getElementsByTagName("numberOfRuns");
-        if (nList.getLength() > 0) {
+        if (nList.getLength() == 1) {
             numberOfRuns = Integer.valueOf(nList.item(0).getTextContent());
+        } else if (nList.getLength() > 1) {
+            throw new IllegalArgumentException("XML config: Too many parameters for numberOfRuns!");
         }
 
         return true;
+    }
+
+    /**
+     * Helper function to parse double values from config xml files. Supports
+     * the interval attributes "from", "to" and "stepSize".
+     * 
+     * @param nList
+     *            The nodes containing the values.
+     * @return An array with all parsed values.
+     */
+    private static double[] parseDoubleParameters(NodeList nList) {
+
+        double[] result = null;
+        if (nList.getLength() > 0) {
+            ArrayList<Double> valueList = new ArrayList<>();
+            for (int i = 0; i < nList.getLength(); i++) {
+                Node n = nList.item(i);
+                if (n.getAttributes().getLength() != 0) {
+                    double from = Double.valueOf(n.getAttributes()
+                                                  .getNamedItem("from")
+                                                  .getTextContent());
+                    double to = Double.valueOf(n.getAttributes()
+                                                .getNamedItem("to")
+                                                .getTextContent());
+                    double stepSize = Double.valueOf(n.getAttributes()
+                                                      .getNamedItem("stepSize")
+                                                      .getTextContent());
+
+                    for (double value = from; value <= to; value += stepSize) {
+                        valueList.add(round(value, 2));
+                    }
+                } else {
+                    valueList.add(Double.valueOf(nList.item(i).getTextContent()));
+                }
+            }
+
+            result = new double[valueList.size()];
+            for (int i = 0; i < result.length; i++) {
+                result[i] = valueList.get(i);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Helper class for rounding doubles to a specific number of decimals.
+     * 
+     * @param value
+     *            Input value.
+     * @param places
+     *            Number of decimals.
+     * @return Rounded value.
+     */
+    private static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        BigDecimal bd = new BigDecimal(value);
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
     }
 }

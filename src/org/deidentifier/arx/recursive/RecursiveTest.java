@@ -10,12 +10,13 @@ import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkDataset;
 import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkPrivacyModel;
 import org.deidentifier.arx.benchmark.IBenchmarkObserver;
 import org.deidentifier.arx.criteria.KAnonymity;
+import org.deidentifier.arx.exceptions.RollbackRequiredException;
 import org.deidentifier.arx.metric.Metric;
 import org.deidentifier.arx.metric.Metric.AggregateFunction;
 
 public class RecursiveTest {
     
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, RollbackRequiredException {
     	
     	IBenchmarkObserver listener = new IBenchmarkObserver() {
 
@@ -37,15 +38,15 @@ public class RecursiveTest {
     		
     	};
         
-        final Data data = BenchmarkSetup.getData(BenchmarkDataset.IHIS_SUBSET, BenchmarkPrivacyModel.K5_ANONYMITY);
+        final Data data = BenchmarkSetup.getData(BenchmarkDataset.ADULT, BenchmarkPrivacyModel.K5_ANONYMITY);
         
         final ARXConfiguration config = ARXConfiguration.create();
 
         config.addCriterion(new KAnonymity(5));
         config.setMaxOutliers(1d);
-        config.setMetric(Metric.createLossMetric(AggregateFunction.GEOMETRIC_MEAN));
+        config.setMetric(Metric.createLossMetric(0.1, AggregateFunction.GEOMETRIC_MEAN));
         
-        BenchmarkAlgorithmRGR recursiveInstance = new BenchmarkAlgorithmRGR(listener, data, config);
+        BenchmarkAlgorithmRGR recursiveInstance = new BenchmarkAlgorithmRGR(listener, data, config, 0.05);
         
 
         

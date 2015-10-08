@@ -2,6 +2,8 @@ package org.deidentifier.arx.benchmark;
 
 import java.io.IOException;
 
+import org.deidentifier.arx.exceptions.RollbackRequiredException;
+
 public abstract class BenchmarkAlgorithm {
 
     private final IBenchmarkObserver observer;
@@ -11,7 +13,7 @@ public abstract class BenchmarkAlgorithm {
         this.observer = observer;
     }
 
-    public abstract void execute() throws IOException;
+    public abstract void execute() throws IOException, RollbackRequiredException;
 
     protected void start() {
         this.start = System.currentTimeMillis();

@@ -28,6 +28,7 @@ import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkAlgorithm;
 import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkDataset;
 import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkPrivacyModel;
 import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkUtilityMeasure;
+import org.deidentifier.arx.exceptions.RollbackRequiredException;
 import org.deidentifier.arx.recursive.BenchmarkAlgorithmRGR;
 import org.deidentifier.arx.utility.AggregateFunction;
 import org.deidentifier.arx.utility.DataConverter;
@@ -118,8 +119,9 @@ public class BenchmarkExperimentRGRIterations {
      * 
      * @param args
      * @throws IOException
+     * @throws RollbackRequiredException 
      */
-    public void execute(String benchmarkConfig) throws IOException {
+    public void execute(String benchmarkConfig) throws IOException, RollbackRequiredException {
 
         // Init
         BENCHMARK.addAnalyzer(STEP, new ValueBuffer());
@@ -138,6 +140,7 @@ public class BenchmarkExperimentRGRIterations {
         BenchmarkMetadataUtility metadata = new BenchmarkMetadataUtility(setup);
         File resultFile = new File(setup.getOutputFile());
         resultFile.getParentFile().mkdirs();
+        double gsStepping = 0.05;
 
         // Repeat for each data set
         for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
@@ -154,7 +157,8 @@ public class BenchmarkExperimentRGRIterations {
                                               measure,
                                               model,
                                               algorithm,
-                                              suppression);
+                                              suppression,
+                                              gsStepping);
 
                             // Write after each experiment
                             BENCHMARK.getResults().write(resultFile);
@@ -175,13 +179,15 @@ public class BenchmarkExperimentRGRIterations {
      * @param algorithm
      * @param suppression
      * @throws IOException
+     * @throws RollbackRequiredException 
      */
     private static void performExperiment(final BenchmarkMetadataUtility metadata,
                                           final BenchmarkDataset dataset,
                                           final BenchmarkUtilityMeasure measure,
                                           final BenchmarkPrivacyModel model,
                                           final BenchmarkAlgorithm algorithm,
-                                          final double suppression) throws IOException {
+                                          final double suppression,
+                                          final double gsStepping) throws IOException, RollbackRequiredException {
 
         final Data data = BenchmarkSetup.getData(dataset, model);
         ARXConfiguration config = BenchmarkSetup.getConfiguration(dataset,
@@ -323,7 +329,7 @@ public class BenchmarkExperimentRGRIterations {
 
             };
 
-            BenchmarkAlgorithmRGR implementation = new BenchmarkAlgorithmRGR(listener, data, config);
+            BenchmarkAlgorithmRGR implementation = new BenchmarkAlgorithmRGR(listener, data, config, gsStepping);
             implementation.execute();
 
         } else {

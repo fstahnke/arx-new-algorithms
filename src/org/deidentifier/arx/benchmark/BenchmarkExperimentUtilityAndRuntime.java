@@ -31,6 +31,7 @@ import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkDataset;
 import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkPrivacyModel;
 import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkUtilityMeasure;
 import org.deidentifier.arx.clustering.TassaAlgorithm;
+import org.deidentifier.arx.exceptions.RollbackRequiredException;
 import org.deidentifier.arx.recursive.BenchmarkAlgorithmRGR;
 import org.deidentifier.arx.utility.AggregateFunction;
 import org.deidentifier.arx.utility.DataConverter;
@@ -48,44 +49,45 @@ import de.linearbits.subframe.analyzer.ValueBuffer;
 public class BenchmarkExperimentUtilityAndRuntime {
 
     /** The benchmark instance */
-    private static final Benchmark BENCHMARK = new Benchmark(new String[] {
-                                                                            "Dataset",
-                                                                            "UtilityMeasure",
-                                                                            "PrivacyModel",
-                                                                            "Algorithm",
-                                                                            "Suppression Limit",
-                                                                            "Suppression Weight" });
+    private static final Benchmark BENCHMARK              = new Benchmark(new String[] {
+            "Dataset",
+            "UtilityMeasure",
+            "PrivacyModel",
+            "Algorithm",
+            "Suppression Limit",
+            "Suppression Weight"                         });
 
     /** PRIVACY STRENGTH */
-    private static final int PRIVACY_STRENGTH       = BENCHMARK.addMeasure("Privacy Strength");
+    private static final int       PRIVACY_STRENGTH       = BENCHMARK.addMeasure("Privacy Strength");
     /** NUMBER OF RECORDS */
-    private static final int RECORDS                = BENCHMARK.addMeasure("Records");
+    private static final int       RECORDS                = BENCHMARK.addMeasure("Records");
     /** NUMBER OF QIs */
-    private static final int QIS                    = BENCHMARK.addMeasure("QIs");
+    private static final int       QIS                    = BENCHMARK.addMeasure("QIs");
     /** UTILITY */
-    private static final int UTILITY                = BENCHMARK.addMeasure("Utility");
+    private static final int       UTILITY                = BENCHMARK.addMeasure("Utility");
     /** RUNTIME */
-    private static final int RUNTIME                = BENCHMARK.addMeasure("Runtime");
+    private static final int       RUNTIME                = BENCHMARK.addMeasure("Runtime");
     /** NUMBER OF SUPPRESSED TUPLES */
-    private static final int SUPPRESSED             = BENCHMARK.addMeasure("Suppressed");
+    private static final int       SUPPRESSED             = BENCHMARK.addMeasure("Suppressed");
     /** RATIO OF SUPPRESSED TUPLES */
-    private static final int SUPPRESSED_RATIO       = BENCHMARK.addMeasure("Suppressed Ratio");
+    private static final int       SUPPRESSED_RATIO       = BENCHMARK.addMeasure("Suppressed Ratio");
     /** GENERALIZATION VARIANCE */
-    private static final int VARIANCE               = BENCHMARK.addMeasure("Variance");
+    private static final int       VARIANCE               = BENCHMARK.addMeasure("Variance");
     /** GENERALIZATION VARIANCE WITHOUT SUPPRESSED TUPLES */
-    private static final int VARIANCE_NOTSUPPRESSED = BENCHMARK.addMeasure("Variance (not suppressed)");
+    private static final int       VARIANCE_NOTSUPPRESSED = BENCHMARK.addMeasure("Variance (not suppressed)");
     /** Number of runs for each benchmark setting */
-    private static int       numberOfRuns;
+    private static int             numberOfRuns;
     /** Number of warmup runs */
-    private static int       numberOfWarmups;
+    private static int             numberOfWarmups;
 
     /**
      * Main entry point
      * 
      * @param args
      * @throws IOException
+     * @throws RollbackRequiredException
      */
-    public void execute(String benchmarkConfig) throws IOException {
+    public void execute(String benchmarkConfig) throws IOException, RollbackRequiredException {
 
         // Init
         BENCHMARK.addAnalyzer(PRIVACY_STRENGTH, new ValueBuffer());
@@ -111,37 +113,40 @@ public class BenchmarkExperimentUtilityAndRuntime {
                 for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
                     for (BenchmarkDataset dataset : setup.getDatasets()) {
                         for (double suppressionLimit : setup.getSuppressionLimits()) {
-                            for (double gsFactor : setup.getGsFactors()) {
+                            for (double gsStepping : setup.getGsStepSizes()) {
+                                for (double gsFactor : setup.getGsFactors()) {
 
-                                // Tassa doesn't support suppression limits
-                                if (algorithm == BenchmarkAlgorithm.TASSA) {
-                                    suppressionLimit = 0.0;
+                                    // Tassa doesn't support suppression limits
+                                    if (algorithm == BenchmarkAlgorithm.TASSA) {
+                                        suppressionLimit = 0.0;
+                                    }
+
+                                    System.out.println("Performing run: " + dataset.name() + " / " +
+                                                       measure + " / " + model + " / " + algorithm +
+                                                       " / Supp: " + suppressionLimit +
+                                                       " / gsFactor: " + gsFactor + " / QIs: " +
+                                                       dataset.getNumQIs() + " / Records: " +
+                                                       dataset.getNumRecords());
+
+                                    performExperiment(metadata,
+                                                      dataset,
+                                                      measure,
+                                                      model,
+                                                      algorithm,
+                                                      suppressionLimit,
+                                                      gsFactor,
+                                                      gsStepping);
+                                    // Write after each experiment
+                                    BENCHMARK.getResults().write(resultFile);
+                                    // Break suppression limit loop for Tassa
+                                    if (algorithm == BenchmarkAlgorithm.TASSA) {
+                                        break;
+                                    }
                                 }
-
-                                System.out.println("Performing run: " + dataset.name() + " / " +
-                                                   measure + " / " + model + " / " + algorithm +
-                                                   " / Supp: " + suppressionLimit +
-                                                   " / gsFactor: " + gsFactor + " / QIs: " +
-                                                   dataset.getNumQIs() + " / Records: " +
-                                                   dataset.getNumRecords());
-
-                                performExperiment(metadata,
-                                                  dataset,
-                                                  measure,
-                                                  model,
-                                                  algorithm,
-                                                  suppressionLimit,
-                                                  gsFactor);
-                                // Write after each experiment
-                                BENCHMARK.getResults().write(resultFile);
-                                // Break suppression limit loop for Tassa
+                                // Break gsFactor loop for Tassa
                                 if (algorithm == BenchmarkAlgorithm.TASSA) {
                                     break;
                                 }
-                            }
-                            // Break gsFactor loop for Tassa
-                            if (algorithm == BenchmarkAlgorithm.TASSA) {
-                                break;
                             }
                         }
                     }
@@ -161,6 +166,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
      * @param suppressionLimit
      * @param gsFactor
      * @throws IOException
+     * @throws RollbackRequiredException
      */
     private static void performExperiment(final BenchmarkMetadataUtility metadata,
                                           final BenchmarkDataset dataset,
@@ -168,7 +174,9 @@ public class BenchmarkExperimentUtilityAndRuntime {
                                           final BenchmarkPrivacyModel model,
                                           final BenchmarkAlgorithm algorithm,
                                           final double suppressionLimit,
-                                          final double gsFactor) throws IOException {
+                                          final double gsFactor,
+                                          final double gsStepping) throws IOException,
+                                                                  RollbackRequiredException {
 
         Data data = BenchmarkSetup.getData(dataset, model);
         ARXConfiguration config = BenchmarkSetup.getConfiguration(dataset,
@@ -183,9 +191,8 @@ public class BenchmarkExperimentUtilityAndRuntime {
         // Calculate max generalization levels
         final int maxGeneralizationLevels[] = new int[header.length];
         for (int i = 0; i < maxGeneralizationLevels.length; i++) {
-            maxGeneralizationLevels[i] = data.getDefinition().getHierarchy(data.getHandle()
-                                                                               .getAttributeName(i))[0].length -
-                                         1;
+            maxGeneralizationLevels[i] = data.getDefinition()
+                                             .getHierarchy(data.getHandle().getAttributeName(i))[0].length - 1;
         }
 
         if (algorithm == BenchmarkAlgorithm.TASSA ||
@@ -193,10 +200,10 @@ public class BenchmarkExperimentUtilityAndRuntime {
             algorithm == BenchmarkAlgorithm.FLASH) {
             IBenchmarkObserver observer = new IBenchmarkObserver() {
 
-                private boolean isWarmup = false;
-                private int run = 0;
+                private boolean  isWarmup       = false;
+                private int      run            = 0;
                 private double[] utilityResults = new double[numberOfRuns];
-                private double[] runtimes = new double[numberOfRuns];
+                private double[] runtimes       = new double[numberOfRuns];
 
                 @Override
                 public void notify(long timestamp, String[][] output, int[] transformation) {
@@ -221,8 +228,8 @@ public class BenchmarkExperimentUtilityAndRuntime {
 
                         // Normalize
                         utility -= metadata.getLowerBound(dataset, measure);
-                        utility /= (metadata.getUpperBound(dataset, measure) -
-                                    metadata.getLowerBound(dataset, measure));
+                        utility /= (metadata.getUpperBound(dataset, measure) - metadata.getLowerBound(dataset,
+                                                                                                      measure));
 
                         // Save intermediary results
                         utilityResults[run] = utility;
@@ -265,8 +272,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
 
                         run++;
                         // Run complete
-                        if (numberOfRuns > 1 &&
-                            (run % numberOfWarmups == 0 || run == numberOfRuns)) {
+                        if (numberOfRuns > 1 && (run % numberOfWarmups == 0 || run == numberOfRuns)) {
                             System.out.print(run + " ");
                         }
                     }
@@ -282,7 +288,10 @@ public class BenchmarkExperimentUtilityAndRuntime {
             if (algorithm == BenchmarkAlgorithm.TASSA) {
                 algorithmImplementation = new TassaAlgorithm(observer, data, config);
             } else if (algorithm == BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING) {
-                algorithmImplementation = new BenchmarkAlgorithmRGR(observer, data, config);
+                algorithmImplementation = new BenchmarkAlgorithmRGR(observer,
+                                                                    data,
+                                                                    config,
+                                                                    gsStepping);
             } else if (algorithm == BenchmarkAlgorithm.FLASH) {
                 algorithmImplementation = new BenchmarkAlgorithmFlash(observer, data, config);
             }
@@ -351,29 +360,34 @@ public class BenchmarkExperimentUtilityAndRuntime {
                 numberOfTuplesConsidered++;
             }
         }
-        for (int i = 0; i < averageDegrees.length; i++) {
-            averageDegrees[i] /= numberOfTuplesConsidered;
-        }
+        
+        if (numberOfTuplesConsidered > 0) {
+            for (int i = 0; i < averageDegrees.length; i++) {
+                averageDegrees[i] /= numberOfTuplesConsidered;
+            }
 
-        // Compute variances
-        double[] variances = new double[numberOfAttributes];
-        Arrays.fill(variances, 0.0);
-        for (int rowIndex = 0; rowIndex < numberOfRecords; rowIndex++) {
-            String[] row = output[rowIndex];
-            if (!ignoreSuppressed || !isSuppressed(row)) {
-                for (int columnIndex = 0; columnIndex < numberOfAttributes; columnIndex++) {
-                    double degree = (double) stringToLevelMaps.get(columnIndex)
-                                                              .get(row[columnIndex]) /
-                                    maxGeneralizationLevels[columnIndex];
-                    variances[columnIndex] += Math.pow(degree - averageDegrees[columnIndex], 2);
+            // Compute variances
+            double[] variances = new double[numberOfAttributes];
+            Arrays.fill(variances, 0.0);
+            for (int rowIndex = 0; rowIndex < numberOfRecords; rowIndex++) {
+                String[] row = output[rowIndex];
+                if (!ignoreSuppressed || !isSuppressed(row)) {
+                    for (int columnIndex = 0; columnIndex < numberOfAttributes; columnIndex++) {
+                        double degree = (double) stringToLevelMaps.get(columnIndex)
+                                                                  .get(row[columnIndex]) /
+                                        maxGeneralizationLevels[columnIndex];
+                        variances[columnIndex] += Math.pow(degree - averageDegrees[columnIndex], 2);
+                    }
                 }
             }
+            // Normalize
+            for (int i = 0; i < variances.length; i++) {
+                variances[i] /= numberOfTuplesConsidered;
+            }
+            return calculateArithmeticMean(variances);
+        } else {
+            return 0;
         }
-        // Normalize
-        for (int i = 0; i < variances.length; i++) {
-            variances[i] /= numberOfTuplesConsidered;
-        }
-        return calculateArithmeticMean(variances);
 
     }
 

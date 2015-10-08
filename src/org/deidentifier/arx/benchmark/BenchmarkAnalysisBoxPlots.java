@@ -108,6 +108,24 @@ public class BenchmarkAnalysisBoxPlots {
                                      double suppression) throws ParseException {
 
         // Selects according rows
+        Selector<String[]> selectorRGRNew = file.getSelectorBuilder()
+                                             .field("Dataset")
+                                             .equals(data.toString())
+                                             .and()
+                                             .field("UtilityMeasure")
+                                             .equals(measure.toString())
+                                             .and()
+                                             // .field("PrivacyModel")
+                                             // .equals(model.toString())
+                                             // .and()
+                                             .field("Algorithm")
+                                             .equals("RGRNew")
+                                             .and()
+                                             .field("Suppression")
+                                             .equals(String.valueOf(suppression))
+                                             .build();
+
+        // Selects according rows
         Selector<String[]> selectorRGR = file.getSelectorBuilder()
                                              .field("Dataset")
                                              .equals(data.toString())
@@ -162,6 +180,12 @@ public class BenchmarkAnalysisBoxPlots {
                                                .build();
 
         // Read data into 2D series
+        Series2D rgrNewSeries = new Series2D(file,
+                                          selectorRGRNew,
+                                          new Field("Privacy Strength", Analyzer.VALUE),
+                                          new Field("Utility", Analyzer.VALUE));
+
+        // Read data into 2D series
         Series2D rgrSeries = new Series2D(file,
                                           selectorRGR,
                                           new Field("Privacy Strength", Analyzer.VALUE),
@@ -184,9 +208,14 @@ public class BenchmarkAnalysisBoxPlots {
                                        new Field("UtilityMeasure"), // Type
                                        new Field("PrivacyModel")); // Value
         series.getData().clear();
+        for (Point2D point : rgrNewSeries.getData()) {
+            series.getData().add(new Point3D(point.x,
+                                             "RGR (ARX implementation)",
+                                             String.valueOf(1 - Double.valueOf(point.y))));
+        }
         for (Point2D point : rgrSeries.getData()) {
             series.getData().add(new Point3D(point.x,
-                                             "RGR",
+                                             "RGR (Old implementation)",
                                              String.valueOf(1 - Double.valueOf(point.y))));
         }
         for (Point2D point : flashSeries.getData()) {
