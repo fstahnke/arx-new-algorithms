@@ -27,7 +27,7 @@
 	<gsFactor>0.0</gsFactor>
 
 	<!-- set paths for output files -->
-	<outputFile>results/tassaRGR-gsFactorScaling_all.csv</outputFile>
+	<outputFile>results/tassaRGR-gsFactorScaling.csv</outputFile>
 	<plotFile>results/tassaRGR-gsFactorScaling.pdf</plotFile>
 
 	<!-- set the number of runs -->
