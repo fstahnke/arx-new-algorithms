@@ -4,9 +4,10 @@
 <config>
 	<!-- all subsets -->
 	<dataset>ADULT</dataset>
+	<dataset>CUP</dataset>
 
 	<!-- add implemented algorithms -->
-<!-- 	<algorithm>RECURSIVE_GLOBAL_RECODING</algorithm> -->
+	<algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
 	<algorithm>FLASH</algorithm>
 
 	<!-- add privacy models -->
@@ -16,9 +17,9 @@
 	<utilityMeasure>LOSS</utilityMeasure>
 
 	<!-- add suppression limits. can be any double value between 0 and 1 -->
-	<!-- <suppressionLimit>0.02</suppressionLimit> -->
 	<suppressionLimit>0.05</suppressionLimit>
-	<!-- <suppressionLimit>0.1</suppressionLimit> -->
+	<suppressionLimit>0.1</suppressionLimit>
+	<suppressionLimit>0.2</suppressionLimit>
 	<suppressionLimit>1.0</suppressionLimit>
 
 	<!-- Add gsFactors. Can be any double value between 0 and 1. Closer to 0 
@@ -26,9 +27,9 @@
 	<gsFactor>0.0</gsFactor>
 
 	<!-- set paths for output files -->
-	<outputFile>results/tassaRGR-gsFactorScaling_adult_flash.csv</outputFile>
+	<outputFile>results/tassaRGR-gsFactorScaling_all.csv</outputFile>
 	<plotFile>results/tassaRGR-gsFactorScaling.pdf</plotFile>
 
 	<!-- set the number of runs -->
-	<numberOfRuns>1</numberOfRuns>
+	<numberOfRuns>5</numberOfRuns>
 </config>
