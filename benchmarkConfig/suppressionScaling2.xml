@@ -4,11 +4,11 @@
 <config>
 	<!-- all subsets -->
 	<dataset>ADULT</dataset>
-	<dataset>CUP</dataset>
+<!-- 	<dataset>CUP</dataset> -->
 
 	<!-- add implemented algorithms -->
 	<algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
-	<algorithm>FLASH</algorithm>
+<!-- 	<algorithm>FLASH</algorithm> -->
 
 	<!-- add privacy models -->
 	<privacyModel>K5_ANONYMITY</privacyModel>
@@ -17,18 +17,35 @@
 	<utilityMeasure>LOSS</utilityMeasure>
 
 	<!-- add suppression limits. can be any double value between 0 and 1 -->
+	<suppressionLimit>0.0</suppressionLimit>
+	<suppressionLimit>0.01</suppressionLimit>
+	<suppressionLimit>0.02</suppressionLimit>
 	<suppressionLimit>0.05</suppressionLimit>
+	<suppressionLimit>0.07</suppressionLimit>
 	<suppressionLimit>0.1</suppressionLimit>
 	<suppressionLimit>0.2</suppressionLimit>
+	<suppressionLimit>0.3</suppressionLimit>
+	<suppressionLimit>0.4</suppressionLimit>
+	<suppressionLimit>0.5</suppressionLimit>
+	<suppressionLimit>0.6</suppressionLimit>
+	<suppressionLimit>0.7</suppressionLimit>
+	<suppressionLimit>0.8</suppressionLimit>
+	<suppressionLimit>0.85</suppressionLimit>
+	<suppressionLimit>0.9</suppressionLimit>
+	<suppressionLimit>0.93</suppressionLimit>
+	<suppressionLimit>0.95</suppressionLimit>
+	<suppressionLimit>0.97</suppressionLimit>
 	<suppressionLimit>1.0</suppressionLimit>
 
 	<!-- Add gsFactors. Can be any double value between 0 and 1. Closer to 0 
 		means more suppression. -->
 	<gsFactor>0.0</gsFactor>
+	<gsFactor>0.01</gsFactor>
+	<gsFactor>0.1</gsFactor>
 
 	<!-- set paths for output files -->
-	<outputFile>results/tassaRGR-gsFactorScaling_all.csv</outputFile>
-	<plotFile>results/tassaRGR-gsFactorScaling.pdf</plotFile>
+	<outputFile>results/tassaRGR-suppressionScaling2_adult.csv</outputFile>
+	<plotFile>results/tassaRGR-suppressionScaling2_adult.pdf</plotFile>
 
 	<!-- set the number of runs -->
 	<numberOfRuns>5</numberOfRuns>
