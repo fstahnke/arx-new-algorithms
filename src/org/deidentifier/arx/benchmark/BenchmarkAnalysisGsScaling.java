@@ -76,7 +76,6 @@ public class BenchmarkAnalysisGsScaling {
         CSVFile file = new CSVFile(new File(setup.getOutputFile()));
 
         for (BenchmarkDataset dataset : setup.getDatasets()) {
-//        BenchmarkDataset dataset = BenchmarkDataset.ADULT;
             for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
                 groups.add(analyzeUtility(file,
                                           setup,
