@@ -4,14 +4,13 @@
 <config>
 	<!-- all subsets -->
 	<dataset>ADULT</dataset>
-<!-- 	<dataset>CUP</dataset> -->
+	<dataset>CUP</dataset>
 
 	<!-- add implemented algorithms -->
 	<algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
-<!-- 	<algorithm>FLASH</algorithm> -->
 
 	<!-- add privacy models -->
-<!-- 	<privacyModel>K5_ANONYMITY</privacyModel> -->
+	<privacyModel>K5_ANONYMITY</privacyModel>
 	<privacyModel>K10_ANONYMITY</privacyModel>
 	<privacyModel>K25_ANONYMITY</privacyModel>
 	<privacyModel>K50_ANONYMITY</privacyModel>
@@ -35,7 +34,7 @@
 	
 	
 	<!-- set paths for output files -->
-	<outputFile>results/tassaRGR-gsFactorDynamicScaling_adult.csv</outputFile>
+	<outputFile>results/tassaRGR-gsFactorDynamicScaling.csv</outputFile>
 	<plotFile>results/tassaRGR-gsFactorDynamicScaling.pdf</plotFile>
 
 	<!-- set the number of runs -->

@@ -2,20 +2,23 @@
 <config>
     <dataset>ADULT</dataset>
     <dataset>CUP</dataset>
-<!--     <algorithm>RECURSIVE_GLOBAL_RECODING</algorithm> -->
-<!--     <algorithm>FLASH</algorithm> -->
-    <algorithm>TASSA</algorithm>
+    <dataset>ATUS</dataset>
+    <dataset>IHIS</dataset>
+    <dataset>FARS</dataset>
+    <algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
     <privacyModel>K5_ANONYMITY</privacyModel>
     <privacyModel>K10_ANONYMITY</privacyModel>
     <privacyModel>K25_ANONYMITY</privacyModel>
     <privacyModel>K50_ANONYMITY</privacyModel>
     <utilityMeasure>LOSS</utilityMeasure>
-    <utilityMeasure>DISCERNIBILITY</utilityMeasure>
     <suppressionLimit>0.05</suppressionLimit>
     <suppressionLimit>0.1</suppressionLimit>
-    <outputFile>results/tassaRGRFlash-Utility_tassaFix.csv</outputFile>
-    <plotFile>results/tassaRGRFlash-Utility.pdf</plotFile>
+    <suppressionLimit>0.2</suppressionLimit>
+    <suppressionLimit>0.3</suppressionLimit>
+    <suppressionLimit>1.0</suppressionLimit>
+    <outputFile>results/RGR-UtilityVarianceSuppression.csv</outputFile>
+    <plotFile>results/RGR-UtilityVarianceSuppression.pdf</plotFile>
     
     <!-- set the number of runs -->
-    <numberOfRuns>1</numberOfRuns>
+    <numberOfRuns>5</numberOfRuns>
 </config>

@@ -3,8 +3,8 @@
     <dataset>ADULT</dataset>
     <dataset>CUP</dataset>
     <algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
-<!--     <algorithm>FLASH</algorithm> -->
-<!--     <algorithm>TASSA</algorithm> -->
+    <algorithm>FLASH</algorithm>
+    <algorithm>TASSA</algorithm>
     <privacyModel>K5_ANONYMITY</privacyModel>
     <privacyModel>K10_ANONYMITY</privacyModel>
     <privacyModel>K25_ANONYMITY</privacyModel>
@@ -14,5 +14,7 @@
     <suppressionLimit>0.1</suppressionLimit>
     <outputFile>results/tassaRGRFlash-KScaling.csv</outputFile>
     <plotFile>results/tassaRGRFlash-KScaling.pdf</plotFile>
+    
+    <!-- set the number of runs -->
     <numberOfRuns>5</numberOfRuns>
 </config>

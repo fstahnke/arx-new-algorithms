@@ -167,6 +167,8 @@ public class BenchmarkAnalysisGeneralizationDegrees {
         params.keypos = KeyPos.TOP_LEFT;
         params.size = 1.0d;
         params.ratio = 0.5d;
+        params.minY = 0d;
+        params.maxY = 1d;
         return new PlotGroup("Development of utility and ratio of suppressed tuples over time. ",
                              plots,
                              params,
