@@ -2,13 +2,15 @@
 <!-- add customized settings in the config section. If the xml doesn't contain 
 	vales for a setting, its default values are used. -->
 <config>
-	<!-- all subsets -->
+	<!-- add datasets -->
 	<dataset>ADULT</dataset>
-<!-- 	<dataset>CUP</dataset> -->
+	<dataset>CUP</dataset>
+    <dataset>ATUS</dataset>
+    <dataset>IHIS</dataset>
+    <dataset>FARS</dataset>
 
 	<!-- add implemented algorithms -->
 	<algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
-<!-- 	<algorithm>FLASH</algorithm> -->
 
 	<!-- add privacy models -->
 	<privacyModel>K5_ANONYMITY</privacyModel>
@@ -17,13 +19,17 @@
 	<utilityMeasure>LOSS</utilityMeasure>
 
 	<!-- add suppression limits. can be any double value between 0 and 1 -->
+	<suppressionLimit>0.05</suppressionLimit>
+	<suppressionLimit>0.1</suppressionLimit>
 	<suppressionLimit>0.2</suppressionLimit>
+	<suppressionLimit>0.3</suppressionLimit>
+	<suppressionLimit>0.999</suppressionLimit>
 
 	<!-- Add gsFactors. Can be any double value between 0 and 1. Closer to 0 
 		means more suppression. -->
 	<gsFactor>0.05</gsFactor>
 	
-	<!-- Adds gsStepSizes. -->
+	<!-- Add gsStepSizes. -->
 	<gsStepSize>0.01</gsStepSize>
 	<gsStepSize>0.05</gsStepSize>
 	<gsStepSize>0.1</gsStepSize>
@@ -31,8 +37,8 @@
 	<gsStepSize>0.3</gsStepSize>
 
 	<!-- set paths for output files -->
-	<outputFile>results/tassaRGR-stepSizeScaling_adult.csv</outputFile>
-	<plotFile>results/tassaRGR-stepSizeScaling_adult.pdf</plotFile>
+	<outputFile>results/tassaRGR-stepSizeScaling.csv</outputFile>
+	<plotFile>results/tassaRGR-stepSizeScaling.pdf</plotFile>
 
 	<!-- set the number of runs -->
 	<numberOfRuns>5</numberOfRuns>

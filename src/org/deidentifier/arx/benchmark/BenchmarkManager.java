@@ -25,29 +25,35 @@ public class BenchmarkManager {
          * 
          */
         
-        // 
-        // TODO: Rerun Utility and Variance
+        if (args.length == 0) {
+            System.out.println("No configuration specified.");
+            return;
+        }
 
         double startTime = System.currentTimeMillis();
+        
+        for (String config : args) {
+            new BenchmarkExperimentUtilityAndRuntime().execute(config);
+        }
+
+        double elapsedTime = System.currentTimeMillis() - startTime;
+        System.out.println("Total Runtime: " + (elapsedTime / 1000.0) + " sec (" +
+                           (elapsedTime / 60000) + " min)");
 
 //      new BenchmarkExperimentUtilityAndRuntime().execute("benchmarkConfig/QIScaling.xml");
 //      new BenchmarkExperimentUtilityAndRuntime().execute("benchmarkConfig/QIScaling_short.xml");
 //      new BenchmarkExperimentUtilityAndRuntime().execute("benchmarkConfig/recordScaling.xml");
 //      new BenchmarkExperimentUtilityAndRuntime().execute("benchmarkConfig/kScaling.xml");
-      new BenchmarkExperimentUtilityAndRuntime().execute("benchmarkConfig/utilityVariance.xml");
+//      new BenchmarkExperimentUtilityAndRuntime().execute("benchmarkConfig/utilityVariance.xml");
 //         new BenchmarkExperimentGsScaling().execute("benchmarkConfig/gsFactorScaling.xml");
 //      new BenchmarkExperimentUtilityAndRuntime().execute("benchmarkConfig/ruleOut.xml");
 //      new BenchmarkExperimentUtilityAndRuntime().execute("benchmarkConfig/suppressionScaling.xml");
 //      new BenchmarkExperimentUtilityAndRuntime().execute("benchmarkConfig/suppressionScaling2.xml");
-        new BenchmarkExperimentUtilityAndRuntime().execute("benchmarkConfig/gsFactorDynamicScaling.xml");
+//        new BenchmarkExperimentUtilityAndRuntime().execute("benchmarkConfig/gsFactorDynamicScaling.xml");
 //        new BenchmarkExperimentUtilityAndRuntime().execute("benchmarkConfig/gsStepSizeScaling.xml");
 //      new BenchmarkExperimentUtilityAndRuntime().execute("benchmarkConfig/utilityVarianceSuppressionRGR.xml"); //TODO
 
 //      new BenchmarkExperimentRGRIterations().execute("benchmarkConfig/rgrIterationAnalysis.xml");
-
-         double elapsedTime = System.currentTimeMillis() - startTime;
-         System.out.println("Total Runtime: " + (elapsedTime / 1000.0) + " sec (" +
-                            (elapsedTime / 60000) + " min)");
 
     }
 

@@ -15,7 +15,7 @@
     <suppressionLimit>0.1</suppressionLimit>
     <suppressionLimit>0.2</suppressionLimit>
     <suppressionLimit>0.3</suppressionLimit>
-    <suppressionLimit>1.0</suppressionLimit>
+    <suppressionLimit>0.999</suppressionLimit>
     <outputFile>results/RGR-UtilityVarianceSuppression.csv</outputFile>
     <plotFile>results/RGR-UtilityVarianceSuppression.pdf</plotFile>
     

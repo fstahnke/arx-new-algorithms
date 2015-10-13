@@ -138,15 +138,19 @@ public class BenchmarkExperimentUtilityAndRuntime {
                                                       gsStepping);
                                     // Write after each experiment
                                     BENCHMARK.getResults().write(resultFile);
-                                    // Break suppression limit loop for Tassa
+                                    // Break gsFactor loop for Tassa
                                     if (algorithm == BenchmarkAlgorithm.TASSA) {
                                         break;
                                     }
                                 }
-                                // Break gsFactor loop for Tassa
+                                // Break gsStepSize loop for Tassa
                                 if (algorithm == BenchmarkAlgorithm.TASSA) {
                                     break;
                                 }
+                            }
+                            // Break suppression limit loop for Tassa
+                            if (algorithm == BenchmarkAlgorithm.TASSA) {
+                                break;
                             }
                         }
                     }
