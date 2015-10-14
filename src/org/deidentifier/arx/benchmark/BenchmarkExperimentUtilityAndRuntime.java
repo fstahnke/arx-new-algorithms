@@ -113,7 +113,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
                 for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
                     for (BenchmarkDataset dataset : setup.getDatasets()) {
                         for (double suppressionLimit : setup.getSuppressionLimits()) {
-                            for (double gsStepping : setup.getGsStepSizes()) {
+                            for (double gsStepSize : setup.getGsStepSizes()) {
                                 for (double gsFactor : setup.getGsFactors()) {
 
                                     // Tassa doesn't support suppression limits
@@ -123,8 +123,9 @@ public class BenchmarkExperimentUtilityAndRuntime {
 
                                     System.out.println("Performing run: " + dataset.name() + " / " +
                                                        measure + " / " + model + " / " + algorithm +
-                                                       " / Supp: " + suppressionLimit +
-                                                       " / gsFactor: " + gsFactor + " / QIs: " +
+                                                       " / suppLimit: " + suppressionLimit +
+                                                       " / gsFactor: " + gsFactor +
+                                                       " / gsStepSize: " + gsStepSize + " / QIs: " +
                                                        dataset.getNumQIs() + " / Records: " +
                                                        dataset.getNumRecords());
 
@@ -135,7 +136,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
                                                       algorithm,
                                                       suppressionLimit,
                                                       gsFactor,
-                                                      gsStepping);
+                                                      gsStepSize);
                                     // Write after each experiment
                                     BENCHMARK.getResults().write(resultFile);
                                     // Break gsFactor loop for Tassa
@@ -179,7 +180,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
                                           final BenchmarkAlgorithm algorithm,
                                           final double suppressionLimit,
                                           final double gsFactor,
-                                          final double gsStepping) throws IOException,
+                                          final double gsStepSize) throws IOException,
                                                                   RollbackRequiredException {
 
         Data data = BenchmarkSetup.getData(dataset, model);
@@ -295,7 +296,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
                 algorithmImplementation = new BenchmarkAlgorithmRGR(observer,
                                                                     data,
                                                                     config,
-                                                                    gsStepping);
+                                                                    gsStepSize);
             } else if (algorithm == BenchmarkAlgorithm.FLASH) {
                 algorithmImplementation = new BenchmarkAlgorithmFlash(observer, data, config);
             }

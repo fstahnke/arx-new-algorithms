@@ -2,10 +2,11 @@
 <config>
 	<!-- add datasets -->
     <dataset>ADULT</dataset>
+<!-- 	<dataset>CUP</dataset> -->
 
 	<!-- add algorithms -->
     <algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
-    <algorithm>FLASH</algorithm>
+<!--     <algorithm>FLASH</algorithm> -->
     
 	<!-- add privacy models -->
     <privacyModel>K5_ANONYMITY</privacyModel>
@@ -21,10 +22,13 @@
 
 	<!-- add gsFactors. Can be any double value between 0 and 1. Closer to 0 
 		means more suppression. -->
+	<gsFactor>0.05</gsFactor>
+	<gsFactor>0.1</gsFactor>
 	<gsFactor>0.5</gsFactor>
 	
 	<!-- add gsStepSizes -->
 	<gsStepSize>0.0</gsStepSize>
+	<gsStepSize>0.05</gsStepSize>
 
 	<!-- set paths for output files -->
     <outputFile>results/RGRFlash-suppressionScaling.csv</outputFile>
