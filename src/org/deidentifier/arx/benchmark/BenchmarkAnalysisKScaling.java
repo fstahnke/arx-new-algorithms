@@ -74,18 +74,16 @@ public class BenchmarkAnalysisKScaling {
         BenchmarkSetup setup = new BenchmarkSetup(benchmarkConfig);
         CSVFile file = new CSVFile(new File(setup.getOutputFile()));
 
-        groups.add(analyze(file,
-                           BenchmarkDataset.ADULT,
-                           BenchmarkUtilityMeasure.LOSS,
-                           null,
-                           null,
-                           0.05));
-        groups.add(analyze(file,
-                           BenchmarkDataset.ADULT,
-                           BenchmarkUtilityMeasure.LOSS,
-                           null,
-                           null,
-                           0.1));
+        for (BenchmarkDataset dataset : setup.getDatasets()) {
+            for (double suppressionLimit : setup.getSuppressionLimits()) {
+                groups.add(analyze(file,
+                                   dataset,
+                                   BenchmarkUtilityMeasure.LOSS,
+                                   null,
+                                   null,
+                                   suppressionLimit));
+            }
+        }
         LaTeX.plot(groups, setup.getPlotFile(), true);
 
     }
@@ -120,7 +118,7 @@ public class BenchmarkAnalysisKScaling {
                                              .field("Algorithm")
                                              .equals(BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING.toString())
                                              .and()
-                                             .field("Suppression")
+                                             .field("Suppression Limit")
                                              .equals(String.valueOf(suppression))
                                              .build();
 
@@ -135,7 +133,7 @@ public class BenchmarkAnalysisKScaling {
                                                .field("Algorithm")
                                                .equals(BenchmarkAlgorithm.FLASH.toString())
                                                .and()
-                                               .field("Suppression")
+                                               .field("Suppression Limit")
                                                .equals(String.valueOf(suppression))
                                                .build();
 
@@ -150,7 +148,7 @@ public class BenchmarkAnalysisKScaling {
                                                .field("Algorithm")
                                                .equals(BenchmarkAlgorithm.TASSA.toString())
                                                .and()
-                                               .field("Suppression")
+                                               .field("Suppression Limit")
                                                .equals("0.0")
                                                .build();
 
@@ -206,9 +204,6 @@ public class BenchmarkAnalysisKScaling {
         params.keypos = KeyPos.TOP_LEFT;
         params.size = 1.0d;
         params.ratio = 0.5d;
-        return new PlotGroup("Scaling of anonymization algorithms with k. ",
-                             plots,
-                             params,
-                             1.0d);
+        return new PlotGroup("Scaling of anonymization algorithms with k. ", plots, params, 1.0d);
     }
 }

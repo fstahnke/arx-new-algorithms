@@ -3,6 +3,7 @@
 	very quickly calculated by RGR. To get more accurate values, we use 200 runs 
 	and 20 warmups to calculate the runtime. -->
 <config>
+	<!-- add datasets -->
 	<dataset>ADULT1</dataset>
 	<dataset>ADULT2</dataset>
 	<dataset>ADULT3</dataset>
@@ -10,24 +11,43 @@
 	<dataset>ADULT5</dataset>
 	<dataset>ADULT6</dataset>
 	<dataset>ADULT7</dataset>
-	<!-- <dataset>ADULT8</dataset> -->
-	<!-- <dataset>ADULT9</dataset> -->
+<!-- 	<dataset>ADULT8</dataset> -->
+<!-- 	<dataset>ADULT9</dataset> -->
 <!-- 	<dataset>CUP1</dataset> -->
 <!-- 	<dataset>CUP2</dataset> -->
 <!-- 	<dataset>CUP3</dataset> -->
 <!-- 	<dataset>CUP4</dataset> -->
 <!-- 	<dataset>CUP5</dataset> -->
 <!-- 	<dataset>CUP6</dataset> -->
-	<!-- <dataset>CUP7</dataset> -->
-	<!-- <dataset>CUP8</dataset> -->
+<!-- 	<dataset>CUP7</dataset> -->
+<!-- 	<dataset>CUP8</dataset> -->
+
+	<!-- add algorithms -->
 	<algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
 	<algorithm>FLASH</algorithm>
-	<!-- <algorithm>TASSA</algorithm> -->
-	<privacyModel>K5_ANONYMITY</privacyModel>
-	<utilityMeasure>LOSS</utilityMeasure>
+<!-- 	<algorithm>TASSA</algorithm> -->
+    
+	<!-- add privacy models -->
+    <privacyModel>K5_ANONYMITY</privacyModel>
+
+	<!-- add utility measures -->
+    <utilityMeasure>LOSS</utilityMeasure>
+
+	<!-- add suppression limits. can be any double value between 0 and 1 -->
 	<suppressionLimit>0.05</suppressionLimit>
 	<suppressionLimit>0.1</suppressionLimit>
+
+	<!-- add gsFactors. Can be any double value between 0 and 1. Closer to 0 
+		means more suppression. -->
+	<gsFactor>0.05</gsFactor>
+	
+	<!-- add gsStepSizes -->
+	<gsStepSize>0.0</gsStepSize>
+
+	<!-- set paths for output files -->
 	<outputFile>results/tassaRGR-QIScaling_short.csv</outputFile>
 	<plotFile>results/tassaRGR-QIScaling_short.pdf</plotFile>
+
+	<!-- set the number of runs -->
 	<numberOfRuns>200</numberOfRuns>
 </config>

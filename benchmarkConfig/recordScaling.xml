@@ -1,15 +1,34 @@
 <?xml version="1.0"?>
 <config>
-	<!-- only works, when it is the only dataset element -->
+	<!-- add datasets -->
+	<!-- ADULT_ALL_SUBSETS only works, when it is the only dataset element -->
     <dataset>ADULT_ALL_SUBSETS</dataset>
+    
+	<!-- add algorithms -->
     <algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
     <algorithm>FLASH</algorithm>
     <algorithm>TASSA</algorithm>
+    
+	<!-- add privacy models -->
     <privacyModel>K5_ANONYMITY</privacyModel>
+
+	<!-- add utility measures -->
     <utilityMeasure>LOSS</utilityMeasure>
-<!--     <utilityMeasure>DISCERNIBILITY</utilityMeasure> -->
+
+	<!-- add suppression limits. can be any double value between 0 and 1 -->
     <suppressionLimit>0.1</suppressionLimit>
+
+	<!-- add gsFactors. Can be any double value between 0 and 1. Closer to 0 
+		means more suppression. -->
+	<gsFactor>0.05</gsFactor>
+	
+	<!-- add gsStepSizes -->
+	<gsStepSize>0.0</gsStepSize>
+
+	<!-- set paths for output files -->
     <outputFile>results/tassaRGR-RecordScaling.csv</outputFile>
     <plotFile>results/tassaRGR-RecordScaling.pdf</plotFile>
+    
+    <!-- set number of runs -->
     <numberOfRuns>5</numberOfRuns>
 </config>

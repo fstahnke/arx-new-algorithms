@@ -9,7 +9,7 @@
     <dataset>IHIS</dataset>
     <dataset>FARS</dataset>
 
-	<!-- add implemented algorithms -->
+	<!-- add algorithms -->
 	<algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
 
 	<!-- add privacy models -->
@@ -25,11 +25,11 @@
 	<suppressionLimit>0.3</suppressionLimit>
 	<suppressionLimit>0.999</suppressionLimit>
 
-	<!-- Add gsFactors. Can be any double value between 0 and 1. Closer to 0 
+	<!-- add gsFactors. Can be any double value between 0 and 1. Closer to 0 
 		means more suppression. -->
 	<gsFactor>0.05</gsFactor>
 	
-	<!-- Add gsStepSizes. -->
+	<!-- add gsStepSizes -->
 	<gsStepSize>0.01</gsStepSize>
 	<gsStepSize>0.05</gsStepSize>
 	<gsStepSize>0.1</gsStepSize>
@@ -40,6 +40,6 @@
 	<outputFile>results/tassaRGR-stepSizeScaling.csv</outputFile>
 	<plotFile>results/tassaRGR-stepSizeScaling.pdf</plotFile>
 
-	<!-- set the number of runs -->
+	<!-- set number of runs -->
 	<numberOfRuns>5</numberOfRuns>
 </config>

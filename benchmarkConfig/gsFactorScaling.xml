@@ -2,13 +2,12 @@
 <!-- add customized settings in the config section. If the xml doesn't contain 
 	vales for a setting, its default values are used. -->
 <config>
-	<!-- all subsets -->
+	<!-- add datasets -->
 	<dataset>ADULT</dataset>
 	<dataset>CUP</dataset>
 
-	<!-- add implemented algorithms -->
+	<!-- add algorithms -->
 	<algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
-	<algorithm>FLASH</algorithm>
 
 	<!-- add privacy models -->
 	<privacyModel>K5_ANONYMITY</privacyModel>
@@ -24,14 +23,13 @@
 
 	<!-- Add gsFactors. Can be any double value between 0 and 1. Closer to 0 
 		means more suppression. -->
-	<gsFactor from="0.0" to="0.2" stepSize="0.02" />
-	<gsFactor from="0.0" to="0.2" stepSize="0.01" />
-	<gsFactor from="0.0" to="0.2" stepSize="0.01" />
+	<gsFactor from="0.0" to="0.2" stepSize="0.025" />
+	<gsFactor from="0.3" to="0.5" stepSize="0.1" />
 	
 	
 	<!-- set paths for output files -->
-	<outputFile>results/tassaRGR-gsFactorScaling.csv</outputFile>
-	<plotFile>results/tassaRGR-gsFactorScaling.pdf</plotFile>
+	<outputFile>results/RGR-gsFactorStatic.csv</outputFile>
+	<plotFile>results/RGR-gsFactorStatic.pdf</plotFile>
 
 	<!-- set the number of runs -->
 	<numberOfRuns>5</numberOfRuns>

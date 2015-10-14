@@ -25,18 +25,17 @@
 	<suppressionLimit>0.3</suppressionLimit>
 	<suppressionLimit>0.999</suppressionLimit>
 
-	<!-- Add gsFactors. Can be any double value between 0 and 1. Closer to 0 
+	<!-- add gsFactors. Can be any double value between 0 and 1. Closer to 0 
 		means more suppression. -->
 	<gsFactor from="0.0" to="0.5" stepSize="0.05" />
 	
-	<!-- Adds gsStepSizes. -->
+	<!-- add gsStepSizes -->
 	<gsStepSize>0.05</gsStepSize>
-	
 	
 	<!-- set paths for output files -->
 	<outputFile>results/tassaRGR-gsFactorDynamicScaling.csv</outputFile>
 	<plotFile>results/tassaRGR-gsFactorDynamicScaling.pdf</plotFile>
 
-	<!-- set the number of runs -->
+	<!-- set number of runs -->
 	<numberOfRuns>5</numberOfRuns>
 </config>
