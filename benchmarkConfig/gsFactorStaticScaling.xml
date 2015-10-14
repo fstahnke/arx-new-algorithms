@@ -26,10 +26,12 @@
 	<gsFactor from="0.0" to="0.2" stepSize="0.025" />
 	<gsFactor from="0.3" to="0.5" stepSize="0.1" />
 	
+	<!-- add gsStepSizes -->
+	<gsStepSize>0.0</gsStepSize>
 	
 	<!-- set paths for output files -->
-	<outputFile>results/RGR-gsFactorStatic.csv</outputFile>
-	<plotFile>results/RGR-gsFactorStatic.pdf</plotFile>
+	<outputFile>results/RGR-gsFactorStaticScaling.csv</outputFile>
+	<plotFile>results/RGR-gsFactorStaticScaling.pdf</plotFile>
 
 	<!-- set the number of runs -->
 	<numberOfRuns>5</numberOfRuns>

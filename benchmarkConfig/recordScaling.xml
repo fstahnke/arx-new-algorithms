@@ -20,7 +20,7 @@
 
 	<!-- add gsFactors. Can be any double value between 0 and 1. Closer to 0 
 		means more suppression. -->
-	<gsFactor>0.05</gsFactor>
+	<gsFactor>0.5</gsFactor>
 	
 	<!-- add gsStepSizes -->
 	<gsStepSize>0.0</gsStepSize>
