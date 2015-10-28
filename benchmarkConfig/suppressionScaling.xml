@@ -6,7 +6,7 @@
 
 	<!-- add algorithms -->
     <algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
-<!--     <algorithm>FLASH</algorithm> -->
+    <algorithm>FLASH</algorithm>
     
 	<!-- add privacy models -->
     <privacyModel>K5_ANONYMITY</privacyModel>
@@ -32,9 +32,9 @@
 	<gsStepSize>0.05</gsStepSize>
 
 	<!-- set paths for output files -->
-    <outputFile>results/suppressionScaling.csv</outputFile>
-    <plotFile>results/suppressionScaling_fixed.pdf</plotFile>
+    <outputFile>results/suppressionScaling_update.csv</outputFile>
+    <plotFile>results/suppressionScaling_update.pdf</plotFile>
     
     <!-- set number of runs -->
-    <numberOfRuns>5</numberOfRuns>
+    <numberOfRuns>1</numberOfRuns>
 </config>

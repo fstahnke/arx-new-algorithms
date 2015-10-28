@@ -125,6 +125,8 @@ public class BenchmarkExperimentUtilityAndRuntime {
                                     // Tassa doesn't support suppression limits
                                     if (algorithm == BenchmarkAlgorithm.TASSA) {
                                         suppressionLimit = 0.0;
+                                    } else if (algorithm == BenchmarkAlgorithm.FLASH) {
+                                        gsStepSize = 0.0;
                                     }
 
                                     System.out.println("Performing run: " + dataset.name() + " / " +
@@ -151,7 +153,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
                                     }
                                 }
                                 // Break gsStepSize loop for Tassa
-                                if (algorithm == BenchmarkAlgorithm.TASSA) {
+                                if (algorithm == BenchmarkAlgorithm.TASSA || algorithm == BenchmarkAlgorithm.FLASH) {
                                     break;
                                 }
                             }
