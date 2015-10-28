@@ -123,7 +123,7 @@ public class BenchmarkAnalysisRecordScaling {
                                              .field("Algorithm")
                                              .equals(BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING.toString())
                                              .and()
-                                             .field("Suppression")
+                                             .field("SuppressionLimit")
                                              .equals(String.valueOf(suppression))
                                              .build();
 
@@ -141,7 +141,7 @@ public class BenchmarkAnalysisRecordScaling {
                                                .field("Algorithm")
                                                .equals(BenchmarkAlgorithm.FLASH.toString())
                                                .and()
-                                               .field("Suppression")
+                                               .field("SuppressionLimit")
                                                .equals(String.valueOf(suppression))
                                                .build();
 
@@ -159,7 +159,7 @@ public class BenchmarkAnalysisRecordScaling {
                                                .field("Algorithm")
                                                .equals(BenchmarkAlgorithm.TASSA.toString())
                                                .and()
-                                               .field("Suppression")
+                                               .field("SuppressionLimit")
                                                .equals("0.0")
                                                .build();
 

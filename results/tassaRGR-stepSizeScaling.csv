@@ -1,5 +1,5 @@
-;;;;;;Privacy Strength;Records;QIs;Utility;Runtime;Suppressed;Suppressed Ratio;Variance;Variance (not suppressed)
-Dataset;UtilityMeasure;PrivacyModel;Algorithm;Suppression Limit;Suppression Weight;Value;Value;Value;Value;Value;Value;Value;Value;Value
+;;;;;;K;Records;QIs;Utility;Runtime;Suppressed;SuppressedRatio;Variance;VarianceWithoutSuppressed
+Dataset;UtilityMeasure;PrivacyModel;Algorithm;SuppressionLimit;gsFactor;Value;Value;Value;Value;Value;Value;Value;Value;Value
 Adult;Loss;5-anonymity;RGR;0.05;0.05;5.0;30162.0;9.0;0.2739245195979827;1313.4;3.0;9.946290033817386E-5;0.0029650788997611717;0.0029491897948161435
 Adult;Loss;5-anonymity;RGR;0.05;0.05;5.0;30162.0;9.0;0.2739245195979827;1282.6;3.0;9.946290033817386E-5;0.0029650788997611717;0.0029491897948161435
 Adult;Loss;5-anonymity;RGR;0.05;0.05;5.0;30162.0;9.0;0.2739245195979827;1278.4;3.0;9.946290033817386E-5;0.0029650788997611717;0.0029491897948161435

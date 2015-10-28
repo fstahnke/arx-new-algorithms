@@ -1,4 +1,4 @@
-;;;;;Privacy Strength;Records;QIs;Utility;Runtime;Variance
+;;;;;K;Records;QIs;Utility;Runtime;Variance
 Dataset;UtilityMeasure;PrivacyModel;Algorithm;Suppression;Value;Value;Value;Value;Value;Value
 Adult;Loss;5-anonymity;RGR;0.1;5.0;1000.0;9.0;0.4684374984581413;175.6;0.01608107638888889
 Adult;Loss;5-anonymity;RGR;0.1;5.0;2000.0;9.0;0.4026102302731712;246.2;0.016956761574074074

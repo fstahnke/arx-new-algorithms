@@ -48,40 +48,53 @@ import de.linearbits.subframe.analyzer.ValueBuffer;
 public class BenchmarkExperimentRGRIterations {
 
     /** The benchmark instance */
-    private static final Benchmark BENCHMARK                = new Benchmark(new String[] {
+    private final Benchmark    BENCHMARK                = new Benchmark(new String[] {
             "Dataset",
             "UtilityMeasure",
             "PrivacyModel",
             "Algorithm",
-            "Suppression"                                  });
-
-    /** TOTAL TIME ELAPSED */
-    public static final int        TIME                     = BENCHMARK.addMeasure("Time");
+            "SuppressionLimit",
+            "gsFactor",
+            "gsFactorStepSize",
+            "K",
+            "Records",
+            "QIs"                                      });
 
     /** UTILITY */
-    public static final int        UTILITY                  = BENCHMARK.addMeasure("Utility");
-
-    /** SUPPRESSED RECORDS */
-    public static final int        SUPPRESSED               = BENCHMARK.addMeasure("Suppressed");
-
-    /** SUPPRESSED RECORDS IN PERCENT */
-    public static final int        SUPPRESSED_RATIO         = BENCHMARK.addMeasure("Suppressed ratio");
-
+    private final int          UTILITY                  = BENCHMARK.addMeasure("Utility");
+    /** RUNTIME */
+    private final int          RUNTIME                  = BENCHMARK.addMeasure("Runtime");
     /** ITERATION OF THE RECURSIVE ALGORITHM */
-    private static final int       STEP                     = BENCHMARK.addMeasure("Step");
+    private final int          STEP                     = BENCHMARK.addMeasure("Step");
+    /** NUMBER OF SUPPRESSED TUPLES */
+    private final int          SUPPRESSED               = BENCHMARK.addMeasure("Suppressed");
+    /** RATIO OF SUPPRESSED TUPLES */
+    private final int          SUPPRESSED_RATIO         = BENCHMARK.addMeasure("SuppressedRatio");
+    /** GENERALIZATION VARIANCE */
+    private final int          VARIANCE                 = BENCHMARK.addMeasure("Variance");
+    /** GENERALIZATION VARIANCE WITHOUT SUPPRESSED TUPLES */
+    private final int          VARIANCE_NOTSUPPRESSED   = BENCHMARK.addMeasure("VarianceWithoutSuppressed");
+    /** Number of runs for each benchmark setting */
+    private int                numberOfRuns;
+    /** Number of warmup runs */
+    private int                numberOfWarmups;
+    /** The setup of this experiment */
+    private BenchmarkSetup     setup;
+    /** The metadata of this experiment */
+    private BenchmarkMetadataUtility metadata;
 
     /** AVERAGE DEGREE OF GENERALIZATION */
-    private static final int       GENERALIZATION_DEGREE1   = BENCHMARK.addMeasure("Generalization degree 1");
-    private static final int       GENERALIZATION_DEGREE2   = BENCHMARK.addMeasure("Generalization degree 2");
-    private static final int       GENERALIZATION_DEGREE3   = BENCHMARK.addMeasure("Generalization degree 3");
-    private static final int       GENERALIZATION_DEGREE4   = BENCHMARK.addMeasure("Generalization degree 4");
-    private static final int       GENERALIZATION_DEGREE5   = BENCHMARK.addMeasure("Generalization degree 5");
-    private static final int       GENERALIZATION_DEGREE6   = BENCHMARK.addMeasure("Generalization degree 6");
-    private static final int       GENERALIZATION_DEGREE7   = BENCHMARK.addMeasure("Generalization degree 7");
-    private static final int       GENERALIZATION_DEGREE8   = BENCHMARK.addMeasure("Generalization degree 8");
-    private static final int       GENERALIZATION_DEGREE9   = BENCHMARK.addMeasure("Generalization degree 9");
+    private final int   GENERALIZATION_DEGREE1   = BENCHMARK.addMeasure("GeneralizationDegree1");
+    private final int   GENERALIZATION_DEGREE2   = BENCHMARK.addMeasure("GeneralizationDegree2");
+    private final int   GENERALIZATION_DEGREE3   = BENCHMARK.addMeasure("GeneralizationDegree3");
+    private final int   GENERALIZATION_DEGREE4   = BENCHMARK.addMeasure("GeneralizationDegree4");
+    private final int   GENERALIZATION_DEGREE5   = BENCHMARK.addMeasure("GeneralizationDegree5");
+    private final int   GENERALIZATION_DEGREE6   = BENCHMARK.addMeasure("GeneralizationDegree6");
+    private final int   GENERALIZATION_DEGREE7   = BENCHMARK.addMeasure("GeneralizationDegree7");
+    private final int   GENERALIZATION_DEGREE8   = BENCHMARK.addMeasure("GeneralizationDegree8");
+    private final int   GENERALIZATION_DEGREE9   = BENCHMARK.addMeasure("GeneralizationDegree9");
 
-    private static final int[]     DEGREE_ARRAY             = new int[] {
+    private final int[] DEGREE_ARRAY             = new int[] {
             GENERALIZATION_DEGREE1,
             GENERALIZATION_DEGREE2,
             GENERALIZATION_DEGREE3,
@@ -90,20 +103,20 @@ public class BenchmarkExperimentRGRIterations {
             GENERALIZATION_DEGREE6,
             GENERALIZATION_DEGREE7,
             GENERALIZATION_DEGREE8,
-            GENERALIZATION_DEGREE9                         };
+            GENERALIZATION_DEGREE9                     };
 
     /** AVERAGE DEGREE OF GENERALIZATION */
-    private static final int       GENERALIZATION_VARIANCE1 = BENCHMARK.addMeasure("Generalization variance 1");
-    private static final int       GENERALIZATION_VARIANCE2 = BENCHMARK.addMeasure("Generalization variance 2");
-    private static final int       GENERALIZATION_VARIANCE3 = BENCHMARK.addMeasure("Generalization variance 3");
-    private static final int       GENERALIZATION_VARIANCE4 = BENCHMARK.addMeasure("Generalization variance 4");
-    private static final int       GENERALIZATION_VARIANCE5 = BENCHMARK.addMeasure("Generalization variance 5");
-    private static final int       GENERALIZATION_VARIANCE6 = BENCHMARK.addMeasure("Generalization variance 6");
-    private static final int       GENERALIZATION_VARIANCE7 = BENCHMARK.addMeasure("Generalization variance 7");
-    private static final int       GENERALIZATION_VARIANCE8 = BENCHMARK.addMeasure("Generalization variance 8");
-    private static final int       GENERALIZATION_VARIANCE9 = BENCHMARK.addMeasure("Generalization variance 9");
+    private final int   GENERALIZATION_VARIANCE1 = BENCHMARK.addMeasure("GeneralizationVariance1");
+    private final int   GENERALIZATION_VARIANCE2 = BENCHMARK.addMeasure("GeneralizationVariance2");
+    private final int   GENERALIZATION_VARIANCE3 = BENCHMARK.addMeasure("GeneralizationVariance3");
+    private final int   GENERALIZATION_VARIANCE4 = BENCHMARK.addMeasure("GeneralizationVariance4");
+    private final int   GENERALIZATION_VARIANCE5 = BENCHMARK.addMeasure("GeneralizationVariance5");
+    private final int   GENERALIZATION_VARIANCE6 = BENCHMARK.addMeasure("GeneralizationVariance6");
+    private final int   GENERALIZATION_VARIANCE7 = BENCHMARK.addMeasure("GeneralizationVariance7");
+    private final int   GENERALIZATION_VARIANCE8 = BENCHMARK.addMeasure("GeneralizationVariance8");
+    private final int   GENERALIZATION_VARIANCE9 = BENCHMARK.addMeasure("GeneralizationVariance9");
 
-    private static final int[]     VARIANCE_ARRAY           = new int[] {
+    private final int[] VARIANCE_ARRAY           = new int[] {
             GENERALIZATION_VARIANCE1,
             GENERALIZATION_VARIANCE2,
             GENERALIZATION_VARIANCE3,
@@ -112,18 +125,19 @@ public class BenchmarkExperimentRGRIterations {
             GENERALIZATION_VARIANCE6,
             GENERALIZATION_VARIANCE7,
             GENERALIZATION_VARIANCE8,
-            GENERALIZATION_VARIANCE9                       };
+            GENERALIZATION_VARIANCE9                   };
 
-    /**
-     * /** Main entry point
-     * 
-     * @param args
-     * @throws IOException
-     * @throws RollbackRequiredException 
-     */
-    public void execute(String benchmarkConfig) throws IOException, RollbackRequiredException {
-
+    
+    
+    public BenchmarkExperimentRGRIterations(String benchmarkConfig) throws IOException {
         // Init
+        BENCHMARK.addAnalyzer(UTILITY, new ValueBuffer());
+        BENCHMARK.addAnalyzer(RUNTIME, new ValueBuffer());
+        BENCHMARK.addAnalyzer(SUPPRESSED, new ValueBuffer());
+        BENCHMARK.addAnalyzer(SUPPRESSED_RATIO, new ValueBuffer());
+        BENCHMARK.addAnalyzer(VARIANCE, new ValueBuffer());
+        BENCHMARK.addAnalyzer(VARIANCE_NOTSUPPRESSED, new ValueBuffer());
+
         BENCHMARK.addAnalyzer(STEP, new ValueBuffer());
         for (int degree : DEGREE_ARRAY) {
             BENCHMARK.addAnalyzer(degree, new ValueBuffer());
@@ -131,13 +145,22 @@ public class BenchmarkExperimentRGRIterations {
         for (int variance : VARIANCE_ARRAY) {
             BENCHMARK.addAnalyzer(variance, new ValueBuffer());
         }
-        BENCHMARK.addAnalyzer(SUPPRESSED, new ValueBuffer());
-        BENCHMARK.addAnalyzer(SUPPRESSED_RATIO, new ValueBuffer());
-        BENCHMARK.addAnalyzer(UTILITY, new ValueBuffer());
-        BENCHMARK.addAnalyzer(TIME, new ValueBuffer());
+        
+        setup = new BenchmarkSetup(benchmarkConfig);
+        metadata = new BenchmarkMetadataUtility(setup);
+        
+    }
+    
 
-        BenchmarkSetup setup = new BenchmarkSetup(benchmarkConfig);
-        BenchmarkMetadataUtility metadata = new BenchmarkMetadataUtility(setup);
+    /**
+     * /** Main entry point
+     * 
+     * @param args
+     * @throws IOException
+     * @throws RollbackRequiredException
+     */
+    public void execute() throws IOException, RollbackRequiredException {
+        
         File resultFile = new File(setup.getOutputFile());
         resultFile.getParentFile().mkdirs();
         double gsStepping = 0.05;
@@ -152,8 +175,7 @@ public class BenchmarkExperimentRGRIterations {
                                                model + "/" + algorithm + "/" + suppression);
 
                             // New run
-                            performExperiment(metadata,
-                                              data,
+                            performExperiment(data,
                                               measure,
                                               model,
                                               algorithm,
@@ -179,15 +201,15 @@ public class BenchmarkExperimentRGRIterations {
      * @param algorithm
      * @param suppression
      * @throws IOException
-     * @throws RollbackRequiredException 
+     * @throws RollbackRequiredException
      */
-    private static void performExperiment(final BenchmarkMetadataUtility metadata,
-                                          final BenchmarkDataset dataset,
-                                          final BenchmarkUtilityMeasure measure,
-                                          final BenchmarkPrivacyModel model,
-                                          final BenchmarkAlgorithm algorithm,
-                                          final double suppression,
-                                          final double gsStepping) throws IOException, RollbackRequiredException {
+    private void performExperiment(final BenchmarkDataset dataset,
+                                   final BenchmarkUtilityMeasure measure,
+                                   final BenchmarkPrivacyModel model,
+                                   final BenchmarkAlgorithm algorithm,
+                                   final double suppression,
+                                   final double gsStepping) throws IOException,
+                                                           RollbackRequiredException {
 
         final Data data = BenchmarkSetup.getData(dataset, model);
         ARXConfiguration config = BenchmarkSetup.getConfiguration(dataset,
@@ -304,7 +326,7 @@ public class BenchmarkExperimentRGRIterations {
                     BENCHMARK.addValue(SUPPRESSED, suppressed);
                     BENCHMARK.addValue(SUPPRESSED_RATIO, suppressed * 1.0 / output.length);
                     BENCHMARK.addValue(UTILITY, utility);
-                    BENCHMARK.addValue(TIME, timestamp);
+                    BENCHMARK.addValue(RUNTIME, timestamp);
 
                     for (int i = 0; i < transformation.length; i++) {
                         BENCHMARK.addValue(DEGREE_ARRAY[i], generalizationDegrees[i]);
@@ -329,7 +351,10 @@ public class BenchmarkExperimentRGRIterations {
 
             };
 
-            BenchmarkAlgorithmRGR implementation = new BenchmarkAlgorithmRGR(listener, data, config, gsStepping);
+            BenchmarkAlgorithmRGR implementation = new BenchmarkAlgorithmRGR(listener,
+                                                                             data,
+                                                                             config,
+                                                                             gsStepping);
             implementation.execute();
 
         } else {

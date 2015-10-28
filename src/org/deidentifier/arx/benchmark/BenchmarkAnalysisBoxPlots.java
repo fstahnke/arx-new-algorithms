@@ -53,14 +53,10 @@ import de.linearbits.subframe.render.PlotGroup;
 public class BenchmarkAnalysisBoxPlots {
 
     /**
-     * Choose benchmarkConfig to run and comment others out.
+     * Choose benchmarkConfig
      */
-    // private static final String benchmarkConfig =
-    // "benchmarkConfig/recordScaling.xml";
     private static final String benchmarkConfig = "benchmarkConfig/kScaling.xml";
-
-    // private static final String benchmarkConfig =
-    // "benchmarkConfig/kScaling.xml";
+    
 
     /**
      * Main
@@ -78,11 +74,11 @@ public class BenchmarkAnalysisBoxPlots {
         // Each iteration in this loop is another Figure
         for (BenchmarkDataset dataset : setup.getDatasets()) {
             for (BenchmarkUtilityMeasure measure : setup.getUtilityMeasures()) {
-                for (BenchmarkPrivacyModel model : setup.getPrivacyModels()) {
+//                for (BenchmarkPrivacyModel model : setup.getPrivacyModels()) {
                     for (double suppressionLimit : setup.getSuppressionLimits()) {
-                        groups.add(analyze(file, dataset, measure, model, null, suppressionLimit));
+                        groups.add(analyze(file, dataset, measure, null, null, suppressionLimit));
                     }
-                }
+//                }
             }
         }
 
@@ -117,13 +113,13 @@ public class BenchmarkAnalysisBoxPlots {
                                              .field("UtilityMeasure")
                                              .equals(measure.toString())
                                              .and()
-                                             .field("PrivacyModel")
-                                             .equals(model.toString())
-                                             .and()
+//                                             .field("PrivacyModel")
+//                                             .equals(model.toString())
+//                                             .and()
                                              .field("Algorithm")
                                              .equals(BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING.toString())
                                              .and()
-                                             .field("Suppression Limit")
+                                             .field("SuppressionLimit")
                                              .equals(String.valueOf(suppression))
                                              .build();
 
@@ -135,13 +131,13 @@ public class BenchmarkAnalysisBoxPlots {
                                                .field("UtilityMeasure")
                                                .equals(measure.toString())
                                                .and()
-                                               .field("PrivacyModel")
-                                               .equals(model.toString())
-                                               .and()
+//                                               .field("PrivacyModel")
+//                                               .equals(model.toString())
+//                                               .and()
                                                .field("Algorithm")
                                                .equals(BenchmarkAlgorithm.FLASH.toString())
                                                .and()
-                                               .field("Suppression Limit")
+                                               .field("SuppressionLimit")
                                                .equals(String.valueOf(suppression))
                                                .build();
 
@@ -153,32 +149,32 @@ public class BenchmarkAnalysisBoxPlots {
                                                .field("UtilityMeasure")
                                                .equals(measure.toString())
                                                .and()
-                                               .field("PrivacyModel")
-                                               .equals(model.toString())
-                                               .and()
+//                                               .field("PrivacyModel")
+//                                               .equals(model.toString())
+//                                               .and()
                                                .field("Algorithm")
                                                .equals(BenchmarkAlgorithm.TASSA.toString())
                                                .and()
-                                               .field("Suppression Limit")
+                                               .field("SuppressionLimit")
                                                .equals("0.0")
                                                .build();
 
         // Read data into 2D series
         Series2D rgrSeries = new Series2D(file,
                                           selectorRGR,
-                                          new Field("Privacy Strength", Analyzer.VALUE),
+                                          new Field("K", Analyzer.VALUE),
                                           new Field("Utility", Analyzer.VALUE));
 
         // Read data into 2D series
         Series2D flashSeries = new Series2D(file,
                                             selectorFlash,
-                                            new Field("Privacy Strength", Analyzer.VALUE),
+                                            new Field("K", Analyzer.VALUE),
                                             new Field("Utility", Analyzer.VALUE));
 
         // Read data into 2D series
         Series2D tassaSeries = new Series2D(file,
                                             selectorTassa,
-                                            new Field("Privacy Strength", Analyzer.VALUE),
+                                            new Field("K", Analyzer.VALUE),
                                             new Field("Utility", Analyzer.VALUE));
 
         // Dirty hack for creating a 3D series from two 2D series'
@@ -188,15 +184,15 @@ public class BenchmarkAnalysisBoxPlots {
                                        new Field("UtilityMeasure"), // Type
                                        new Field("PrivacyModel")); // Value
         series.getData().clear();
+        for (Point2D point : flashSeries.getData()) {
+            series.getData()
+                  .add(new Point3D(point.x, "Flash", String.valueOf(1 - Double.valueOf(point.y))));
+        }
         for (Point2D point : rgrSeries.getData()) {
             series.getData()
                   .add(new Point3D(point.x,
                                    "RGR",
                                    String.valueOf(1 - Double.valueOf(point.y))));
-        }
-        for (Point2D point : flashSeries.getData()) {
-            series.getData()
-                  .add(new Point3D(point.x, "Flash", String.valueOf(1 - Double.valueOf(point.y))));
         }
         for (Point2D point : tassaSeries.getData()) {
             series.getData()

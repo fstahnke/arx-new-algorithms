@@ -54,12 +54,8 @@ import sun.security.jgss.GSSToken;
 public class BenchmarkAnalysisSuppressionScaling2 {
 
     /**
-     * Choose benchmarkConfig to run and comment others out.
+     * Choose benchmarkConfig to run.
      */
-    // private static final String benchmarkConfig =
-    // "benchmarkConfig/recordScaling.xml";
-    // private static final String benchmarkConfig =
-    // "benchmarkConfig/QIScaling.xml";
     private static final String benchmarkConfig = "benchmarkConfig/suppressionScaling.xml";
 
     /**

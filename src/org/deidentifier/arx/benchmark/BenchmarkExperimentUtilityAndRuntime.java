@@ -59,16 +59,9 @@ public class BenchmarkExperimentUtilityAndRuntime {
             "gsFactorStepSize",
             "K",
             "Records",
-            "QIs"});
+            "QIs"                                 });
     
     
-
-//    /** PRIVACY STRENGTH */
-//    private final int       PRIVACY_STRENGTH       = BENCHMARK.addMeasure("K");
-//    /** NUMBER OF RECORDS */
-//    private final int       RECORDS                = BENCHMARK.addMeasure("Records");
-//    /** NUMBER OF QIs */
-//    private final int       QIS                    = BENCHMARK.addMeasure("QIs");
     /** UTILITY */
     private final int       UTILITY                = BENCHMARK.addMeasure("Utility");
     /** RUNTIME */
@@ -80,20 +73,19 @@ public class BenchmarkExperimentUtilityAndRuntime {
     /** GENERALIZATION VARIANCE */
     private final int       VARIANCE               = BENCHMARK.addMeasure("Variance");
     /** GENERALIZATION VARIANCE WITHOUT SUPPRESSED TUPLES */
-    private final int       VARIANCE_NOTSUPPRESSED = BENCHMARK.addMeasure("VarianceNotSuppressed");
+    private final int       VARIANCE_NOTSUPPRESSED = BENCHMARK.addMeasure("VarianceWithoutSuppressed");
     /** Number of runs for each benchmark setting */
     private int             numberOfRuns;
     /** Number of warmup runs */
     private int             numberOfWarmups;
-    /** The setup of this Experiment */
+    /** The setup of this experiment */
     private BenchmarkSetup setup;
+    /** The metadata of this experiment */
+    private BenchmarkMetadataUtility metadata;
     
     
-    public BenchmarkExperimentUtilityAndRuntime(String benchmarkConfig) {
+    public BenchmarkExperimentUtilityAndRuntime(String benchmarkConfig) throws IOException {
         // Init
-//        BENCHMARK.addAnalyzer(PRIVACY_STRENGTH, new ValueBuffer());
-//        BENCHMARK.addAnalyzer(RECORDS, new ValueBuffer());
-//        BENCHMARK.addAnalyzer(QIS, new ValueBuffer());
         BENCHMARK.addAnalyzer(UTILITY, new ValueBuffer());
         BENCHMARK.addAnalyzer(RUNTIME, new ValueBuffer());
         BENCHMARK.addAnalyzer(SUPPRESSED, new ValueBuffer());
@@ -102,6 +94,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
         BENCHMARK.addAnalyzer(VARIANCE_NOTSUPPRESSED, new ValueBuffer());
         
         setup = new BenchmarkSetup(benchmarkConfig);
+        metadata = new BenchmarkMetadataUtility(setup);
         
     }
 
@@ -115,7 +108,6 @@ public class BenchmarkExperimentUtilityAndRuntime {
     public void execute() throws IOException, RollbackRequiredException {
 
 
-        BenchmarkMetadataUtility metadata = new BenchmarkMetadataUtility(setup);
         File resultFile = new File(setup.getOutputFile());
         resultFile.getParentFile().mkdirs();
         numberOfRuns = setup.getNumberOfRuns();
@@ -282,9 +274,6 @@ public class BenchmarkExperimentUtilityAndRuntime {
                                              model.getStrength(),
                                              output.length,
                                              output[0].length);
-//                            BENCHMARK.addValue(PRIVACY_STRENGTH, model.getStrength());
-//                            BENCHMARK.addValue(RECORDS, output.length);
-//                            BENCHMARK.addValue(QIS, output[0].length);
                             BENCHMARK.addValue(UTILITY, utilityMean);
                             BENCHMARK.addValue(RUNTIME, runtime);
                             BENCHMARK.addValue(SUPPRESSED, suppressedTuples);

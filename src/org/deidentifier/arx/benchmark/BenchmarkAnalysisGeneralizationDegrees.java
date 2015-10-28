@@ -129,7 +129,7 @@ public class BenchmarkAnalysisGeneralizationDegrees {
             degreeSeries[i] = new Series2D(file,
                                            selector,
                                            new Field("Step", Analyzer.VALUE),
-                                           new Field("Generalization degree " + (i+1), Analyzer.VALUE));
+                                           new Field("GeneralizationDegree" + (i+1), Analyzer.VALUE));
         }
 
         // Dirty hack for creating a 3D series from two 2D series'

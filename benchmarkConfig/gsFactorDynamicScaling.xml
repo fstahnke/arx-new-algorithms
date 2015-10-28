@@ -25,7 +25,7 @@
 	<suppressionLimit>0.3</suppressionLimit>
 	<suppressionLimit>0.999</suppressionLimit>
 
-	<!-- add gsFactors. Can be any double value between 0 and 1. Closer to 0 
+	<!-- add initial gsFactors. Can be any double value between 0 and 1. Closer to 0 
 		means more suppression. -->
 	<gsFactor>0.001</gsFactor>
 <!-- 	<gsFactor from="0.0" to="0.5" stepSize="0.05" /> -->
