@@ -25,7 +25,7 @@ package org.deidentifier.arx.utility;
 public abstract class UtilityMeasure<T> {
 
     public  Utility<T> evaluate(String[][] input) {
-        return evaluate(input, null);
+        return evaluate(input, new int[input[0].length]);
     }
 
     public abstract Utility<T> evaluate(String[][] input, int[] transformation);

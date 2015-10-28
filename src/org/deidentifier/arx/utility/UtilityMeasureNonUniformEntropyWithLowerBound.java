@@ -17,10 +17,9 @@
 
 package org.deidentifier.arx.utility;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
-import cern.colt.Arrays;
 
 /**
  * Implementation of the Non-Uniform Entropy measure with a lower bound. Inspired by:<br>
@@ -29,19 +28,19 @@ import cern.colt.Arrays;
  * 
  * @author Fabian Prasser
  */
-public class UtilityMeasureNonUniformEntropyWithLowerBound<T> extends UtilityMeasureAggregatable<T>{
-
+public class UtilityMeasureNonUniformEntropyWithLowerBound<T> extends UtilityMeasureAggregatable<T> {
+    
     /** Log */
     private static final double                                  LOG2 = Math.log(2);
     /** Input frequencies */
-    private final Map<String, Map<String, Double>>               frequencyInput;
+    protected final Map<String, Map<String, Double>>             frequencyInput;
     /** Input */
-    private final String[][]                                     input;
+    protected final String[][]                                   input;
     /** Header */
-    private final String[]                                       header;
+    protected final String[]                                     header;
     /** Hierarchies */
     private final Map<String, Map<Integer, Map<String, String>>> hierarchies;
-
+    
     /**
      * Creates a new instance
      * @param header
@@ -49,9 +48,9 @@ public class UtilityMeasureNonUniformEntropyWithLowerBound<T> extends UtilityMea
      */
     @SuppressWarnings("unchecked")
     public UtilityMeasureNonUniformEntropyWithLowerBound(String[] header, String[][] input, Map<String, String[][]> hierarchies) {
-        this(header, input, hierarchies, (AggregateFunction<T>)AggregateFunction.SUM);
+        this(header, input, hierarchies, (AggregateFunction<T>) AggregateFunction.SUM);
     }
-        
+    
     /**
      * Creates a new instance
      * @param header
@@ -69,63 +68,62 @@ public class UtilityMeasureNonUniformEntropyWithLowerBound<T> extends UtilityMea
             Map<Integer, Map<String, String>> amap = new HashMap<Integer, Map<String, String>>();
             map.put(attribute, amap);
             String[][] hierarchy = hierarchies.get(attribute);
-            for (int level=0; level<hierarchy[0].length; level++) {
+            for (int level = 0; level < hierarchy[0].length; level++) {
                 Map<String, String> lmap = new HashMap<String, String>();
                 amap.put(level, lmap);
-                for (int value=0; value<hierarchy.length; value++) {
+                for (int value = 0; value < hierarchy.length; value++) {
                     lmap.put(hierarchy[value][0], hierarchy[value][level]);
                 }
             }
         }
         this.hierarchies = map;
     }
-
-
+    
     /**
      * Evaluates the utility measure
      * @param output
      * @param transformation
      * @return
      */
-    protected double[] evaluateAggregatable(String[][] output, int[] transformation) {
+    public double[] evaluateAggregatable(String[][] output, int[] transformation) {
         
         Map<String, Map<String, Double>> frequencyOutput = getFrequency(header, output);
         Map<String, Map<String, Double>> frequencyTransformed = getFrequency(header, transformation);
         Map<String, Map<String, Double>> frequencyTransformedSuppressed = getFrequency(header, transformation, output);
-
+        
         double[] result = new double[input[0].length];
         
         for (int row = 0; row < output.length; row++) {
             for (int col = 0; col < header.length; col++) {
                 Map<String, String> hierarchy = hierarchies.get(header[col]).get(transformation[col]);
                 String generalized = hierarchy.get(input[row][col]);
-                result[col] += log2(frequencyInput.get(header[col]).get(input[row][col]) / 
+                result[col] += log2(frequencyInput.get(header[col]).get(input[row][col]) /
                                     frequencyTransformed.get(header[col]).get(generalized));
                 
                 // Suppressed
                 if (!generalized.equals(output[row][col])) {
                     
                     if (!output[row][col].equals("*")) {
-
+                        
                         System.out.println("Transformation: " + Arrays.toString(transformation));
                         System.out.println("Input: " + Arrays.toString(input[row]));
                         System.out.println("Output: " + Arrays.toString(output[row]));
-                        System.out.println("Problem: " + generalized +"!=" + output[row][col] );
+                        System.out.println("Problem: " + generalized + "!=" + output[row][col]);
                         throw new IllegalStateException("Values are not matching, but output is not suppressed");
                     }
                     
-                    result[col] += log2(frequencyTransformedSuppressed.get(header[col]).get(generalized) / 
-                                         frequencyOutput.get(header[col]).get(output[row][col]));
+                    result[col] += log2(frequencyTransformedSuppressed.get(header[col]).get(generalized) /
+                                        frequencyOutput.get(header[col]).get(output[row][col]));
                 }
             }
         }
         
-        for (int i=0; i<result.length; i++) {
+        for (int i = 0; i < result.length; i++) {
             result[i] *= -1;
         }
         return result;
     }
-
+    
     /**
      * Returns frequency distributions for the input dataset generalized to the given transformation
      * @param header
@@ -134,12 +132,12 @@ public class UtilityMeasureNonUniformEntropyWithLowerBound<T> extends UtilityMea
      */
     private Map<String, Map<String, Double>> getFrequency(String[] header, int[] transformation) {
         Map<String, Map<String, Double>> entropy = new HashMap<String, Map<String, Double>>();
-        for (int i=0; i<header.length; i++) {
+        for (int i = 0; i < header.length; i++) {
             entropy.put(header[i], getFrequency(transformation, i));
         }
         return entropy;
     }
-
+    
     /**
      * Returns frequency distributions for the input dataset generalized to the given transformation, only
      * including those tuples which are different from the actual output (indicates suppressed tuples)
@@ -150,12 +148,12 @@ public class UtilityMeasureNonUniformEntropyWithLowerBound<T> extends UtilityMea
      */
     private Map<String, Map<String, Double>> getFrequency(String[] header, int[] transformation, String[][] output) {
         Map<String, Map<String, Double>> entropy = new HashMap<String, Map<String, Double>>();
-        for (int i=0; i<header.length; i++) {
+        for (int i = 0; i < header.length; i++) {
             entropy.put(header[i], getFrequency(transformation, i, output));
         }
         return entropy;
     }
-
+    
     /**
      * Returns frequency distributions for the given dataset
      * @param header
@@ -164,12 +162,12 @@ public class UtilityMeasureNonUniformEntropyWithLowerBound<T> extends UtilityMea
      */
     private Map<String, Map<String, Double>> getFrequency(String[] header, String[][] input) {
         Map<String, Map<String, Double>> entropy = new HashMap<String, Map<String, Double>>();
-        for (int i=0; i<header.length; i++) {
+        for (int i = 0; i < header.length; i++) {
             entropy.put(header[i], getFrequency(input, i));
         }
         return entropy;
     }
-
+    
     /**
      * Returns frequency distributions for the input dataset generalized to the given transformation
      * @param transformation
@@ -189,7 +187,7 @@ public class UtilityMeasureNonUniformEntropyWithLowerBound<T> extends UtilityMea
         }
         return counts;
     }
-
+    
     /**
      * Returns frequency distributions for the input dataset generalized to the given transformation, only
      * including those tuples which are different from the actual output (indicates suppressed tuples)
@@ -213,7 +211,7 @@ public class UtilityMeasureNonUniformEntropyWithLowerBound<T> extends UtilityMea
         }
         return counts;
     }
-
+    
     /**
      * Returns frequency distributions for the given dataset
      * @param input
@@ -232,13 +230,13 @@ public class UtilityMeasureNonUniformEntropyWithLowerBound<T> extends UtilityMea
         }
         return counts;
     }
-
+    
     /**
      * Log base-2
      * @param d
      * @return
      */
-    private double log2(double d) {
+    protected double log2(double d) {
         return Math.log(d) / LOG2;
     }
 }
