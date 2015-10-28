@@ -15,6 +15,7 @@
     <utilityMeasure>LOSS</utilityMeasure>
 
 	<!-- add suppression limits. can be any double value between 0 and 1 -->
+    <suppressionLimit>0.001</suppressionLimit>
 	<suppressionLimit from="0.0" to="0.2" stepSize="0.025" />
 	<suppressionLimit from="0.3" to="0.9" stepSize="0.1" />
     <suppressionLimit>0.95</suppressionLimit>
@@ -31,8 +32,8 @@
 	<gsStepSize>0.05</gsStepSize>
 
 	<!-- set paths for output files -->
-    <outputFile>results/RGRFlash-suppressionScaling.csv</outputFile>
-    <plotFile>results/RGRFlash-suppressionScaling.pdf</plotFile>
+    <outputFile>results/suppressionScaling.csv</outputFile>
+    <plotFile>results/suppressionScaling_fixed.pdf</plotFile>
     
     <!-- set number of runs -->
     <numberOfRuns>5</numberOfRuns>

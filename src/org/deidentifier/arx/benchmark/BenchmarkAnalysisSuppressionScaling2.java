@@ -43,6 +43,7 @@ import de.linearbits.subframe.render.GnuPlotParams;
 import de.linearbits.subframe.render.GnuPlotParams.KeyPos;
 import de.linearbits.subframe.render.LaTeX;
 import de.linearbits.subframe.render.PlotGroup;
+import sun.security.jgss.GSSToken;
 
 /**
  * BenchmarkAnalysis analyzing scaling of the different algorithms. x-Axis:
@@ -59,7 +60,7 @@ public class BenchmarkAnalysisSuppressionScaling2 {
     // "benchmarkConfig/recordScaling.xml";
     // private static final String benchmarkConfig =
     // "benchmarkConfig/QIScaling.xml";
-    private static final String benchmarkConfig = "benchmarkConfig/suppressionScaling2.xml";
+    private static final String benchmarkConfig = "benchmarkConfig/suppressionScaling.xml";
 
     /**
      * Main
@@ -73,21 +74,25 @@ public class BenchmarkAnalysisSuppressionScaling2 {
         List<PlotGroup> groups = new ArrayList<PlotGroup>();
         BenchmarkSetup setup = new BenchmarkSetup(benchmarkConfig);
         CSVFile file = new CSVFile(new File(setup.getOutputFile()));
-        for (double gsFactor : setup.getGsFactors()) {
-            groups.add(analyzeUtility(file,
-                                      BenchmarkDataset.ADULT,
-                                      BenchmarkUtilityMeasure.LOSS,
-                                      BenchmarkPrivacyModel.K5_ANONYMITY,
-                                      BenchmarkAlgorithm.FLASH,
-                                      0.0,
-                                      gsFactor));
-            groups.add(analyzeRuntime(file,
-                                      BenchmarkDataset.ADULT,
-                                      BenchmarkUtilityMeasure.LOSS,
-                                      BenchmarkPrivacyModel.K5_ANONYMITY,
-                                      BenchmarkAlgorithm.FLASH,
-                                      0.0,
-                                      gsFactor));
+        for (double gsStepSize : setup.getGsStepSizes()) {
+            for (double gsFactor : setup.getGsFactors()) {
+                groups.add(analyzeUtility(file,
+                                          BenchmarkDataset.ADULT,
+                                          BenchmarkUtilityMeasure.LOSS,
+                                          BenchmarkPrivacyModel.K5_ANONYMITY,
+                                          BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING,
+                                          0.0,
+                                          gsFactor,
+                                          gsStepSize));
+                groups.add(analyzeRuntime(file,
+                                          BenchmarkDataset.ADULT,
+                                          BenchmarkUtilityMeasure.LOSS,
+                                          BenchmarkPrivacyModel.K5_ANONYMITY,
+                                          BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING,
+                                          0.0,
+                                          gsFactor,
+                                          gsStepSize));
+            }
         }
 
         LaTeX.plot(groups, setup.getPlotFile(), true);
@@ -112,7 +117,8 @@ public class BenchmarkAnalysisSuppressionScaling2 {
                                             BenchmarkPrivacyModel model,
                                             BenchmarkAlgorithm algorithm,
                                             double suppression,
-                                            double gsFactor) throws ParseException {
+                                            double gsFactor,
+                                            double gsStepSize) throws ParseException {
 
         // Selects according rows
         Selector<String[]> selectorRGR = file.getSelectorBuilder()
@@ -121,6 +127,12 @@ public class BenchmarkAnalysisSuppressionScaling2 {
                                              .and()
                                              .field("Suppression Weight")
                                              .equals(String.valueOf(gsFactor))
+                                             .and()
+                                             .field("gsFactorStepSize")
+                                             .equals(String.valueOf(gsStepSize))
+                                             .and()
+                                             .field("Suppression Limit")
+                                             .greater(String.valueOf(0d))
                                              .build();
 
         // Read data into 2D series
@@ -130,31 +142,36 @@ public class BenchmarkAnalysisSuppressionScaling2 {
                                                  new Field("Utility", Analyzer.VALUE));
 
         // Dirty hack for creating a 3D series from two 2D series'
-        Series3D series = new Series3D(file, selectorRGR, new Field("Dataset"), // Cluster
+        Series3D series = new Series3D(file,
+                                       selectorRGR,
+                                       new Field("Dataset"), // Cluster
                                        new Field("UtilityMeasure"), // Type
                                        new Field("PrivacyModel")); // Value
         series.getData().clear();
         for (Point2D point : rgrSeriesUtility.getData()) {
-            series.getData().add(new Point3D(point.x,
-                                             "FLASH (Utility)",
-                                             String.valueOf(1 - Double.valueOf(point.y))));
+            series.getData()
+                  .add(new Point3D(point.x,
+                                   "RGR (Utility)",
+                                   String.valueOf(1 - Double.valueOf(point.y))));
         }
 
         // Plot
         List<Plot<?>> plots = new ArrayList<Plot<?>>();
         plots.add(new PlotLinesClustered("Dataset " + data.toString() + " / Measure: " +
-                                                 measure.toString() + " / gsFactor: " + gsFactor +
-                                                 " / Algorithm: " + algorithm.toString(),
+                                         measure.toString() + " / gsFactor: " + gsFactor +
+                                         " / gsStepSize: " + gsStepSize + " / Algorithm: " +
+                                         algorithm.toString(),
                                          new Labels("Suppression Limit", "Utility"),
                                          series));
 
         GnuPlotParams params = new GnuPlotParams();
         params.colorize = true;
         params.rotateXTicks = 0;
-        params.keypos = KeyPos.TOP_LEFT;
+        params.keypos = KeyPos.BOTTOM_RIGHT;
         params.size = 1.0d;
         params.ratio = 0.5d;
         params.minY = 0d;
+        params.maxY = 1d;
         return new PlotGroup("Development of utility with different suppression limits. ",
                              plots,
                              params,
@@ -179,7 +196,8 @@ public class BenchmarkAnalysisSuppressionScaling2 {
                                             BenchmarkPrivacyModel model,
                                             BenchmarkAlgorithm algorithm,
                                             double suppression,
-                                            double gsFactor) throws ParseException {
+                                            double gsFactor,
+                                            double gsStepSize) throws ParseException {
 
         // Selects according rows
         Selector<String[]> selectorRGR = file.getSelectorBuilder()
@@ -188,6 +206,12 @@ public class BenchmarkAnalysisSuppressionScaling2 {
                                              .and()
                                              .field("Suppression Weight")
                                              .equals(String.valueOf(gsFactor))
+                                             .and()
+                                             .field("gsFactorStepSize")
+                                             .equals(String.valueOf(gsStepSize))
+                                             .and()
+                                             .field("Suppression Limit")
+                                             .greater(String.valueOf(0d))
                                              .build();
 
         // Read data into 2D series
@@ -197,27 +221,30 @@ public class BenchmarkAnalysisSuppressionScaling2 {
                                                  new Field("Runtime", Analyzer.VALUE));
 
         // Dirty hack for creating a 3D series from two 2D series'
-        Series3D series = new Series3D(file, selectorRGR, new Field("Dataset"), // Cluster
+        Series3D series = new Series3D(file,
+                                       selectorRGR,
+                                       new Field("Dataset"), // Cluster
                                        new Field("UtilityMeasure"), // Type
                                        new Field("PrivacyModel")); // Value
         series.getData().clear();
 
         for (Point2D point : rgrSeriesRuntime.getData()) {
-            series.getData().add(new Point3D(point.x, "FLASH (Runtime)", point.y));
+            series.getData().add(new Point3D(point.x, "RGR (Runtime)", point.y));
         }
 
         // Plot
         List<Plot<?>> plots = new ArrayList<Plot<?>>();
         plots.add(new PlotLinesClustered("Dataset " + data.toString() + " / Measure: " +
-                                                 measure.toString() + " / gsFactor: " + gsFactor +
-                                                 " / Algorithm: " + algorithm.toString(),
+                                         measure.toString() + " / gsFactor: " + gsFactor +
+                                         " / gsStepSize: " + gsStepSize + " / Algorithm: " +
+                                         algorithm.toString(),
                                          new Labels("Suppression Limit", "Runtime [ms]"),
                                          series));
 
         GnuPlotParams params = new GnuPlotParams();
         params.colorize = true;
         params.rotateXTicks = 0;
-        params.keypos = KeyPos.TOP_LEFT;
+        params.keypos = KeyPos.BOTTOM_RIGHT;
         params.size = 1.0d;
         params.ratio = 0.5d;
         params.minY = 0d;

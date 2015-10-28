@@ -49,36 +49,61 @@ import de.linearbits.subframe.analyzer.ValueBuffer;
 public class BenchmarkExperimentUtilityAndRuntime {
 
     /** The benchmark instance */
-    private static final Benchmark BENCHMARK              = new Benchmark(new String[] {
+    private final Benchmark BENCHMARK              = new Benchmark(new String[] {
             "Dataset",
             "UtilityMeasure",
             "PrivacyModel",
             "Algorithm",
-            "Suppression Limit",
-            "Suppression Weight"                         });
+            "SuppressionLimit",
+            "gsFactor",
+            "gsFactorStepSize",
+            "K",
+            "Records",
+            "QIs"});
+    
+    
 
-    /** PRIVACY STRENGTH */
-    private static final int       PRIVACY_STRENGTH       = BENCHMARK.addMeasure("Privacy Strength");
-    /** NUMBER OF RECORDS */
-    private static final int       RECORDS                = BENCHMARK.addMeasure("Records");
-    /** NUMBER OF QIs */
-    private static final int       QIS                    = BENCHMARK.addMeasure("QIs");
+//    /** PRIVACY STRENGTH */
+//    private final int       PRIVACY_STRENGTH       = BENCHMARK.addMeasure("K");
+//    /** NUMBER OF RECORDS */
+//    private final int       RECORDS                = BENCHMARK.addMeasure("Records");
+//    /** NUMBER OF QIs */
+//    private final int       QIS                    = BENCHMARK.addMeasure("QIs");
     /** UTILITY */
-    private static final int       UTILITY                = BENCHMARK.addMeasure("Utility");
+    private final int       UTILITY                = BENCHMARK.addMeasure("Utility");
     /** RUNTIME */
-    private static final int       RUNTIME                = BENCHMARK.addMeasure("Runtime");
+    private final int       RUNTIME                = BENCHMARK.addMeasure("Runtime");
     /** NUMBER OF SUPPRESSED TUPLES */
-    private static final int       SUPPRESSED             = BENCHMARK.addMeasure("Suppressed");
+    private final int       SUPPRESSED             = BENCHMARK.addMeasure("Suppressed");
     /** RATIO OF SUPPRESSED TUPLES */
-    private static final int       SUPPRESSED_RATIO       = BENCHMARK.addMeasure("Suppressed Ratio");
+    private final int       SUPPRESSED_RATIO       = BENCHMARK.addMeasure("SuppressedRatio");
     /** GENERALIZATION VARIANCE */
-    private static final int       VARIANCE               = BENCHMARK.addMeasure("Variance");
+    private final int       VARIANCE               = BENCHMARK.addMeasure("Variance");
     /** GENERALIZATION VARIANCE WITHOUT SUPPRESSED TUPLES */
-    private static final int       VARIANCE_NOTSUPPRESSED = BENCHMARK.addMeasure("Variance (not suppressed)");
+    private final int       VARIANCE_NOTSUPPRESSED = BENCHMARK.addMeasure("VarianceNotSuppressed");
     /** Number of runs for each benchmark setting */
-    private static int             numberOfRuns;
+    private int             numberOfRuns;
     /** Number of warmup runs */
-    private static int             numberOfWarmups;
+    private int             numberOfWarmups;
+    /** The setup of this Experiment */
+    private BenchmarkSetup setup;
+    
+    
+    public BenchmarkExperimentUtilityAndRuntime(String benchmarkConfig) {
+        // Init
+//        BENCHMARK.addAnalyzer(PRIVACY_STRENGTH, new ValueBuffer());
+//        BENCHMARK.addAnalyzer(RECORDS, new ValueBuffer());
+//        BENCHMARK.addAnalyzer(QIS, new ValueBuffer());
+        BENCHMARK.addAnalyzer(UTILITY, new ValueBuffer());
+        BENCHMARK.addAnalyzer(RUNTIME, new ValueBuffer());
+        BENCHMARK.addAnalyzer(SUPPRESSED, new ValueBuffer());
+        BENCHMARK.addAnalyzer(SUPPRESSED_RATIO, new ValueBuffer());
+        BENCHMARK.addAnalyzer(VARIANCE, new ValueBuffer());
+        BENCHMARK.addAnalyzer(VARIANCE_NOTSUPPRESSED, new ValueBuffer());
+        
+        setup = new BenchmarkSetup(benchmarkConfig);
+        
+    }
 
     /**
      * Main entry point
@@ -87,20 +112,9 @@ public class BenchmarkExperimentUtilityAndRuntime {
      * @throws IOException
      * @throws RollbackRequiredException
      */
-    public void execute(String benchmarkConfig) throws IOException, RollbackRequiredException {
+    public void execute() throws IOException, RollbackRequiredException {
 
-        // Init
-        BENCHMARK.addAnalyzer(PRIVACY_STRENGTH, new ValueBuffer());
-        BENCHMARK.addAnalyzer(RECORDS, new ValueBuffer());
-        BENCHMARK.addAnalyzer(QIS, new ValueBuffer());
-        BENCHMARK.addAnalyzer(UTILITY, new ValueBuffer());
-        BENCHMARK.addAnalyzer(RUNTIME, new ValueBuffer());
-        BENCHMARK.addAnalyzer(SUPPRESSED, new ValueBuffer());
-        BENCHMARK.addAnalyzer(SUPPRESSED_RATIO, new ValueBuffer());
-        BENCHMARK.addAnalyzer(VARIANCE, new ValueBuffer());
-        BENCHMARK.addAnalyzer(VARIANCE_NOTSUPPRESSED, new ValueBuffer());
 
-        BenchmarkSetup setup = new BenchmarkSetup(benchmarkConfig);
         BenchmarkMetadataUtility metadata = new BenchmarkMetadataUtility(setup);
         File resultFile = new File(setup.getOutputFile());
         resultFile.getParentFile().mkdirs();
@@ -173,7 +187,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
      * @throws IOException
      * @throws RollbackRequiredException
      */
-    private static void performExperiment(final BenchmarkMetadataUtility metadata,
+    private void performExperiment(final BenchmarkMetadataUtility metadata,
                                           final BenchmarkDataset dataset,
                                           final BenchmarkUtilityMeasure measure,
                                           final BenchmarkPrivacyModel model,
@@ -263,10 +277,14 @@ public class BenchmarkExperimentUtilityAndRuntime {
                                              model,
                                              algorithm,
                                              suppressionLimit,
-                                             gsFactor);
-                            BENCHMARK.addValue(PRIVACY_STRENGTH, model.getStrength());
-                            BENCHMARK.addValue(RECORDS, output.length);
-                            BENCHMARK.addValue(QIS, output[0].length);
+                                             gsFactor,
+                                             gsStepSize,
+                                             model.getStrength(),
+                                             output.length,
+                                             output[0].length);
+//                            BENCHMARK.addValue(PRIVACY_STRENGTH, model.getStrength());
+//                            BENCHMARK.addValue(RECORDS, output.length);
+//                            BENCHMARK.addValue(QIS, output[0].length);
                             BENCHMARK.addValue(UTILITY, utilityMean);
                             BENCHMARK.addValue(RUNTIME, runtime);
                             BENCHMARK.addValue(SUPPRESSED, suppressedTuples);

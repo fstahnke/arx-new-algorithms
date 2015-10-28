@@ -33,7 +33,7 @@ public class BenchmarkManager {
         double startTime = System.currentTimeMillis();
         
         for (String config : args) {
-            new BenchmarkExperimentUtilityAndRuntime().execute(config);
+            new BenchmarkExperimentUtilityAndRuntime(config).execute();
         }
 
         double elapsedTime = System.currentTimeMillis() - startTime;

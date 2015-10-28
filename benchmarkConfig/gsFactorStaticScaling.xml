@@ -19,19 +19,20 @@
 	<suppressionLimit>0.05</suppressionLimit>
 	<suppressionLimit>0.1</suppressionLimit>
 	<suppressionLimit>0.2</suppressionLimit>
-	<suppressionLimit>1.0</suppressionLimit>
+	<suppressionLimit>0.999</suppressionLimit>
 
 	<!-- Add gsFactors. Can be any double value between 0 and 1. Closer to 0 
 		means more suppression. -->
-	<gsFactor from="0.0" to="0.2" stepSize="0.025" />
+    <gsFactor>0.001</gsFactor>
+	<gsFactor from="0.025" to="0.2" stepSize="0.025" />
 	<gsFactor from="0.3" to="0.5" stepSize="0.1" />
 	
 	<!-- add gsStepSizes -->
 	<gsStepSize>0.0</gsStepSize>
 	
 	<!-- set paths for output files -->
-	<outputFile>results/RGR-gsFactorStaticScaling.csv</outputFile>
-	<plotFile>results/RGR-gsFactorStaticScaling.pdf</plotFile>
+	<outputFile>results/gsFactorStaticScaling.csv</outputFile>
+	<plotFile>results/gsFactorStaticScaling.pdf</plotFile>
 
 	<!-- set the number of runs -->
 	<numberOfRuns>5</numberOfRuns>

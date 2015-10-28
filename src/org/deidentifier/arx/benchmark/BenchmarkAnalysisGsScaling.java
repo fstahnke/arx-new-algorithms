@@ -60,7 +60,7 @@ public class BenchmarkAnalysisGsScaling {
     // "benchmarkConfig/recordScaling.xml";
     // private static final String benchmarkConfig =
     // "benchmarkConfig/QIScaling.xml";
-    private static final String benchmarkConfig = "benchmarkConfig/gsFactorDynamicScaling.xml";
+    private static final String benchmarkConfig = "benchmarkConfig/gsFactorStaticScaling.xml";
 
     /**
      * Main
@@ -76,25 +76,27 @@ public class BenchmarkAnalysisGsScaling {
         CSVFile file = new CSVFile(new File(setup.getOutputFile()));
 
         for (BenchmarkDataset dataset : setup.getDatasets()) {
-            for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
-                for (double gsStepSize : setup.getGsStepSizes()) {
-                    groups.add(analyzeUtility(file,
-                                              setup,
-                                              dataset,
-                                              BenchmarkUtilityMeasure.LOSS,
-                                              BenchmarkPrivacyModel.K5_ANONYMITY,
-                                              algorithm,
-                                              0.0,
-                                              gsStepSize));
+            for (BenchmarkPrivacyModel model : setup.getPrivacyModels()) {
+                for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
+                    for (double gsStepSize : setup.getGsStepSizes()) {
+                        groups.add(analyzeUtility(file,
+                                                  setup,
+                                                  dataset,
+                                                  BenchmarkUtilityMeasure.LOSS,
+                                                  model,
+                                                  algorithm,
+                                                  0.0,
+                                                  gsStepSize));
 
-                    groups.add(analyzeRuntime(file,
-                                              setup,
-                                              dataset,
-                                              BenchmarkUtilityMeasure.LOSS,
-                                              BenchmarkPrivacyModel.K5_ANONYMITY,
-                                              algorithm,
-                                              0.0,
-                                              gsStepSize));
+                        groups.add(analyzeRuntime(file,
+                                                  setup,
+                                                  dataset,
+                                                  BenchmarkUtilityMeasure.LOSS,
+                                                  model,
+                                                  algorithm,
+                                                  0.0,
+                                                  gsStepSize));
+                    }
                 }
             }
         }
@@ -138,6 +140,9 @@ public class BenchmarkAnalysisGsScaling {
                                               .and()
                                               .field("Dataset")
                                               .equals(data.toString())
+                                              .and()
+                                              .field("PrivacyModel")
+                                              .equals(model.toString())
                                               .build();
 
             Series2D series = new Series2D(file,
@@ -150,7 +155,9 @@ public class BenchmarkAnalysisGsScaling {
         }
 
         // Dirty hack for creating a 3D series from two 2D series'
-        Series3D series3D = new Series3D(file, tmpSelector, new Field("Dataset"), // Cluster
+        Series3D series3D = new Series3D(file,
+                                         tmpSelector,
+                                         new Field("Dataset"), // Cluster
                                          new Field("UtilityMeasure"), // Type
                                          new Field("PrivacyModel")); // Value
         series3D.getData().clear();
@@ -159,18 +166,22 @@ public class BenchmarkAnalysisGsScaling {
         for (double suppress : setup.getSuppressionLimits()) {
             Series2D series2D = itr.next();
             for (Point2D point : series2D.getData()) {
-                series3D.getData().add(new Point3D(point.x,
-                                                   "Suppression Limit " + suppress + " (Utility)",
-                                                   String.valueOf(1 - Double.valueOf(point.y))));
+                series3D.getData()
+                        .add(new Point3D(point.x,
+                                         "Suppression Limit " + suppress + " (Utility)",
+                                         String.valueOf(1 - Double.valueOf(point.y))));
             }
         }
 
         // Plot
         List<Plot<?>> plots = new ArrayList<Plot<?>>();
-        plots.add(new PlotLinesClustered("Algorithm: " + algorithm.toString() + " / Dataset: " + data.toString() + " / Measure: " +
-                measure.toString() + " / Model: " + model.toString() + " / gsStepSize: " + gsStepSize,
+        plots.add(new PlotLinesClustered("Algorithm: " + algorithm.toString() + " / Dataset: " +
+                                         data.toString() + " / Measure: " + measure.toString() +
+                                         " / Model: " + model.toString() + " / gsStepSize: " +
+                                         gsStepSize,
                                          new Labels("Factor: Generalization / Suppression",
-                                                    "Utility"), series3D));
+                                                    "Utility"),
+                                         series3D));
 
         GnuPlotParams params = new GnuPlotParams();
         params.colorize = true;
@@ -222,6 +233,9 @@ public class BenchmarkAnalysisGsScaling {
                                               .and()
                                               .field("Dataset")
                                               .equals(data.toString())
+                                              .and()
+                                              .field("PrivacyModel")
+                                              .equals(model.toString())
                                               .build();
 
             Series2D series = new Series2D(file,
@@ -234,7 +248,9 @@ public class BenchmarkAnalysisGsScaling {
         }
 
         // Dirty hack for creating a 3D series from two 2D series'
-        Series3D series3D = new Series3D(file, tmpSelector, new Field("Dataset"), // Cluster
+        Series3D series3D = new Series3D(file,
+                                         tmpSelector,
+                                         new Field("Dataset"), // Cluster
                                          new Field("UtilityMeasure"), // Type
                                          new Field("PrivacyModel")); // Value
         series3D.getData().clear();
@@ -243,17 +259,22 @@ public class BenchmarkAnalysisGsScaling {
         for (double suppress : setup.getSuppressionLimits()) {
             Series2D series2D = itr.next();
             for (Point2D point : series2D.getData()) {
-                series3D.getData().add(new Point3D(point.x, "Suppression Limit " + suppress +
-                                                            " (Runtime)", point.y));
+                series3D.getData()
+                        .add(new Point3D(point.x,
+                                         "Suppression Limit " + suppress + " (Runtime)",
+                                         point.y));
             }
         }
 
         // Plot
         List<Plot<?>> plots = new ArrayList<Plot<?>>();
-        plots.add(new PlotLinesClustered("Algorithm: " + algorithm.toString() + " / Dataset: " + data.toString() + " / Measure: " +
-                                                 measure.toString() + " / Model: " + model.toString() + " / gsStepSize: " + gsStepSize,
+        plots.add(new PlotLinesClustered("Algorithm: " + algorithm.toString() + " / Dataset: " +
+                                         data.toString() + " / Measure: " + measure.toString() +
+                                         " / Model: " + model.toString() + " / gsStepSize: " +
+                                         gsStepSize,
                                          new Labels("Factor: Generalization / Suppression",
-                                                    "Runtime"), series3D));
+                                                    "Runtime"),
+                                         series3D));
 
         GnuPlotParams params = new GnuPlotParams();
         params.colorize = true;
