@@ -4,7 +4,7 @@
 	<description>Builds, tests, and runs the project.</description>
 
 	<!-- defines the version number -->
-	<property name="version" value="0.0.3" />
+	<property name="version" value="0.0.3bigD" />
 
 	<!-- defines the to be included libraries -->
 	<fileset id="lib.jars" dir="lib">

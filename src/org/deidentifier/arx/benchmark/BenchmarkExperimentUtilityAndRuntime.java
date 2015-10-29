@@ -19,9 +19,7 @@ package org.deidentifier.arx.benchmark;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.math.BigDecimal;
 import java.util.Map;
 
 import org.deidentifier.arx.ARXConfiguration;
@@ -49,7 +47,7 @@ import de.linearbits.subframe.analyzer.ValueBuffer;
 public class BenchmarkExperimentUtilityAndRuntime {
 
     /** The benchmark instance */
-    private final Benchmark BENCHMARK              = new Benchmark(new String[] {
+    private final Benchmark          BENCHMARK              = new Benchmark(new String[] {
             "Dataset",
             "UtilityMeasure",
             "PrivacyModel",
@@ -59,31 +57,29 @@ public class BenchmarkExperimentUtilityAndRuntime {
             "gsFactorStepSize",
             "K",
             "Records",
-            "QIs"                                 });
-    
-    
+            "QIs"                                          });
+
     /** UTILITY */
-    private final int       UTILITY                = BENCHMARK.addMeasure("Utility");
+    private final int                UTILITY                = BENCHMARK.addMeasure("Utility");
     /** RUNTIME */
-    private final int       RUNTIME                = BENCHMARK.addMeasure("Runtime");
+    private final int                RUNTIME                = BENCHMARK.addMeasure("Runtime");
     /** NUMBER OF SUPPRESSED TUPLES */
-    private final int       SUPPRESSED             = BENCHMARK.addMeasure("Suppressed");
+    private final int                SUPPRESSED             = BENCHMARK.addMeasure("Suppressed");
     /** RATIO OF SUPPRESSED TUPLES */
-    private final int       SUPPRESSED_RATIO       = BENCHMARK.addMeasure("SuppressedRatio");
+    private final int                SUPPRESSED_RATIO       = BENCHMARK.addMeasure("SuppressedRatio");
     /** GENERALIZATION VARIANCE */
-    private final int       VARIANCE               = BENCHMARK.addMeasure("Variance");
+    private final int                VARIANCE               = BENCHMARK.addMeasure("Variance");
     /** GENERALIZATION VARIANCE WITHOUT SUPPRESSED TUPLES */
-    private final int       VARIANCE_NOTSUPPRESSED = BENCHMARK.addMeasure("VarianceWithoutSuppressed");
+    private final int                VARIANCE_NOTSUPPRESSED = BENCHMARK.addMeasure("VarianceWithoutSuppressed");
     /** Number of runs for each benchmark setting */
-    private int             numberOfRuns;
+    private int                      numberOfRuns;
     /** Number of warmup runs */
-    private int             numberOfWarmups;
+    private int                      numberOfWarmups;
     /** The setup of this experiment */
-    private BenchmarkSetup setup;
+    private BenchmarkSetup           setup;
     /** The metadata of this experiment */
     private BenchmarkMetadataUtility metadata;
-    
-    
+
     public BenchmarkExperimentUtilityAndRuntime(String benchmarkConfig) throws IOException {
         // Init
         BENCHMARK.addAnalyzer(UTILITY, new ValueBuffer());
@@ -92,10 +88,10 @@ public class BenchmarkExperimentUtilityAndRuntime {
         BENCHMARK.addAnalyzer(SUPPRESSED_RATIO, new ValueBuffer());
         BENCHMARK.addAnalyzer(VARIANCE, new ValueBuffer());
         BENCHMARK.addAnalyzer(VARIANCE_NOTSUPPRESSED, new ValueBuffer());
-        
+
         setup = new BenchmarkSetup(benchmarkConfig);
         metadata = new BenchmarkMetadataUtility(setup);
-        
+
     }
 
     /**
@@ -106,7 +102,6 @@ public class BenchmarkExperimentUtilityAndRuntime {
      * @throws RollbackRequiredException
      */
     public void execute() throws IOException, RollbackRequiredException {
-
 
         File resultFile = new File(setup.getOutputFile());
         resultFile.getParentFile().mkdirs();
@@ -153,7 +148,8 @@ public class BenchmarkExperimentUtilityAndRuntime {
                                     }
                                 }
                                 // Break gsStepSize loop for Tassa
-                                if (algorithm == BenchmarkAlgorithm.TASSA || algorithm == BenchmarkAlgorithm.FLASH) {
+                                if (algorithm == BenchmarkAlgorithm.TASSA ||
+                                    algorithm == BenchmarkAlgorithm.FLASH) {
                                     break;
                                 }
                             }
@@ -182,14 +178,14 @@ public class BenchmarkExperimentUtilityAndRuntime {
      * @throws RollbackRequiredException
      */
     private void performExperiment(final BenchmarkMetadataUtility metadata,
-                                          final BenchmarkDataset dataset,
-                                          final BenchmarkUtilityMeasure measure,
-                                          final BenchmarkPrivacyModel model,
-                                          final BenchmarkAlgorithm algorithm,
-                                          final double suppressionLimit,
-                                          final double gsFactor,
-                                          final double gsStepSize) throws IOException,
-                                                                  RollbackRequiredException {
+                                   final BenchmarkDataset dataset,
+                                   final BenchmarkUtilityMeasure measure,
+                                   final BenchmarkPrivacyModel model,
+                                   final BenchmarkAlgorithm algorithm,
+                                   final double suppressionLimit,
+                                   final double gsFactor,
+                                   final double gsStepSize) throws IOException,
+                                                           RollbackRequiredException {
 
         Data data = BenchmarkSetup.getData(dataset, model);
         ARXConfiguration config = BenchmarkSetup.getConfiguration(dataset,
@@ -249,22 +245,22 @@ public class BenchmarkExperimentUtilityAndRuntime {
                         runtimes[run] = timestamp;
 
                         // Calculate suppressed tuples
-                        int suppressedTuples = 0;
-                        for (int i = 0; i < output.length; i++) {
-                            suppressedTuples += isSuppressed(output[i]) ? 1 : 0;
-                        }
-                        double suppressedRatio = (double) suppressedTuples / output.length;
+                        int suppressedTuples = BenchmarkHelper.getNumSuppressed(output);
+                        double suppressedRatio = BenchmarkHelper.divideInts(suppressedTuples, output.length);
 
                         // Write
                         if (run == numberOfRuns - 1) {
 
-                            double utilityMean = calculateArithmeticMean(utilityResults);
-                            double runtime = calculateArithmeticMean(runtimes);
-                            double variance = getVariance(output, header, hierarchies, false);
-                            double varianceNotSuppressed = getVariance(output,
-                                                                       header,
-                                                                       hierarchies,
-                                                                       true);
+                            double utilityMean = BenchmarkHelper.calculateArithmeticMean(utilityResults);
+                            double runtime = BenchmarkHelper.calculateArithmeticMean(runtimes);
+                            double variance = BenchmarkHelper.getVarianceBigDecimal(output,
+                                                                                    header,
+                                                                                    hierarchies,
+                                                                                    false);
+                            double varianceNotSuppressed = BenchmarkHelper.getVarianceBigDecimal(output,
+                                                                                                 header,
+                                                                                                 hierarchies,
+                                                                                                 true);
 
                             BENCHMARK.addRun(dataset,
                                              measure,
@@ -329,108 +325,5 @@ public class BenchmarkExperimentUtilityAndRuntime {
         } else {
             throw new UnsupportedOperationException("Unimplemented Algorithm: " + algorithm);
         }
-    }
-
-    private static double getVariance(String[][] output,
-                                      String[] header,
-                                      Map<String, String[][]> hierarchies,
-                                      boolean ignoreSuppressed) {
-
-        final int numberOfRecords = output.length;
-        final int numberOfAttributes = output[0].length;
-        final int[] maxGeneralizationLevels = new int[numberOfAttributes];
-
-        // Create maps with the generalization level for each string
-        ArrayList<Map<String, Integer>> stringToLevelMaps = new ArrayList<Map<String, Integer>>();
-        for (int columnIndex = 0; columnIndex < numberOfAttributes; columnIndex++) {
-            String attribute = header[columnIndex];
-            Map<String, Integer> map = new HashMap<String, Integer>();
-            stringToLevelMaps.add(map);
-            for (String[] row : hierarchies.get(attribute)) {
-                maxGeneralizationLevels[columnIndex] = row.length;
-                for (int level = row.length - 1; level >= 0; level--) {
-                    if (map.containsKey(row[level])) {
-                        int lvl = Math.max(map.get(row[level]), level);
-                        map.put(row[level], lvl);
-                    } else {
-                        map.put(row[level], level);
-                    }
-                }
-            }
-        }
-
-        // Compute average generalization degree per attribute
-        double[] averageDegrees = new double[numberOfAttributes];
-        Arrays.fill(averageDegrees, 0.0);
-        int numberOfTuplesConsidered = 0;
-        for (int rowIndex = 0; rowIndex < numberOfRecords; rowIndex++) {
-            String[] row = output[rowIndex];
-            if (!ignoreSuppressed || !isSuppressed(row)) {
-                for (int columnIndex = 0; columnIndex < numberOfAttributes; columnIndex++) {
-                    averageDegrees[columnIndex] += (double) stringToLevelMaps.get(columnIndex)
-                                                                             .get(row[columnIndex]) /
-                                                   maxGeneralizationLevels[columnIndex];
-                }
-                numberOfTuplesConsidered++;
-            }
-        }
-        
-        if (numberOfTuplesConsidered > 0) {
-            for (int i = 0; i < averageDegrees.length; i++) {
-                averageDegrees[i] /= numberOfTuplesConsidered;
-            }
-
-            // Compute variances
-            double[] variances = new double[numberOfAttributes];
-            Arrays.fill(variances, 0.0);
-            for (int rowIndex = 0; rowIndex < numberOfRecords; rowIndex++) {
-                String[] row = output[rowIndex];
-                if (!ignoreSuppressed || !isSuppressed(row)) {
-                    for (int columnIndex = 0; columnIndex < numberOfAttributes; columnIndex++) {
-                        double degree = (double) stringToLevelMaps.get(columnIndex)
-                                                                  .get(row[columnIndex]) /
-                                        maxGeneralizationLevels[columnIndex];
-                        variances[columnIndex] += Math.pow(degree - averageDegrees[columnIndex], 2);
-                    }
-                }
-            }
-            // Normalize
-            for (int i = 0; i < variances.length; i++) {
-                variances[i] /= numberOfTuplesConsidered;
-            }
-            return calculateArithmeticMean(variances);
-        } else {
-            return 0;
-        }
-
-    }
-
-    /**
-     * Get the arithmetic mean for a set of values.
-     * 
-     * @param values
-     * @return The arithmetic mean.
-     */
-    private static double calculateArithmeticMean(double[] values) {
-        if (values.length == 1) { return values[0]; }
-        double arithmeticMean = 0d;
-        for (double value : values) {
-            arithmeticMean += value;
-        }
-        arithmeticMean /= values.length;
-        return arithmeticMean;
-    }
-
-    /**
-     * Is this row suppressed?
-     * 
-     * @param row
-     * @return
-     */
-    private static boolean isSuppressed(String[] row) {
-        for (String s : row) {
-            if (!s.equals("*")) { return false; }
-        }
-        return true;
     }
 }
