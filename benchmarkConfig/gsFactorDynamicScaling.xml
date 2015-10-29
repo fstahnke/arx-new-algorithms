@@ -1,42 +1,43 @@
 <?xml version="1.0"?>
 <!-- add customized settings in the config section. If the xml doesn't contain 
-	vales for a setting, its default values are used. -->
+    vales for a setting, its default values are used. -->
 <config>
-	<!-- add datasets -->
-	<dataset>ADULT</dataset>
-	<dataset>CUP</dataset>
+    <!-- add datasets -->
+    <dataset>ADULT</dataset>
+    <dataset>CUP</dataset>
 
-	<!-- add implemented algorithms -->
-	<algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
+    <!-- add implemented algorithms -->
+    <algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
 
-	<!-- add privacy models -->
-	<privacyModel>K5_ANONYMITY</privacyModel>
-	<privacyModel>K10_ANONYMITY</privacyModel>
-	<privacyModel>K25_ANONYMITY</privacyModel>
-	<privacyModel>K50_ANONYMITY</privacyModel>
+    <!-- add privacy models -->
+    <privacyModel>K5_ANONYMITY</privacyModel>
+    <privacyModel>K10_ANONYMITY</privacyModel>
+    <privacyModel>K25_ANONYMITY</privacyModel>
+    <privacyModel>K50_ANONYMITY</privacyModel>
 
-	<!-- add utility measures -->
-	<utilityMeasure>LOSS</utilityMeasure>
+    <!-- add utility measures -->
+    <utilityMeasure>LOSS</utilityMeasure>
 
-	<!-- add suppression limits. can be any double value between 0 and 1 -->
-	<suppressionLimit>0.05</suppressionLimit>
-	<suppressionLimit>0.1</suppressionLimit>
-	<suppressionLimit>0.2</suppressionLimit>
-	<suppressionLimit>0.3</suppressionLimit>
-	<suppressionLimit>0.999</suppressionLimit>
+    <!-- add suppression limits. can be any double value between 0 and 1 -->
+    <suppressionLimit>0.05</suppressionLimit>
+    <suppressionLimit>0.1</suppressionLimit>
+    <suppressionLimit>0.2</suppressionLimit>
+    <suppressionLimit>0.3</suppressionLimit>
+    <suppressionLimit>0.999</suppressionLimit>
 
-	<!-- add initial gsFactors. Can be any double value between 0 and 1. Closer to 0 
-		means more suppression. -->
-	<gsFactor>0.001</gsFactor>
-<!-- 	<gsFactor from="0.0" to="0.5" stepSize="0.05" /> -->
-	
-	<!-- add gsStepSizes -->
-	<gsStepSize>0.05</gsStepSize>
-	
-	<!-- set paths for output files -->
-	<outputFile>results/gsFactorDynamicScaling_add.csv</outputFile>
-	<plotFile>results/gsFactorDynamicScaling.pdf</plotFile>
+    <!-- add initial gsFactors. Can be any double value between 0 and 1. 
+        Closer to 0 means more suppression. -->
+    <gsFactor>0.0</gsFactor>
+    <gsFactor>0.001</gsFactor>
+    <gsFactor from="0.05" to="0.5" stepSize="0.05" />
 
-	<!-- set number of runs -->
-	<numberOfRuns>5</numberOfRuns>
+    <!-- add gsStepSizes -->
+    <gsStepSize>0.05</gsStepSize>
+
+    <!-- set paths for output files -->
+    <outputFile>results/gsFactorDynamicScaling_udpateUtility.csv</outputFile>
+    <plotFile>results/gsFactorDynamicScaling.pdf</plotFile>
+
+    <!-- set number of runs -->
+    <numberOfRuns>1</numberOfRuns>
 </config>

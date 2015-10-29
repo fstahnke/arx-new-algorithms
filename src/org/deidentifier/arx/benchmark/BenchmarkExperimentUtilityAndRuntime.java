@@ -246,21 +246,22 @@ public class BenchmarkExperimentUtilityAndRuntime {
 
                         // Calculate suppressed tuples
                         int suppressedTuples = BenchmarkHelper.getNumSuppressed(output);
-                        double suppressedRatio = BenchmarkHelper.divideInts(suppressedTuples, output.length);
+                        double suppressedRatio = BenchmarkHelper.divideInts(suppressedTuples,
+                                                                            output.length);
 
                         // Write
                         if (run == numberOfRuns - 1) {
 
                             double utilityMean = BenchmarkHelper.calculateArithmeticMean(utilityResults);
                             double runtime = BenchmarkHelper.calculateArithmeticMean(runtimes);
-                            double variance = BenchmarkHelper.getVarianceBigDecimal(output,
-                                                                                    header,
-                                                                                    hierarchies,
-                                                                                    false);
-                            double varianceNotSuppressed = BenchmarkHelper.getVarianceBigDecimal(output,
-                                                                                                 header,
-                                                                                                 hierarchies,
-                                                                                                 true);
+                            double variance = BenchmarkHelper.calculateVariance(output,
+                                                                          header,
+                                                                          hierarchies,
+                                                                          false);
+                            double varianceNotSuppressed = BenchmarkHelper.calculateVariance(output,
+                                                                                       header,
+                                                                                       hierarchies,
+                                                                                       true);
 
                             BENCHMARK.addRun(dataset,
                                              measure,
