@@ -6,10 +6,10 @@ import org.deidentifier.arx.exceptions.RollbackRequiredException;
 
 public abstract class BenchmarkAlgorithm {
 
-    private final IBenchmarkObserver observer;
+    private final IBenchmarkListener observer;
     private long                     start;
 
-    public BenchmarkAlgorithm(IBenchmarkObserver observer) {
+    public BenchmarkAlgorithm(IBenchmarkListener observer) {
         this.observer = observer;
     }
 

@@ -8,7 +8,7 @@ import org.deidentifier.arx.Data;
 import org.deidentifier.arx.benchmark.BenchmarkSetup;
 import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkDataset;
 import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkPrivacyModel;
-import org.deidentifier.arx.benchmark.IBenchmarkObserver;
+import org.deidentifier.arx.benchmark.IBenchmarkListener;
 import org.deidentifier.arx.criteria.KAnonymity;
 import org.deidentifier.arx.exceptions.RollbackRequiredException;
 import org.deidentifier.arx.metric.Metric;
@@ -18,7 +18,7 @@ public class RecursiveTest {
     
     public static void main(String[] args) throws IOException, RollbackRequiredException {
     	
-    	IBenchmarkObserver listener = new IBenchmarkObserver() {
+    	IBenchmarkListener listener = new IBenchmarkListener() {
 
 			@Override
 			public void notify(long timestamp, String[][] output, int[] transformation) {

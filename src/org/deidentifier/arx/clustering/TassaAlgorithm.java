@@ -8,7 +8,7 @@ import org.deidentifier.arx.ARXConfiguration;
 import org.deidentifier.arx.ARXInterface;
 import org.deidentifier.arx.Data;
 import org.deidentifier.arx.benchmark.BenchmarkAlgorithm;
-import org.deidentifier.arx.benchmark.IBenchmarkObserver;
+import org.deidentifier.arx.benchmark.IBenchmarkListener;
 
 public class TassaAlgorithm extends BenchmarkAlgorithm {
 
@@ -44,7 +44,7 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
      * @param config
      * @throws IOException
      */
-    public TassaAlgorithm(IBenchmarkObserver observer,
+    public TassaAlgorithm(IBenchmarkListener observer,
                           Data data,
                           ARXConfiguration config) throws IOException {
         this(observer, data, config, 0d);
@@ -60,7 +60,7 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
      *            Set to 0 to perform a single pass
      * @throws IOException
      */
-    public TassaAlgorithm(IBenchmarkObserver observer,
+    public TassaAlgorithm(IBenchmarkListener observer,
                           Data data,
                           ARXConfiguration config,
                           double threshold) throws IOException {

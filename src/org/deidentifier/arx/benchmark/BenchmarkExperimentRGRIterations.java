@@ -229,7 +229,7 @@ public class BenchmarkExperimentRGRIterations {
 
         if (algorithm == BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING) {
 
-            IBenchmarkObserver listener = new IBenchmarkObserver() {
+            IBenchmarkListener listener = new IBenchmarkListener() {
 
                 private int      step               = 0;
                 /**

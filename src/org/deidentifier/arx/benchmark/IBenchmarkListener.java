@@ -1,6 +1,6 @@
 package org.deidentifier.arx.benchmark;
 
-public interface IBenchmarkObserver {
+public interface IBenchmarkListener {
     
     public void setWarmup(boolean isWarmup);
     

@@ -27,7 +27,7 @@ public class BenchmarkAlgorithmFlash extends BenchmarkAlgorithm {
      * @param data
      * @param config
      */
-    public BenchmarkAlgorithmFlash(IBenchmarkObserver observer,
+    public BenchmarkAlgorithmFlash(IBenchmarkListener observer,
                                    final Data data,
                                    final ARXConfiguration config) {
         super(observer);

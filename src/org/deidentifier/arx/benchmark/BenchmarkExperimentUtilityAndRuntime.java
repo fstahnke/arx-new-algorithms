@@ -107,6 +107,15 @@ public class BenchmarkExperimentUtilityAndRuntime {
         numberOfRuns = setup.getNumberOfRuns();
         numberOfWarmups = setup.getNumberOfWarmups();
 
+        // Do an initial warmup
+        initialWarmup(BenchmarkDataset.ADULT,
+                      BenchmarkUtilityMeasure.LOSS,
+                      BenchmarkPrivacyModel.K5_ANONYMITY,
+                      BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING,
+                      0.1,
+                      0.01,
+                      0.05);
+
         // Repeat for each data set
         for (BenchmarkPrivacyModel model : setup.getPrivacyModels()) {
             for (BenchmarkUtilityMeasure measure : setup.getUtilityMeasures()) {
@@ -131,8 +140,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
                                                        dataset.getNumQIs() + " / Records: " +
                                                        dataset.getNumRecords());
 
-                                    performExperiment(metadata,
-                                                      dataset,
+                                    performExperiment(dataset,
                                                       measure,
                                                       model,
                                                       algorithm,
@@ -164,6 +172,97 @@ public class BenchmarkExperimentUtilityAndRuntime {
     }
 
     /**
+     * @param adult
+     * @param loss
+     * @param k5Anonymity
+     * @param recursiveGlobalRecoding
+     * @param d
+     * @param e
+     * @param f
+     * @throws IOException
+     * @throws RollbackRequiredException
+     */
+    private void initialWarmup(BenchmarkDataset dataset,
+                               BenchmarkUtilityMeasure measure,
+                               BenchmarkPrivacyModel model,
+                               BenchmarkAlgorithm algorithm,
+                               double suppressionLimit,
+                               double gsFactor,
+                               double gsStepSize) throws IOException, RollbackRequiredException {
+        
+        if (numberOfWarmups < 1) {
+            return;
+        }
+
+        Data data = BenchmarkSetup.getData(dataset, model);
+        ARXConfiguration config = BenchmarkSetup.getConfiguration(dataset,
+                                                                  measure,
+                                                                  model,
+                                                                  suppressionLimit,
+                                                                  gsFactor);
+
+        final String[] header = new DataConverter().getHeader(data.getHandle());
+
+        // Calculate max generalization levels
+        final int maxGeneralizationLevels[] = new int[header.length];
+        for (int i = 0; i < maxGeneralizationLevels.length; i++) {
+            maxGeneralizationLevels[i] = data.getDefinition()
+                                             .getHierarchy(data.getHandle().getAttributeName(i))[0].length - 1;
+        }
+
+        if (algorithm == BenchmarkAlgorithm.TASSA ||
+            algorithm == BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING ||
+            algorithm == BenchmarkAlgorithm.FLASH) {
+            IBenchmarkListener listener = new IBenchmarkListener() {
+
+                @Override
+                public void setWarmup(boolean isWarmup) {
+                    // TODO Auto-generated method stub
+
+                }
+
+                @Override
+                public void notify(long timestamp, String[][] output, int[] transformation) {
+                    // TODO Auto-generated method stub
+
+                }
+
+                @Override
+                public void notifyFinished(long timestamp, String[][] output) {
+                    // TODO Auto-generated method stub
+
+                }
+            };
+
+            org.deidentifier.arx.benchmark.BenchmarkAlgorithm algorithmImplementation = null;
+            if (algorithm == BenchmarkAlgorithm.TASSA) {
+                algorithmImplementation = new TassaAlgorithm(listener, data, config);
+            } else if (algorithm == BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING) {
+                algorithmImplementation = new BenchmarkAlgorithmRGR(listener,
+                                                                    data,
+                                                                    config,
+                                                                    gsStepSize);
+            } else if (algorithm == BenchmarkAlgorithm.FLASH) {
+                algorithmImplementation = new BenchmarkAlgorithmFlash(listener, data, config);
+            }
+            
+            // Execute warmup
+            System.out.println("Initial warmup phase for " + algorithm.toString());
+            System.out.print("Warmup iteration: ");
+            for (int i = 1; i <= numberOfRuns; i++) {
+                algorithmImplementation.execute();
+                if (numberOfRuns > 1 && (i % numberOfWarmups == 0 || i == numberOfRuns)) {
+                    System.out.print(i + " ");
+                }
+            }
+            System.out.println(">> done!");
+
+        } else {
+            throw new UnsupportedOperationException("Unimplemented Algorithm: " + algorithm);
+        }
+    }
+
+    /**
      * Perform experiments
      * 
      * @param metadata
@@ -176,8 +275,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
      * @throws IOException
      * @throws RollbackRequiredException
      */
-    private void performExperiment(final BenchmarkMetadataUtility metadata,
-                                   final BenchmarkDataset dataset,
+    private void performExperiment(final BenchmarkDataset dataset,
                                    final BenchmarkUtilityMeasure measure,
                                    final BenchmarkPrivacyModel model,
                                    final BenchmarkAlgorithm algorithm,
@@ -206,7 +304,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
         if (algorithm == BenchmarkAlgorithm.TASSA ||
             algorithm == BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING ||
             algorithm == BenchmarkAlgorithm.FLASH) {
-            IBenchmarkObserver observer = new IBenchmarkObserver() {
+            IBenchmarkListener listener = new IBenchmarkListener() {
 
                 private boolean  isWarmup       = false;
                 private int      run            = 0;
@@ -258,7 +356,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
                         double suppressedRatio = BenchmarkHelper.divideInts(suppressedTuples,
                                                                             output.length);
                         double utilityMean = BenchmarkHelper.calculateArithmeticMean(utilityResults);
-                        double runtime = BenchmarkHelper.calculateArithmeticMean(runtimes);
+                        long runtime = Math.round(BenchmarkHelper.calculateArithmeticMean(runtimes));
                         double variance = BenchmarkHelper.calculateVariance(output,
                                                                             header,
                                                                             hierarchies,
@@ -295,23 +393,23 @@ public class BenchmarkExperimentUtilityAndRuntime {
 
             org.deidentifier.arx.benchmark.BenchmarkAlgorithm algorithmImplementation = null;
             if (algorithm == BenchmarkAlgorithm.TASSA) {
-                algorithmImplementation = new TassaAlgorithm(observer, data, config);
+                algorithmImplementation = new TassaAlgorithm(listener, data, config);
             } else if (algorithm == BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING) {
-                algorithmImplementation = new BenchmarkAlgorithmRGR(observer,
+                algorithmImplementation = new BenchmarkAlgorithmRGR(listener,
                                                                     data,
                                                                     config,
                                                                     gsStepSize);
             } else if (algorithm == BenchmarkAlgorithm.FLASH) {
-                algorithmImplementation = new BenchmarkAlgorithmFlash(observer, data, config);
+                algorithmImplementation = new BenchmarkAlgorithmFlash(listener, data, config);
             }
 
             if (numberOfWarmups > 0) {
                 System.out.print("Warmup... ");
-                observer.setWarmup(true);
+                listener.setWarmup(true);
                 for (int i = 0; i < numberOfWarmups; i++) {
                     algorithmImplementation.execute();
                 }
-                observer.setWarmup(false);
+                listener.setWarmup(false);
                 System.out.println("done!");
 
                 System.out.print("Iteration: ");

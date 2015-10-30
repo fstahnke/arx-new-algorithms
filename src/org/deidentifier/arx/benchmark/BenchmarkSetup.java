@@ -784,7 +784,7 @@ public class BenchmarkSetup {
     /**
      * The value is in depencance of the number of runs (numberOfRuns) of this
      * benchmark. If numberOfRuns > 1, it will return 10% of numberOfRuns
-     * (rounded up to the next integer). If numberOfRuns <= 1, it will return
+     * (rounded up to the next integer). If numberOfRuns <= 1, it will return 0.
      * 
      * @return The number of warmup runs for this benchmark.
      */

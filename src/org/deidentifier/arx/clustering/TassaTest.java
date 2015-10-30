@@ -7,7 +7,7 @@ import org.deidentifier.arx.Data;
 import org.deidentifier.arx.benchmark.BenchmarkSetup;
 import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkDataset;
 import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkPrivacyModel;
-import org.deidentifier.arx.benchmark.IBenchmarkObserver;
+import org.deidentifier.arx.benchmark.IBenchmarkListener;
 import org.deidentifier.arx.criteria.KAnonymity;
 
 public class TassaTest {
@@ -35,7 +35,7 @@ public class TassaTest {
         config.addCriterion(new KAnonymity(K));
         config.setMaxOutliers(0d);
         
-        final TassaAlgorithm algorithm = new TassaAlgorithm(new IBenchmarkObserver() {
+        final TassaAlgorithm algorithm = new TassaAlgorithm(new IBenchmarkListener() {
             @Override
             public void notify(long timestamp, String[][] output, int[] transformation) {
                 // Empty by design
