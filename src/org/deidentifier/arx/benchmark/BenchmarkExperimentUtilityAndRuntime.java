@@ -19,7 +19,6 @@ package org.deidentifier.arx.benchmark;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.Map;
 
 import org.deidentifier.arx.ARXConfiguration;
@@ -222,70 +221,69 @@ public class BenchmarkExperimentUtilityAndRuntime {
                 @Override
                 public void notifyFinished(long timestamp, String[][] output) {
 
-                    if (!isWarmup) {
-                        // Obtain utility
-                        double utility = 0d;
-                        if (measure == BenchmarkUtilityMeasure.LOSS) {
-                            utility = new UtilityMeasureLoss<Double>(header,
-                                                                     hierarchies,
-                                                                     AggregateFunction.GEOMETRIC_MEAN).evaluate(output)
-                                                                                                      .getUtility();
-                        } else if (measure == BenchmarkUtilityMeasure.DISCERNIBILITY) {
-                            utility = new UtilityMeasureDiscernibility().evaluate(output)
-                                                                        .getUtility();
-                        }
+                    // If warmup, don't do anything.
+                    if (isWarmup) { return; }
 
-                        // Normalize
-                        utility -= metadata.getLowerBound(dataset, measure);
-                        utility /= (metadata.getUpperBound(dataset, measure) - metadata.getLowerBound(dataset,
-                                                                                                      measure));
+                    // Obtain utility
+                    double utility = 0d;
+                    if (measure == BenchmarkUtilityMeasure.LOSS) {
+                        utility = new UtilityMeasureLoss<Double>(header,
+                                                                 hierarchies,
+                                                                 AggregateFunction.GEOMETRIC_MEAN).evaluate(output)
+                                                                                                  .getUtility();
+                    } else if (measure == BenchmarkUtilityMeasure.DISCERNIBILITY) {
+                        utility = new UtilityMeasureDiscernibility().evaluate(output).getUtility();
+                    }
 
-                        // Save intermediary results
-                        utilityResults[run] = utility;
-                        runtimes[run] = timestamp;
+                    // Normalize
+                    utility -= metadata.getLowerBound(dataset, measure);
+                    utility /= (metadata.getUpperBound(dataset, measure) - metadata.getLowerBound(dataset,
+                                                                                                  measure));
 
-                        // Calculate suppressed tuples
+                    // Save intermediary results
+                    utilityResults[run] = utility;
+                    runtimes[run] = timestamp;
+
+                    run++;
+                    // Run complete
+                    if (numberOfRuns > 1 && (run % numberOfWarmups == 0 || run == numberOfRuns)) {
+                        System.out.print(run + " ");
+                    }
+
+                    // Write
+                    if (run == numberOfRuns) {
+
+                        // Calculate results
                         int suppressedTuples = BenchmarkHelper.getNumSuppressed(output);
                         double suppressedRatio = BenchmarkHelper.divideInts(suppressedTuples,
                                                                             output.length);
-
-                        // Write
-                        if (run == numberOfRuns - 1) {
-
-                            double utilityMean = BenchmarkHelper.calculateArithmeticMean(utilityResults);
-                            double runtime = BenchmarkHelper.calculateArithmeticMean(runtimes);
-                            double variance = BenchmarkHelper.calculateVariance(output,
-                                                                          header,
-                                                                          hierarchies,
-                                                                          false);
-                            double varianceNotSuppressed = BenchmarkHelper.calculateVariance(output,
-                                                                                       header,
-                                                                                       hierarchies,
-                                                                                       true);
-
-                            BENCHMARK.addRun(dataset,
-                                             measure,
-                                             model,
-                                             algorithm,
-                                             suppressionLimit,
-                                             gsFactor,
-                                             gsStepSize,
-                                             model.getStrength(),
-                                             output.length,
-                                             output[0].length);
-                            BENCHMARK.addValue(UTILITY, utilityMean);
-                            BENCHMARK.addValue(RUNTIME, runtime);
-                            BENCHMARK.addValue(SUPPRESSED, suppressedTuples);
-                            BENCHMARK.addValue(SUPPRESSED_RATIO, suppressedRatio);
-                            BENCHMARK.addValue(VARIANCE, variance);
-                            BENCHMARK.addValue(VARIANCE_NOTSUPPRESSED, varianceNotSuppressed);
-                        }
-
-                        run++;
-                        // Run complete
-                        if (numberOfRuns > 1 && (run % numberOfWarmups == 0 || run == numberOfRuns)) {
-                            System.out.print(run + " ");
-                        }
+                        double utilityMean = BenchmarkHelper.calculateArithmeticMean(utilityResults);
+                        double runtime = BenchmarkHelper.calculateArithmeticMean(runtimes);
+                        double variance = BenchmarkHelper.calculateVariance(output,
+                                                                            header,
+                                                                            hierarchies,
+                                                                            false);
+                        double varianceNotSuppressed = BenchmarkHelper.calculateVariance(output,
+                                                                                         header,
+                                                                                         hierarchies,
+                                                                                         true);
+                        // Add results to Benchmark run
+                        BENCHMARK.addRun(dataset,
+                                         measure,
+                                         model,
+                                         algorithm,
+                                         suppressionLimit,
+                                         gsFactor,
+                                         gsStepSize,
+                                         model.getStrength(),
+                                         output.length,
+                                         output[0].length);
+                        BENCHMARK.addValue(UTILITY, utilityMean);
+                        BENCHMARK.addValue(RUNTIME, runtime);
+                        BENCHMARK.addValue(SUPPRESSED, suppressedTuples);
+                        BENCHMARK.addValue(SUPPRESSED_RATIO, suppressedRatio);
+                        BENCHMARK.addValue(VARIANCE, variance);
+                        BENCHMARK.addValue(VARIANCE_NOTSUPPRESSED, varianceNotSuppressed);
                     }
                 }
 
