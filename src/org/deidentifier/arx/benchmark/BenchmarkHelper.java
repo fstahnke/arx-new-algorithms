@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 public class BenchmarkHelper {
@@ -13,9 +14,10 @@ public class BenchmarkHelper {
      */
     public static final int DECIMAL_SCALE = 10;
 
-    
     /**
-     * Calculates the variance using BigDecimalals for better precision. The scale of the result is {@value #DECIMAL_SCALE}.
+     * Calculates the variance using BigDecimalals for better precision. The
+     * scale of the result is {@value #DECIMAL_SCALE}.
+     * 
      * @param output
      * @param header
      * @param hierarchies
@@ -23,9 +25,9 @@ public class BenchmarkHelper {
      * @return
      */
     public static double calculateVariance(String[][] output,
-                                               String[] header,
-                                               Map<String, String[][]> hierarchies,
-                                               boolean ignoreSuppressed) {
+                                           String[] header,
+                                           Map<String, String[][]> hierarchies,
+                                           boolean ignoreSuppressed) {
 
         final int numberOfRecords = output.length;
         final int numberOfAttributes = output[0].length;
@@ -59,8 +61,8 @@ public class BenchmarkHelper {
             if (!ignoreSuppressed || !isSuppressed(row)) {
                 for (int columnIndex = 0; columnIndex < numberOfAttributes; columnIndex++) {
                     BigDecimal degree = BigDecimal.valueOf(divideInts(stringToLevelMaps.get(columnIndex)
-                                                                                    .get(row[columnIndex]),
-                                                                   maxGeneralizationLevels[columnIndex]));
+                                                                                       .get(row[columnIndex]),
+                                                                      maxGeneralizationLevels[columnIndex]));
                     averageDegrees[columnIndex] = averageDegrees[columnIndex].add(degree);
                 }
                 numberOfTuplesConsidered++;
@@ -82,8 +84,8 @@ public class BenchmarkHelper {
                 if (!ignoreSuppressed || !isSuppressed(row)) {
                     for (int columnIndex = 0; columnIndex < numberOfAttributes; columnIndex++) {
                         BigDecimal degree = BigDecimal.valueOf(divideInts(stringToLevelMaps.get(columnIndex)
-                                                                                        .get(row[columnIndex]),
-                                                                       maxGeneralizationLevels[columnIndex]));
+                                                                                           .get(row[columnIndex]),
+                                                                          maxGeneralizationLevels[columnIndex]));
                         BigDecimal variance = degree.subtract(averageDegrees[columnIndex]).pow(2);
                         variances[columnIndex] = variances[columnIndex].add(variance);
                     }
@@ -103,7 +105,56 @@ public class BenchmarkHelper {
     }
 
     /**
-     * Get the arithmetic mean for a set of values. Using BigDecimal for exact results.
+     * Calculates the variance using BigDecimalals for better precision. The
+     * scale of the result is {@value #DECIMAL_SCALE}.
+     * 
+     * @param output
+     * @param header
+     * @param hierarchies
+     * @param ignoreSuppressed
+     * @return
+     */
+    public static int calculateNumberOfTransformations(String[][] output,
+                                                       String[] header,
+                                                       Map<String, String[][]> hierarchies) {
+        final int numberOfAttributes = output[0].length;
+
+        // Create maps with the generalization level for each string
+        ArrayList<Map<String, Integer>> stringToLevelMaps = new ArrayList<Map<String, Integer>>();
+        for (int columnIndex = 0; columnIndex < numberOfAttributes; columnIndex++) {
+            String attribute = header[columnIndex];
+            Map<String, Integer> map = new HashMap<String, Integer>();
+            stringToLevelMaps.add(map);
+            for (String[] row : hierarchies.get(attribute)) {
+                for (int level = row.length - 1; level >= 0; level--) {
+                    if (map.containsKey(row[level])) {
+                        int lvl = Math.max(map.get(row[level]), level);
+                        map.put(row[level], lvl);
+                    } else {
+                        map.put(row[level], level);
+                    }
+                }
+            }
+        }
+        
+
+        // add transformation for each row to HashMap
+        HashSet<ArrayList<Integer>> transformationSet = new HashSet<>();
+        for (String[] row : output) {
+            ArrayList<Integer> transformation = new ArrayList<>(numberOfAttributes);
+            for (int columnIndex = 0; columnIndex < numberOfAttributes; columnIndex++) {
+                transformation.add(stringToLevelMaps.get(columnIndex)
+                                                               .get(row[columnIndex]));
+            }
+            transformationSet.add(transformation);
+        }
+        
+        return transformationSet.size();
+    }
+
+    /**
+     * Get the arithmetic mean for a set of values. Using BigDecimal for exact
+     * results.
      * 
      * @param values
      * @return The arithmetic mean.
@@ -119,10 +170,10 @@ public class BenchmarkHelper {
                                                BigDecimal.ROUND_HALF_UP);
         return arithmeticMean;
     }
-    
 
     /**
-     * Get the arithmetic mean for a set of values. Using BigDecimal for exact results.
+     * Get the arithmetic mean for a set of values. Using BigDecimal for exact
+     * results.
      * 
      * @param values
      * @return The arithmetic mean.
@@ -158,8 +209,8 @@ public class BenchmarkHelper {
      */
     public static double divideInts(int numerator, int denominator) {
         BigDecimal result = BigDecimal.valueOf(numerator).divide(BigDecimal.valueOf(denominator),
-                                                             DECIMAL_SCALE,
-                                                             BigDecimal.ROUND_HALF_UP);
+                                                                 DECIMAL_SCALE,
+                                                                 BigDecimal.ROUND_HALF_UP);
         return result.doubleValue();
     }
 

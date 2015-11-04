@@ -46,7 +46,7 @@ import de.linearbits.subframe.analyzer.ValueBuffer;
 public class BenchmarkExperimentUtilityAndRuntime {
 
     /** The benchmark instance */
-    private final Benchmark          BENCHMARK              = new Benchmark(new String[] {
+    private final Benchmark          BENCHMARK                 = new Benchmark(new String[] {
             "Dataset",
             "UtilityMeasure",
             "PrivacyModel",
@@ -56,20 +56,22 @@ public class BenchmarkExperimentUtilityAndRuntime {
             "gsFactorStepSize",
             "K",
             "Records",
-            "QIs"                                          });
+            "QIs"                                             });
 
     /** UTILITY */
-    private final int                UTILITY                = BENCHMARK.addMeasure("Utility");
+    private final int                UTILITY                   = BENCHMARK.addMeasure("Utility");
     /** RUNTIME */
-    private final int                RUNTIME                = BENCHMARK.addMeasure("Runtime");
+    private final int                RUNTIME                   = BENCHMARK.addMeasure("Runtime");
     /** NUMBER OF SUPPRESSED TUPLES */
-    private final int                SUPPRESSED             = BENCHMARK.addMeasure("Suppressed");
+    private final int                SUPPRESSED                = BENCHMARK.addMeasure("Suppressed");
     /** RATIO OF SUPPRESSED TUPLES */
-    private final int                SUPPRESSED_RATIO       = BENCHMARK.addMeasure("SuppressedRatio");
+    private final int                SUPPRESSED_RATIO          = BENCHMARK.addMeasure("SuppressedRatio");
     /** GENERALIZATION VARIANCE */
-    private final int                VARIANCE               = BENCHMARK.addMeasure("Variance");
+    private final int                VARIANCE                  = BENCHMARK.addMeasure("Variance");
     /** GENERALIZATION VARIANCE WITHOUT SUPPRESSED TUPLES */
-    private final int                VARIANCE_NOTSUPPRESSED = BENCHMARK.addMeasure("VarianceWithoutSuppressed");
+    private final int                VARIANCE_NOTSUPPRESSED    = BENCHMARK.addMeasure("VarianceWithoutSuppressed");
+    /** NUMBER OF DISTINCT TRANSFORMATIONS */
+    private final int                NUMBER_OF_TRANSFORMATIONS = BENCHMARK.addMeasure("Transformations");
     /** Number of runs for each benchmark setting */
     private int                      numberOfRuns;
     /** Number of warmup runs */
@@ -87,6 +89,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
         BENCHMARK.addAnalyzer(SUPPRESSED_RATIO, new ValueBuffer());
         BENCHMARK.addAnalyzer(VARIANCE, new ValueBuffer());
         BENCHMARK.addAnalyzer(VARIANCE_NOTSUPPRESSED, new ValueBuffer());
+        BENCHMARK.addAnalyzer(NUMBER_OF_TRANSFORMATIONS, new ValueBuffer());
 
         setup = new BenchmarkSetup(benchmarkConfig);
         metadata = new BenchmarkMetadataUtility(setup);
@@ -113,7 +116,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
                       BenchmarkPrivacyModel.K5_ANONYMITY,
                       BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING,
                       0.1,
-                      0.01,
+                      0.0,
                       0.05);
 
         // Repeat for each data set
@@ -125,10 +128,14 @@ public class BenchmarkExperimentUtilityAndRuntime {
                             for (double gsStepSize : setup.getGsStepSizes()) {
                                 for (double gsFactor : setup.getGsFactors()) {
 
-                                    // Tassa doesn't support suppression limits
+                                    // Tassa and FLASH don't support all
+                                    // parameters
                                     if (algorithm == BenchmarkAlgorithm.TASSA) {
                                         suppressionLimit = 0.0;
+                                        gsFactor = 0.0;
+                                        gsStepSize = 0.0;
                                     } else if (algorithm == BenchmarkAlgorithm.FLASH) {
+                                        gsFactor = 0.5;
                                         gsStepSize = 0.0;
                                     }
 
@@ -150,7 +157,8 @@ public class BenchmarkExperimentUtilityAndRuntime {
                                     // Write after each experiment
                                     BENCHMARK.getResults().write(resultFile);
                                     // Break gsFactor loop for Tassa
-                                    if (algorithm == BenchmarkAlgorithm.TASSA) {
+                                    if (algorithm == BenchmarkAlgorithm.TASSA ||
+                                        algorithm == BenchmarkAlgorithm.FLASH) {
                                         break;
                                     }
                                 }
@@ -189,10 +197,8 @@ public class BenchmarkExperimentUtilityAndRuntime {
                                double suppressionLimit,
                                double gsFactor,
                                double gsStepSize) throws IOException, RollbackRequiredException {
-        
-        if (numberOfWarmups < 1) {
-            return;
-        }
+
+        if (numberOfWarmups < 1) { return; }
 
         Data data = BenchmarkSetup.getData(dataset, model);
         ARXConfiguration config = BenchmarkSetup.getConfiguration(dataset,
@@ -245,13 +251,13 @@ public class BenchmarkExperimentUtilityAndRuntime {
             } else if (algorithm == BenchmarkAlgorithm.FLASH) {
                 algorithmImplementation = new BenchmarkAlgorithmFlash(listener, data, config);
             }
-            
+
             // Execute warmup
             System.out.println("Initial warmup phase for " + algorithm.toString());
             System.out.print("Warmup iteration: ");
-            for (int i = 1; i <= numberOfRuns; i++) {
+            for (int i = 1; i <= 20; i++) {
                 algorithmImplementation.execute();
-                if (numberOfRuns > 1 && (i % numberOfWarmups == 0 || i == numberOfRuns)) {
+                if (i % 2 == 0 || i == 20) {
                     System.out.print(i + " ");
                 }
             }
@@ -382,6 +388,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
                         BENCHMARK.addValue(SUPPRESSED_RATIO, suppressedRatio);
                         BENCHMARK.addValue(VARIANCE, variance);
                         BENCHMARK.addValue(VARIANCE_NOTSUPPRESSED, varianceNotSuppressed);
+                        BENCHMARK.addValue(NUMBER_OF_TRANSFORMATIONS, BenchmarkHelper.calculateNumberOfTransformations(output, header, hierarchies));
                     }
                 }
 

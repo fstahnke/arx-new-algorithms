@@ -218,7 +218,7 @@ public class BenchmarkSetup {
 
     public static enum BenchmarkAlgorithm {
         RECURSIVE_GLOBAL_RECODING("RGR"),
-        TASSA("Tassa & Goldberger"),
+        TASSA("Clustering"),
         FLASH("Flash");
 
         private final String name;

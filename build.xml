@@ -4,15 +4,13 @@
 	<description>Builds, tests, and runs the project.</description>
 
 	<!-- defines the version number -->
-	<property name="version" value="0.0.6" />
-
-	<!-- defines the to be included libraries -->
-	<fileset id="lib.jars" dir="lib">
-		<or>
-			<filename name="**/subframe-0.2-lib.jar" />
-			<filename name="**/libarx-3.3.0.jar" />
-		</or>
-	</fileset>
+	<property name="version" value="0.0.6-compact" />
+	
+	<path id="compile.classpath">
+		<fileset dir="lib">
+			<include name="**/*.jar"/>
+		</fileset>
+	</path>
 
 	<target name="release" depends="jars">
 	</target>
@@ -22,39 +20,27 @@
 	</target>
 
 	<target name="end-clean">
-		<delete dir="build/extLibs" failonerror="true" />
 		<delete dir="build/lib" failonerror="true" />
 		<delete dir="build" failonerror="true" />
 	</target>
 
 	<target name="prepare" depends="clean">
 		<mkdir dir="build" />
-		<mkdir dir="build/extLibs" />
 		<mkdir dir="build/lib" />
 		<mkdir dir="jars" />
 	</target>
 
 	<target name="compile" depends="prepare" description="compile the source ">
-		<javac includeantruntime="false" srcdir="src" destdir="build/lib" source="1.7">
-			<classpath>
-				<fileset refid="lib.jars" />
-				<path path="src" />
-			</classpath>
+		<javac includeantruntime="false" classpathref="compile.classpath" srcdir="src" destdir="build/lib" source="1.7">
 		</javac>
 	</target>
 
-	<target name="buildExternalLibs">
-		<jar jarfile="build/extLibs/lib.jar">
-			<zipgroupfileset refid="lib.jars" />
-		</jar>
-	</target>
-
-	<target name="jar-libs" depends="compile, buildExternalLibs">
+	<target name="jar-libs" depends="compile">
 		<jar destfile="jars/Experiment-v${version}.jar">
 			<fileset dir="build/lib" defaultexcludes="no" />
-			<zipfileset src="build/extLibs/lib.jar" excludes="META-INF/*.RSA,META-INF/*.SF,META-INF/*.DSA" />
 			<manifest>
 				<attribute name="Main-Class" value="org.deidentifier.arx.benchmark.BenchmarkManager" />
+                <attribute name="Class-Path" value="lib/libarx-3.3.0.jar lib/subframe-0.2-lib.jar"/>
 			</manifest>
 		</jar>
 	</target>

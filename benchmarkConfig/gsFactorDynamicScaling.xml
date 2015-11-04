@@ -35,7 +35,7 @@
     <gsStepSize>0.05</gsStepSize>
 
     <!-- set paths for output files -->
-    <outputFile>results/gsFactorDynamicScaling_udpateUtility.csv</outputFile>
+    <outputFile>results/gsFactorDynamicScaling.csv</outputFile>
     <plotFile>results/gsFactorDynamicScaling.pdf</plotFile>
 
     <!-- set number of runs -->

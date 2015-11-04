@@ -28,6 +28,7 @@ import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkAlgorithm;
 import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkDataset;
 import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkPrivacyModel;
 import org.deidentifier.arx.benchmark.BenchmarkSetup.BenchmarkUtilityMeasure;
+import org.deidentifier.arx.clustering.TassaAlgorithm;
 import org.deidentifier.arx.exceptions.RollbackRequiredException;
 import org.deidentifier.arx.recursive.BenchmarkAlgorithmRGR;
 import org.deidentifier.arx.utility.AggregateFunction;
@@ -48,7 +49,7 @@ import de.linearbits.subframe.analyzer.ValueBuffer;
 public class BenchmarkExperimentRGRIterations {
 
     /** The benchmark instance */
-    private final Benchmark    BENCHMARK                = new Benchmark(new String[] {
+    private final Benchmark          BENCHMARK              = new Benchmark(new String[] {
             "Dataset",
             "UtilityMeasure",
             "PrivacyModel",
@@ -58,43 +59,43 @@ public class BenchmarkExperimentRGRIterations {
             "gsFactorStepSize",
             "K",
             "Records",
-            "QIs"                                      });
+            "QIs"                                          });
 
     /** UTILITY */
-    private final int          UTILITY                  = BENCHMARK.addMeasure("Utility");
+    private final int                UTILITY                  = BENCHMARK.addMeasure("Utility");
     /** RUNTIME */
-    private final int          RUNTIME                  = BENCHMARK.addMeasure("Runtime");
+    private final int                RUNTIME                  = BENCHMARK.addMeasure("Runtime");
     /** ITERATION OF THE RECURSIVE ALGORITHM */
-    private final int          STEP                     = BENCHMARK.addMeasure("Step");
+    private final int                STEP                     = BENCHMARK.addMeasure("Step");
     /** NUMBER OF SUPPRESSED TUPLES */
-    private final int          SUPPRESSED               = BENCHMARK.addMeasure("Suppressed");
+    private final int                SUPPRESSED               = BENCHMARK.addMeasure("Suppressed");
     /** RATIO OF SUPPRESSED TUPLES */
-    private final int          SUPPRESSED_RATIO         = BENCHMARK.addMeasure("SuppressedRatio");
+    private final int                SUPPRESSED_RATIO         = BENCHMARK.addMeasure("SuppressedRatio");
     /** GENERALIZATION VARIANCE */
-    private final int          VARIANCE                 = BENCHMARK.addMeasure("Variance");
+    private final int                VARIANCE                 = BENCHMARK.addMeasure("Variance");
     /** GENERALIZATION VARIANCE WITHOUT SUPPRESSED TUPLES */
-    private final int          VARIANCE_NOTSUPPRESSED   = BENCHMARK.addMeasure("VarianceWithoutSuppressed");
+    private final int                VARIANCE_NOTSUPPRESSED   = BENCHMARK.addMeasure("VarianceWithoutSuppressed");
     /** Number of runs for each benchmark setting */
-    private int                numberOfRuns;
+    private int                      numberOfRuns;
     /** Number of warmup runs */
-    private int                numberOfWarmups;
+    private int                      numberOfWarmups          = 0;
     /** The setup of this experiment */
-    private BenchmarkSetup     setup;
+    private BenchmarkSetup           setup;
     /** The metadata of this experiment */
     private BenchmarkMetadataUtility metadata;
 
     /** AVERAGE DEGREE OF GENERALIZATION */
-    private final int   GENERALIZATION_DEGREE1   = BENCHMARK.addMeasure("GeneralizationDegree1");
-    private final int   GENERALIZATION_DEGREE2   = BENCHMARK.addMeasure("GeneralizationDegree2");
-    private final int   GENERALIZATION_DEGREE3   = BENCHMARK.addMeasure("GeneralizationDegree3");
-    private final int   GENERALIZATION_DEGREE4   = BENCHMARK.addMeasure("GeneralizationDegree4");
-    private final int   GENERALIZATION_DEGREE5   = BENCHMARK.addMeasure("GeneralizationDegree5");
-    private final int   GENERALIZATION_DEGREE6   = BENCHMARK.addMeasure("GeneralizationDegree6");
-    private final int   GENERALIZATION_DEGREE7   = BENCHMARK.addMeasure("GeneralizationDegree7");
-    private final int   GENERALIZATION_DEGREE8   = BENCHMARK.addMeasure("GeneralizationDegree8");
-    private final int   GENERALIZATION_DEGREE9   = BENCHMARK.addMeasure("GeneralizationDegree9");
+    private final int                GENERALIZATION_DEGREE1   = BENCHMARK.addMeasure("GeneralizationDegree1");
+    private final int                GENERALIZATION_DEGREE2   = BENCHMARK.addMeasure("GeneralizationDegree2");
+    private final int                GENERALIZATION_DEGREE3   = BENCHMARK.addMeasure("GeneralizationDegree3");
+    private final int                GENERALIZATION_DEGREE4   = BENCHMARK.addMeasure("GeneralizationDegree4");
+    private final int                GENERALIZATION_DEGREE5   = BENCHMARK.addMeasure("GeneralizationDegree5");
+    private final int                GENERALIZATION_DEGREE6   = BENCHMARK.addMeasure("GeneralizationDegree6");
+    private final int                GENERALIZATION_DEGREE7   = BENCHMARK.addMeasure("GeneralizationDegree7");
+    private final int                GENERALIZATION_DEGREE8   = BENCHMARK.addMeasure("GeneralizationDegree8");
+    private final int                GENERALIZATION_DEGREE9   = BENCHMARK.addMeasure("GeneralizationDegree9");
 
-    private final int[] DEGREE_ARRAY             = new int[] {
+    private final int[]              DEGREE_ARRAY             = new int[] {
             GENERALIZATION_DEGREE1,
             GENERALIZATION_DEGREE2,
             GENERALIZATION_DEGREE3,
@@ -103,20 +104,20 @@ public class BenchmarkExperimentRGRIterations {
             GENERALIZATION_DEGREE6,
             GENERALIZATION_DEGREE7,
             GENERALIZATION_DEGREE8,
-            GENERALIZATION_DEGREE9                     };
+            GENERALIZATION_DEGREE9                           };
 
     /** AVERAGE DEGREE OF GENERALIZATION */
-    private final int   GENERALIZATION_VARIANCE1 = BENCHMARK.addMeasure("GeneralizationVariance1");
-    private final int   GENERALIZATION_VARIANCE2 = BENCHMARK.addMeasure("GeneralizationVariance2");
-    private final int   GENERALIZATION_VARIANCE3 = BENCHMARK.addMeasure("GeneralizationVariance3");
-    private final int   GENERALIZATION_VARIANCE4 = BENCHMARK.addMeasure("GeneralizationVariance4");
-    private final int   GENERALIZATION_VARIANCE5 = BENCHMARK.addMeasure("GeneralizationVariance5");
-    private final int   GENERALIZATION_VARIANCE6 = BENCHMARK.addMeasure("GeneralizationVariance6");
-    private final int   GENERALIZATION_VARIANCE7 = BENCHMARK.addMeasure("GeneralizationVariance7");
-    private final int   GENERALIZATION_VARIANCE8 = BENCHMARK.addMeasure("GeneralizationVariance8");
-    private final int   GENERALIZATION_VARIANCE9 = BENCHMARK.addMeasure("GeneralizationVariance9");
+    private final int                GENERALIZATION_VARIANCE1 = BENCHMARK.addMeasure("GeneralizationVariance1");
+    private final int                GENERALIZATION_VARIANCE2 = BENCHMARK.addMeasure("GeneralizationVariance2");
+    private final int                GENERALIZATION_VARIANCE3 = BENCHMARK.addMeasure("GeneralizationVariance3");
+    private final int                GENERALIZATION_VARIANCE4 = BENCHMARK.addMeasure("GeneralizationVariance4");
+    private final int                GENERALIZATION_VARIANCE5 = BENCHMARK.addMeasure("GeneralizationVariance5");
+    private final int                GENERALIZATION_VARIANCE6 = BENCHMARK.addMeasure("GeneralizationVariance6");
+    private final int                GENERALIZATION_VARIANCE7 = BENCHMARK.addMeasure("GeneralizationVariance7");
+    private final int                GENERALIZATION_VARIANCE8 = BENCHMARK.addMeasure("GeneralizationVariance8");
+    private final int                GENERALIZATION_VARIANCE9 = BENCHMARK.addMeasure("GeneralizationVariance9");
 
-    private final int[] VARIANCE_ARRAY           = new int[] {
+    private final int[]              VARIANCE_ARRAY           = new int[] {
             GENERALIZATION_VARIANCE1,
             GENERALIZATION_VARIANCE2,
             GENERALIZATION_VARIANCE3,
@@ -125,10 +126,8 @@ public class BenchmarkExperimentRGRIterations {
             GENERALIZATION_VARIANCE6,
             GENERALIZATION_VARIANCE7,
             GENERALIZATION_VARIANCE8,
-            GENERALIZATION_VARIANCE9                   };
+            GENERALIZATION_VARIANCE9                         };
 
-    
-    
     public BenchmarkExperimentRGRIterations(String benchmarkConfig) throws IOException {
         // Init
         BENCHMARK.addAnalyzer(UTILITY, new ValueBuffer());
@@ -145,12 +144,11 @@ public class BenchmarkExperimentRGRIterations {
         for (int variance : VARIANCE_ARRAY) {
             BENCHMARK.addAnalyzer(variance, new ValueBuffer());
         }
-        
+
         setup = new BenchmarkSetup(benchmarkConfig);
         metadata = new BenchmarkMetadataUtility(setup);
-        
+
     }
-    
 
     /**
      * /** Main entry point
@@ -160,34 +158,142 @@ public class BenchmarkExperimentRGRIterations {
      * @throws RollbackRequiredException
      */
     public void execute() throws IOException, RollbackRequiredException {
-        
+
         File resultFile = new File(setup.getOutputFile());
         resultFile.getParentFile().mkdirs();
-        double gsStepping = 0.05;
+
+        // Do an initial warmup
+        initialWarmup(BenchmarkDataset.ADULT,
+                      BenchmarkUtilityMeasure.LOSS,
+                      BenchmarkPrivacyModel.K5_ANONYMITY,
+                      BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING,
+                      0.1,
+                      0.0,
+                      0.05);
 
         // Repeat for each data set
         for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
-            for (BenchmarkDataset data : setup.getDatasets()) {
+            for (BenchmarkDataset dataset : setup.getDatasets()) {
                 for (BenchmarkPrivacyModel model : setup.getPrivacyModels()) {
                     for (BenchmarkUtilityMeasure measure : setup.getUtilityMeasures()) {
-                        for (double suppression : setup.getSuppressionLimits()) {
-                            System.out.println("Performing run: " + data + "/" + measure + "/" +
-                                               model + "/" + algorithm + "/" + suppression);
+                        for (double suppressionLimit : setup.getSuppressionLimits()) {
+                            for (double gsStepSize : setup.getGsStepSizes()) {
+                                for (double gsFactor : setup.getGsFactors()) {
 
-                            // New run
-                            performExperiment(data,
-                                              measure,
-                                              model,
-                                              algorithm,
-                                              suppression,
-                                              gsStepping);
+                                    System.out.println("Performing run: " + dataset.name() + " / " +
+                                                       measure + " / " + model + " / " + algorithm +
+                                                       " / suppLimit: " + suppressionLimit +
+                                                       " / gsFactor: " + gsFactor +
+                                                       " / gsStepSize: " + gsStepSize + " / QIs: " +
+                                                       dataset.getNumQIs() + " / Records: " +
+                                                       dataset.getNumRecords());
 
-                            // Write after each experiment
-                            BENCHMARK.getResults().write(resultFile);
+                                    // New run
+                                    performExperiment(dataset,
+                                                      measure,
+                                                      model,
+                                                      algorithm,
+                                                      suppressionLimit,
+                                                      gsFactor,
+                                                      gsStepSize);
+
+                                    // Write after each experiment
+                                    BENCHMARK.getResults().write(resultFile);
+                                }
+                            }
                         }
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * @param adult
+     * @param loss
+     * @param k5Anonymity
+     * @param recursiveGlobalRecoding
+     * @param d
+     * @param e
+     * @param f
+     * @throws IOException
+     * @throws RollbackRequiredException
+     */
+    private void initialWarmup(BenchmarkDataset dataset,
+                               BenchmarkUtilityMeasure measure,
+                               BenchmarkPrivacyModel model,
+                               BenchmarkAlgorithm algorithm,
+                               double suppressionLimit,
+                               double gsFactor,
+                               double gsStepSize) throws IOException, RollbackRequiredException {
+
+        if (numberOfWarmups < 1) { return; }
+
+        Data data = BenchmarkSetup.getData(dataset, model);
+        ARXConfiguration config = BenchmarkSetup.getConfiguration(dataset,
+                                                                  measure,
+                                                                  model,
+                                                                  suppressionLimit,
+                                                                  gsFactor);
+
+        final String[] header = new DataConverter().getHeader(data.getHandle());
+
+        // Calculate max generalization levels
+        final int maxGeneralizationLevels[] = new int[header.length];
+        for (int i = 0; i < maxGeneralizationLevels.length; i++) {
+            maxGeneralizationLevels[i] = data.getDefinition()
+                                             .getHierarchy(data.getHandle().getAttributeName(i))[0].length - 1;
+        }
+
+        if (algorithm == BenchmarkAlgorithm.TASSA ||
+            algorithm == BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING ||
+            algorithm == BenchmarkAlgorithm.FLASH) {
+            IBenchmarkListener listener = new IBenchmarkListener() {
+
+                @Override
+                public void setWarmup(boolean isWarmup) {
+                    // TODO Auto-generated method stub
+
+                }
+
+                @Override
+                public void notify(long timestamp, String[][] output, int[] transformation) {
+                    // TODO Auto-generated method stub
+
+                }
+
+                @Override
+                public void notifyFinished(long timestamp, String[][] output) {
+                    // TODO Auto-generated method stub
+
+                }
+            };
+
+            org.deidentifier.arx.benchmark.BenchmarkAlgorithm algorithmImplementation = null;
+            if (algorithm == BenchmarkAlgorithm.TASSA) {
+                algorithmImplementation = new TassaAlgorithm(listener, data, config);
+            } else if (algorithm == BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING) {
+                algorithmImplementation = new BenchmarkAlgorithmRGR(listener,
+                                                                    data,
+                                                                    config,
+                                                                    gsStepSize);
+            } else if (algorithm == BenchmarkAlgorithm.FLASH) {
+                algorithmImplementation = new BenchmarkAlgorithmFlash(listener, data, config);
+            }
+
+            // Execute warmup
+            System.out.println("Initial warmup phase for " + algorithm.toString());
+            System.out.print("Warmup iteration: ");
+            for (int i = 1; i <= 20; i++) {
+                algorithmImplementation.execute();
+                if (i % 2 == 0 || i == 20) {
+                    System.out.print(i + " ");
+                }
+            }
+            System.out.println(">> done!");
+
+        } else {
+            throw new UnsupportedOperationException("Unimplemented Algorithm: " + algorithm);
         }
     }
 
@@ -199,7 +305,7 @@ public class BenchmarkExperimentRGRIterations {
      * @param measure
      * @param model
      * @param algorithm
-     * @param suppression
+     * @param suppressionLimit
      * @throws IOException
      * @throws RollbackRequiredException
      */
@@ -207,15 +313,16 @@ public class BenchmarkExperimentRGRIterations {
                                    final BenchmarkUtilityMeasure measure,
                                    final BenchmarkPrivacyModel model,
                                    final BenchmarkAlgorithm algorithm,
-                                   final double suppression,
-                                   final double gsStepping) throws IOException,
+                                   final double suppressionLimit,
+                                   final double gsFactor,
+                                   final double gsStepSize) throws IOException,
                                                            RollbackRequiredException {
 
         final Data data = BenchmarkSetup.getData(dataset, model);
         ARXConfiguration config = BenchmarkSetup.getConfiguration(dataset,
                                                                   measure,
                                                                   model,
-                                                                  suppression);
+                                                                  suppressionLimit);
 
         final Map<String, String[][]> hierarchies = new DataConverter().toMap(data.getDefinition());
         final String[] header = new DataConverter().getHeader(data.getHandle());
@@ -318,14 +425,31 @@ public class BenchmarkExperimentRGRIterations {
 
                     // Update number of generalized records
                     generalizedRecords = output.length - suppressed;
+                    
+                    // Add results to Benchmark run
+                    BENCHMARK.addRun(dataset,
+                                     measure,
+                                     model,
+                                     algorithm,
+                                     suppressionLimit,
+                                     gsFactor,
+                                     gsStepSize,
+                                     model.getStrength(),
+                                     output.length,
+                                     output[0].length);
 
-                    BENCHMARK.addRun(dataset, measure, model, algorithm, suppression);
-
+                    // Step complete
+                    if (step >= 1) {
+                        System.out.print(step + " ");
+                    }
+                    
                     // Write
                     BENCHMARK.addValue(STEP, step++);
                     BENCHMARK.addValue(SUPPRESSED, suppressed);
                     BENCHMARK.addValue(SUPPRESSED_RATIO, suppressed * 1.0 / output.length);
                     BENCHMARK.addValue(UTILITY, utility);
+                    BENCHMARK.addValue(VARIANCE, BenchmarkHelper.calculateVariance(output, header, hierarchies, false));
+                    BENCHMARK.addValue(VARIANCE_NOTSUPPRESSED, BenchmarkHelper.calculateVariance(output, header, hierarchies, true));
                     BENCHMARK.addValue(RUNTIME, timestamp);
 
                     for (int i = 0; i < transformation.length; i++) {
@@ -343,6 +467,7 @@ public class BenchmarkExperimentRGRIterations {
 
                 @Override
                 public void notifyFinished(long timestamp, String[][] output) {
+                    System.out.println(">>> done!");
                 }
 
                 @Override
@@ -354,7 +479,8 @@ public class BenchmarkExperimentRGRIterations {
             BenchmarkAlgorithmRGR implementation = new BenchmarkAlgorithmRGR(listener,
                                                                              data,
                                                                              config,
-                                                                             gsStepping);
+                                                                             gsStepSize);
+            System.out.print("Step: ");
             implementation.execute();
 
         } else {

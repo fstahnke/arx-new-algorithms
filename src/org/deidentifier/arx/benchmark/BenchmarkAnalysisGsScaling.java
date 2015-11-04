@@ -60,7 +60,7 @@ public class BenchmarkAnalysisGsScaling {
     // "benchmarkConfig/recordScaling.xml";
     // private static final String benchmarkConfig =
     // "benchmarkConfig/QIScaling.xml";
-    private static final String benchmarkConfig = "benchmarkConfig/gsFactorStaticScaling.xml";
+    private static final String benchmarkConfig = "benchmarkConfig/gsFactorDynamicScaling.xml";
 
     /**
      * Main
@@ -135,7 +135,7 @@ public class BenchmarkAnalysisGsScaling {
                                               .field("Algorithm")
                                               .equals(algorithm.toString())
                                               .and()
-                                              .field("Suppression Limit")
+                                              .field("SuppressionLimit")
                                               .equals(String.valueOf(suppress))
                                               .and()
                                               .field("Dataset")
@@ -147,7 +147,7 @@ public class BenchmarkAnalysisGsScaling {
 
             Series2D series = new Series2D(file,
                                            selector,
-                                           new Field("Suppression Weight"),
+                                           new Field("gsFactor"),
                                            new Field("Utility", Analyzer.VALUE));
 
             seriesList.add(series);
@@ -228,7 +228,7 @@ public class BenchmarkAnalysisGsScaling {
                                               .field("Algorithm")
                                               .equals(algorithm.toString())
                                               .and()
-                                              .field("Suppression Limit")
+                                              .field("SuppressionLimit")
                                               .equals(String.valueOf(suppress))
                                               .and()
                                               .field("Dataset")
@@ -240,7 +240,7 @@ public class BenchmarkAnalysisGsScaling {
 
             Series2D series = new Series2D(file,
                                            selector,
-                                           new Field("Suppression Weight"),
+                                           new Field("gsFactor"),
                                            new Field("Runtime", Analyzer.VALUE));
 
             tmpSelector = selector;
