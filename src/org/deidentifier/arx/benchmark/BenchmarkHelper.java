@@ -33,24 +33,8 @@ public class BenchmarkHelper {
         final int numberOfAttributes = output[0].length;
         final int[] maxGeneralizationLevels = new int[numberOfAttributes];
 
-        // Create maps with the generalization level for each string
-        ArrayList<Map<String, Integer>> stringToLevelMaps = new ArrayList<Map<String, Integer>>();
-        for (int columnIndex = 0; columnIndex < numberOfAttributes; columnIndex++) {
-            String attribute = header[columnIndex];
-            Map<String, Integer> map = new HashMap<String, Integer>();
-            stringToLevelMaps.add(map);
-            for (String[] row : hierarchies.get(attribute)) {
-                maxGeneralizationLevels[columnIndex] = row.length;
-                for (int level = row.length - 1; level >= 0; level--) {
-                    if (map.containsKey(row[level])) {
-                        int lvl = Math.max(map.get(row[level]), level);
-                        map.put(row[level], lvl);
-                    } else {
-                        map.put(row[level], level);
-                    }
-                }
-            }
-        }
+        ArrayList<Map<String, Integer>> stringToLevelMaps = getStringToLevelMaps(header,
+                                                                                 hierarchies);
 
         // Compute average generalization degree per attribute
         BigDecimal[] averageDegrees = new BigDecimal[numberOfAttributes];
@@ -105,8 +89,8 @@ public class BenchmarkHelper {
     }
 
     /**
-     * Calculates the variance using BigDecimalals for better precision. The
-     * scale of the result is {@value #DECIMAL_SCALE}.
+     * Calculates the number of distinct transformations in a generalized
+     * data set.
      * 
      * @param output
      * @param header
@@ -119,9 +103,36 @@ public class BenchmarkHelper {
                                                        Map<String, String[][]> hierarchies) {
         final int numberOfAttributes = output[0].length;
 
+        ArrayList<Map<String, Integer>> stringToLevelMaps = getStringToLevelMaps(header,
+                                                                                 hierarchies);
+
+        // add transformation for each row to HashMap
+        HashSet<ArrayList<Integer>> transformationSet = new HashSet<>();
+        for (String[] row : output) {
+            ArrayList<Integer> transformation = new ArrayList<>(numberOfAttributes);
+            for (int columnIndex = 0; columnIndex < numberOfAttributes; columnIndex++) {
+                transformation.add(stringToLevelMaps.get(columnIndex).get(row[columnIndex]));
+            }
+            transformationSet.add(transformation);
+        }
+
+        return transformationSet.size();
+    }
+
+    /**
+     * Returns a list of maps for each attribute, which map each string to its
+     * level in the according generalization hierarchy.
+     * 
+     * @param header
+     * @param hierarchies
+     * @return
+     */
+    private static ArrayList<Map<String, Integer>>
+            getStringToLevelMaps(String[] header, Map<String, String[][]> hierarchies) {
+
         // Create maps with the generalization level for each string
         ArrayList<Map<String, Integer>> stringToLevelMaps = new ArrayList<Map<String, Integer>>();
-        for (int columnIndex = 0; columnIndex < numberOfAttributes; columnIndex++) {
+        for (int columnIndex = 0; columnIndex < header.length; columnIndex++) {
             String attribute = header[columnIndex];
             Map<String, Integer> map = new HashMap<String, Integer>();
             stringToLevelMaps.add(map);
@@ -136,20 +147,9 @@ public class BenchmarkHelper {
                 }
             }
         }
-        
 
-        // add transformation for each row to HashMap
-        HashSet<ArrayList<Integer>> transformationSet = new HashSet<>();
-        for (String[] row : output) {
-            ArrayList<Integer> transformation = new ArrayList<>(numberOfAttributes);
-            for (int columnIndex = 0; columnIndex < numberOfAttributes; columnIndex++) {
-                transformation.add(stringToLevelMaps.get(columnIndex)
-                                                               .get(row[columnIndex]));
-            }
-            transformationSet.add(transformation);
-        }
-        
-        return transformationSet.size();
+        return stringToLevelMaps;
+
     }
 
     /**
