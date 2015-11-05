@@ -290,7 +290,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
                                    final double gsStepSize) throws IOException,
                                                            RollbackRequiredException {
 
-        Data data = BenchmarkSetup.getData(dataset, model);
+        final Data data = BenchmarkSetup.getData(dataset, model);
         ARXConfiguration config = BenchmarkSetup.getConfiguration(dataset,
                                                                   measure,
                                                                   model,

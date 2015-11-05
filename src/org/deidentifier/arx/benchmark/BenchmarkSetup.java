@@ -678,10 +678,11 @@ public class BenchmarkSetup {
         } else {
             return new BenchmarkDataset[] {
                     BenchmarkDataset.ADULT,
-                    BenchmarkDataset.CUP,
-                    BenchmarkDataset.FARS,
-                    BenchmarkDataset.ATUS,
-                    BenchmarkDataset.IHIS, };
+//                    BenchmarkDataset.CUP,
+//                    BenchmarkDataset.FARS,
+//                    BenchmarkDataset.ATUS,
+//                    BenchmarkDataset.IHIS,
+                    };
         }
     }
 
@@ -691,7 +692,9 @@ public class BenchmarkSetup {
         } else {
             return new BenchmarkAlgorithm[] {
                     BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING,
-                    BenchmarkAlgorithm.TASSA };
+                    BenchmarkAlgorithm.FLASH,
+                    BenchmarkAlgorithm.TASSA
+                    };
         }
     }
 
@@ -701,9 +704,10 @@ public class BenchmarkSetup {
         } else {
             return new BenchmarkPrivacyModel[] {
                     BenchmarkPrivacyModel.K5_ANONYMITY,
-                    BenchmarkPrivacyModel.K10_ANONYMITY,
-                    BenchmarkPrivacyModel.K25_ANONYMITY,
-                    BenchmarkPrivacyModel.K50_ANONYMITY };
+//                    BenchmarkPrivacyModel.K10_ANONYMITY,
+//                    BenchmarkPrivacyModel.K25_ANONYMITY,
+//                    BenchmarkPrivacyModel.K50_ANONYMITY
+                    };
         }
     }
 
@@ -717,7 +721,7 @@ public class BenchmarkSetup {
             return utilityMeasures;
         } else {
             return new BenchmarkUtilityMeasure[] {
-                    BenchmarkUtilityMeasure.DISCERNIBILITY,
+//                    BenchmarkUtilityMeasure.DISCERNIBILITY,
                     BenchmarkUtilityMeasure.LOSS };
         }
     }
@@ -730,7 +734,7 @@ public class BenchmarkSetup {
         if (suppressionLimits != null) {
             return suppressionLimits;
         } else {
-            return new double[] { 0.02d, 0.05d, 0.1d, 1.0d };
+            return new double[] { 0.05d, 0.1d, 0.95d };
         }
     }
 
@@ -742,7 +746,7 @@ public class BenchmarkSetup {
         if (gsFactors != null) {
             return gsFactors;
         } else {
-            return new double[] { 0.5d };
+            return new double[] { 0.0d };
         }
     }
 
@@ -754,7 +758,7 @@ public class BenchmarkSetup {
         if (gsStepSizes != null) {
             return gsStepSizes;
         } else {
-            return new double[] { 0.0d };
+            return new double[] { 0.05d };
         }
     }
 

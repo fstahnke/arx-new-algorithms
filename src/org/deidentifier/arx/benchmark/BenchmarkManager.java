@@ -29,8 +29,8 @@ public class BenchmarkManager {
         String[] configFiles = Arrays.copyOf(args, args.length);
 
         if (args.length == 0) {
-            System.out.println("No configuration specified.");
-            return;
+            System.out.println("No configuration specified. Using default values.");
+            new BenchmarkExperimentUtilityAndRuntime(null).execute();
         } else if (args[0].toLowerCase().equals("-iteration") || args[0].toLowerCase().equals("-i")) {
             iterationAnalysis = true;
             configFiles = Arrays.copyOfRange(args, 1, args.length);

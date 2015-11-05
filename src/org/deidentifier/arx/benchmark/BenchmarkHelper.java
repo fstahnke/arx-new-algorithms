@@ -1,5 +1,9 @@
 package org.deidentifier.arx.benchmark;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,6 +17,11 @@ public class BenchmarkHelper {
      * The scale for calculations with BigDecimal.
      */
     public static final int DECIMAL_SCALE = 10;
+
+    /** The separator*/
+    private static final char   SEPERATOR = ';';
+    /** The newline*/
+    private static final String NEWLINE   = "\n";
 
     /**
      * Calculates the variance using BigDecimalals for better precision. The
@@ -32,6 +41,9 @@ public class BenchmarkHelper {
         final int numberOfRecords = output.length;
         final int numberOfAttributes = output[0].length;
         final int[] maxGeneralizationLevels = new int[numberOfAttributes];
+        for (int columnIndex = 0; columnIndex < numberOfAttributes; columnIndex++) {
+            maxGeneralizationLevels[columnIndex] = hierarchies.get(header[columnIndex]).length;
+        }
 
         ArrayList<Map<String, Integer>> stringToLevelMaps = getStringToLevelMaps(header,
                                                                                  hierarchies);
@@ -140,6 +152,9 @@ public class BenchmarkHelper {
                 for (int level = row.length - 1; level >= 0; level--) {
                     if (map.containsKey(row[level])) {
                         int lvl = Math.max(map.get(row[level]), level);
+                        if (map.get(row[level]) != level) {
+                            System.out.println("That happened! (with " + attribute + ")");                            
+                        }
                         map.put(row[level], lvl);
                     } else {
                         map.put(row[level], level);

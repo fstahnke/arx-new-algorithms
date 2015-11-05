@@ -75,6 +75,8 @@ public class BenchmarkExperimentRGRIterations {
     private final int                VARIANCE                 = BENCHMARK.addMeasure("Variance");
     /** GENERALIZATION VARIANCE WITHOUT SUPPRESSED TUPLES */
     private final int                VARIANCE_NOTSUPPRESSED   = BENCHMARK.addMeasure("VarianceWithoutSuppressed");
+    /** NUMBER OF DISTINCT TRANSFORMATIONS */
+    private final int                NUMBER_OF_TRANSFORMATIONS = BENCHMARK.addMeasure("Transformations");
     /** Number of runs for each benchmark setting */
     private int                      numberOfRuns;
     /** Number of warmup runs */
@@ -136,6 +138,7 @@ public class BenchmarkExperimentRGRIterations {
         BENCHMARK.addAnalyzer(SUPPRESSED_RATIO, new ValueBuffer());
         BENCHMARK.addAnalyzer(VARIANCE, new ValueBuffer());
         BENCHMARK.addAnalyzer(VARIANCE_NOTSUPPRESSED, new ValueBuffer());
+        BENCHMARK.addAnalyzer(NUMBER_OF_TRANSFORMATIONS, new ValueBuffer());
 
         BENCHMARK.addAnalyzer(STEP, new ValueBuffer());
         for (int degree : DEGREE_ARRAY) {
@@ -322,7 +325,8 @@ public class BenchmarkExperimentRGRIterations {
         ARXConfiguration config = BenchmarkSetup.getConfiguration(dataset,
                                                                   measure,
                                                                   model,
-                                                                  suppressionLimit);
+                                                                  suppressionLimit,
+                                                                  gsFactor);
 
         final Map<String, String[][]> hierarchies = new DataConverter().toMap(data.getDefinition());
         final String[] header = new DataConverter().getHeader(data.getHandle());
@@ -354,7 +358,7 @@ public class BenchmarkExperimentRGRIterations {
 
                 @Override
                 public void notify(long timestamp, String[][] output, int[] transformation) {
-
+                    
                     // init
                     if (step == 0) {
                         generalizationDegrees = new double[transformation.length];
@@ -437,11 +441,6 @@ public class BenchmarkExperimentRGRIterations {
                                      model.getStrength(),
                                      output.length,
                                      output[0].length);
-
-                    // Step complete
-                    if (step >= 1) {
-                        System.out.print(step + " ");
-                    }
                     
                     // Write
                     BENCHMARK.addValue(STEP, step++);
@@ -451,6 +450,12 @@ public class BenchmarkExperimentRGRIterations {
                     BENCHMARK.addValue(VARIANCE, BenchmarkHelper.calculateVariance(output, header, hierarchies, false));
                     BENCHMARK.addValue(VARIANCE_NOTSUPPRESSED, BenchmarkHelper.calculateVariance(output, header, hierarchies, true));
                     BENCHMARK.addValue(RUNTIME, timestamp);
+                    BENCHMARK.addValue(NUMBER_OF_TRANSFORMATIONS, BenchmarkHelper.calculateNumberOfTransformations(output, header, hierarchies));
+
+                    // Step complete
+                    if (step >= 1) {
+                        System.out.print(step + " ");
+                    }
 
                     for (int i = 0; i < transformation.length; i++) {
                         BENCHMARK.addValue(DEGREE_ARRAY[i], generalizationDegrees[i]);

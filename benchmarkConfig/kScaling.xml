@@ -34,7 +34,7 @@
     <gsStepSize>0.05</gsStepSize>
 
     <!-- set paths for output files -->
-    <outputFile>results/kScaling.csv</outputFile>
+    <outputFile>results/kScaling_transformationAnalysis.csv</outputFile>
     <plotFile>results/tassaRGRFlash-comparison.pdf</plotFile>
 
     <!-- set number of runs -->
