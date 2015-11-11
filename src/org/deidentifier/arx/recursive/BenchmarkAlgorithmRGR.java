@@ -1,6 +1,8 @@
 package org.deidentifier.arx.recursive;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Iterator;
 
 import org.deidentifier.arx.ARXAnonymizer;
@@ -95,7 +97,7 @@ public class BenchmarkAlgorithmRGR extends BenchmarkAlgorithm {
 
             // Try to adapt, if possible
             if (!tuplesChanged && adaptationFactor > 0d && gsFactor < 0.5d) {
-                gsFactor += adaptationFactor;
+                gsFactor = round(gsFactor + adaptationFactor, 7);
                 System.out.println("Hooray, we are adapting! gsFactor is now: " + gsFactor);
                 tuplesChanged = true;
             }
@@ -103,5 +105,24 @@ public class BenchmarkAlgorithmRGR extends BenchmarkAlgorithm {
         
         super.finished(output);
         outHandle.release();
+    }
+    
+
+
+    /**
+     * Helper method for rounding doubles to a specific number of decimals.
+     * 
+     * @param value
+     *            Input value.
+     * @param places
+     *            Number of decimals.
+     * @return Rounded value.
+     */
+    private static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        BigDecimal bd = new BigDecimal(value);
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
     }
 }

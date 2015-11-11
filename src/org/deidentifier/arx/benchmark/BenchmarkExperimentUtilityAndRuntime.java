@@ -63,7 +63,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
     /** RUNTIME */
     private final int                RUNTIME                   = BENCHMARK.addMeasure("Runtime");
     /** NUMBER OF SUPPRESSED TUPLES */
-    private final int                SUPPRESSED                = BENCHMARK.addMeasure("SuppressionLimit");
+    private final int                SUPPRESSED                = BENCHMARK.addMeasure("Suppressed");
     /** RATIO OF SUPPRESSED TUPLES */
     private final int                SUPPRESSED_RATIO          = BENCHMARK.addMeasure("SuppressedRatio");
     /** GENERALIZATION VARIANCE */

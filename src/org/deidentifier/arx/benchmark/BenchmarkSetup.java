@@ -961,7 +961,7 @@ public class BenchmarkSetup {
     }
 
     /**
-     * Helper class for rounding doubles to a specific number of decimals.
+     * Helper method for rounding doubles to a specific number of decimals.
      * 
      * @param value
      *            Input value.
