@@ -944,7 +944,7 @@ public class BenchmarkSetup {
                                                       .getTextContent());
 
                     for (double value = from; value <= to; value += stepSize) {
-                        valueList.add(round(value, 2));
+                        valueList.add(round(value, 5));
                     }
                 } else {
                     valueList.add(Double.valueOf(nList.item(i).getTextContent()));

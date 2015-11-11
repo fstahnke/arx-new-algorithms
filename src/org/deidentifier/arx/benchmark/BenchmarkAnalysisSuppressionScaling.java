@@ -43,6 +43,7 @@ import de.linearbits.subframe.render.GnuPlotParams;
 import de.linearbits.subframe.render.GnuPlotParams.KeyPos;
 import de.linearbits.subframe.render.LaTeX;
 import de.linearbits.subframe.render.PlotGroup;
+import sun.security.jgss.GSSToken;
 
 /**
  * BenchmarkAnalysis analyzing scaling of the different algorithms. x-Axis:
@@ -53,12 +54,8 @@ import de.linearbits.subframe.render.PlotGroup;
 public class BenchmarkAnalysisSuppressionScaling {
 
     /**
-     * Choose benchmarkConfig to run and comment others out.
+     * Choose benchmarkConfig to run.
      */
-    // private static final String benchmarkConfig =
-    // "benchmarkConfig/recordScaling.xml";
-    // private static final String benchmarkConfig =
-    // "benchmarkConfig/QIScaling.xml";
     private static final String benchmarkConfig = "benchmarkConfig/suppressionScaling.xml";
 
     /**
@@ -73,13 +70,29 @@ public class BenchmarkAnalysisSuppressionScaling {
         List<PlotGroup> groups = new ArrayList<PlotGroup>();
         BenchmarkSetup setup = new BenchmarkSetup(benchmarkConfig);
         CSVFile file = new CSVFile(new File(setup.getOutputFile()));
+        for (BenchmarkDataset dataset : setup.getDatasets()) {
+            for (double gsStepSize : setup.getGsStepSizes()) {
+                for (double gsFactor : setup.getGsFactors()) {
+                    groups.add(analyzeUtility(file,
+                                              dataset,
+                                              BenchmarkUtilityMeasure.LOSS,
+                                              BenchmarkPrivacyModel.K5_ANONYMITY,
+                                              BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING,
+                                              0.0,
+                                              gsFactor,
+                                              gsStepSize));
+                    groups.add(analyzeRuntime(file,
+                                              dataset,
+                                              BenchmarkUtilityMeasure.LOSS,
+                                              BenchmarkPrivacyModel.K5_ANONYMITY,
+                                              BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING,
+                                              0.0,
+                                              gsFactor,
+                                              gsStepSize));
+                }
+            }
+        }
 
-        groups.add(analyze(file,
-                           BenchmarkDataset.ADULT,
-                           BenchmarkUtilityMeasure.LOSS,
-                           BenchmarkPrivacyModel.K5_ANONYMITY,
-                           null,
-                           0.0));
         LaTeX.plot(groups, setup.getPlotFile(), true);
 
     }
@@ -92,88 +105,147 @@ public class BenchmarkAnalysisSuppressionScaling {
      * @param algorithm
      * @param model
      * @param measure
-     * @param data
+     * @param dataset
      * @return
      * @throws ParseException
      */
-    private static PlotGroup analyze(CSVFile file,
-                                     BenchmarkDataset data,
-                                     BenchmarkUtilityMeasure measure,
-                                     BenchmarkPrivacyModel model,
-                                     BenchmarkAlgorithm algorithm,
-                                     double suppression) throws ParseException {
+    private static PlotGroup analyzeUtility(CSVFile file,
+                                            BenchmarkDataset dataset,
+                                            BenchmarkUtilityMeasure measure,
+                                            BenchmarkPrivacyModel model,
+                                            BenchmarkAlgorithm algorithm,
+                                            double suppression,
+                                            double gsFactor,
+                                            double gsStepSize) throws ParseException {
 
         // Selects according rows
         Selector<String[]> selectorRGR = file.getSelectorBuilder()
                                              .field("Algorithm")
-                                             .equals(BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING.toString())
+                                             .equals(algorithm.toString())
+                                             .and()
+                                             .field("Dataset")
+                                             .equals(dataset.toString())
+                                             .and()
+                                             .field("gsFactor")
+                                             .equals(String.valueOf(gsFactor))
+                                             .and()
+                                             .field("gsFactorStepSize")
+                                             .equals(String.valueOf(gsStepSize))
+                                             .and()
+                                             .field("SuppressionLimit")
+                                             .greater(String.valueOf(0d))
                                              .build();
-
-        // Selects according rows
-        Selector<String[]> selectorFlash = file.getSelectorBuilder()
-                                               .field("Algorithm")
-                                               .equals(BenchmarkAlgorithm.FLASH.toString())
-                                               .build();
-
-        // Read data into 2D series
-        Series2D rgrSeriesRuntime = new Series2D(file,
-                                          selectorRGR,
-                                          new Field("Suppression"),
-                                          new Field("Runtime", Analyzer.VALUE));
 
         // Read data into 2D series
         Series2D rgrSeriesUtility = new Series2D(file,
-                                          selectorRGR,
-                                          new Field("Suppression"),
-                                          new Field("Utility", Analyzer.VALUE));
-
-        // Read data into 2D series
-        Series2D flashSeriesRuntime = new Series2D(file,
-                                            selectorFlash,
-                                            new Field("Suppression"),
-                                            new Field("Runtime", Analyzer.VALUE));
-
-        // Read data into 2D series
-        Series2D flashSeriesUtility = new Series2D(file,
-                                            selectorFlash,
-                                            new Field("Suppression"),
-                                            new Field("Utility", Analyzer.VALUE));
+                                                 selectorRGR,
+                                                 new Field("SuppressionLimit"),
+                                                 new Field("Utility", Analyzer.VALUE));
 
         // Dirty hack for creating a 3D series from two 2D series'
-        Series3D series = new Series3D(file,
-                                       selectorRGR,
-                                       new Field("Dataset"), // Cluster
+        Series3D series = new Series3D(file, selectorRGR, new Field("Dataset"), // Cluster
                                        new Field("UtilityMeasure"), // Type
                                        new Field("PrivacyModel")); // Value
         series.getData().clear();
         for (Point2D point : rgrSeriesUtility.getData()) {
-            series.getData().add(new Point3D(point.x, "RGR (Utility)", String.valueOf(1 - Double.valueOf(point.y))));
-        }
-        for (Point2D point : flashSeriesUtility.getData()) {
-            series.getData().add(new Point3D(point.x, "Flash (Utility)", String.valueOf(1 - Double.valueOf(point.y))));
-        }
-        int runtimeScalingFactor = 8000;
-        for (Point2D point : rgrSeriesRuntime.getData()) {
-            series.getData().add(new Point3D(point.x, "RGR (Runtime)", String.valueOf(Double.valueOf(point.y) / runtimeScalingFactor)));
-        }
-        for (Point2D point : flashSeriesRuntime.getData()) {
-            series.getData().add(new Point3D(point.x, "Flash (Runtime)",  String.valueOf(Double.valueOf(point.y) / runtimeScalingFactor)));
+            series.getData().add(new Point3D(point.x,
+                                             "RGR (Utility)",
+                                             String.valueOf(1 - Double.valueOf(point.y))));
         }
 
         // Plot
         List<Plot<?>> plots = new ArrayList<Plot<?>>();
-        plots.add(new PlotLinesClustered(data.toString() + " / " + measure.toString() + " / " +
-                                         suppression,
-                                         new Labels("Suppression Limit", "Utility"),
-                                         series));
+        plots.add(new PlotLinesClustered("Dataset " + dataset.toString() + " / Measure: " +
+                                         measure.toString() + " / gsFactor: " + gsFactor +
+                                         " / gsStepSize: " + gsStepSize + " / Algorithm: " +
+                                         algorithm.toString(), new Labels("Suppression Limit",
+                                                                          "Utility"), series));
 
         GnuPlotParams params = new GnuPlotParams();
         params.colorize = true;
         params.rotateXTicks = 0;
-        params.keypos = KeyPos.TOP_LEFT;
+        params.keypos = KeyPos.BOTTOM_RIGHT;
         params.size = 1.0d;
         params.ratio = 0.5d;
-        return new PlotGroup("Development of utility and runtime with different suppression limits. ",
+        params.minY = 0d;
+        params.maxY = 1d;
+        return new PlotGroup("Development of utility with different suppression limits. ",
+                             plots,
+                             params,
+                             1.0d);
+    }
+
+    /**
+     * Performs the analysis
+     * 
+     * @param file
+     * @param suppression
+     * @param algorithm
+     * @param model
+     * @param measure
+     * @param dataset
+     * @return
+     * @throws ParseException
+     */
+    private static PlotGroup analyzeRuntime(CSVFile file,
+                                            BenchmarkDataset dataset,
+                                            BenchmarkUtilityMeasure measure,
+                                            BenchmarkPrivacyModel model,
+                                            BenchmarkAlgorithm algorithm,
+                                            double suppression,
+                                            double gsFactor,
+                                            double gsStepSize) throws ParseException {
+
+        // Selects according rows
+        Selector<String[]> selectorRGR = file.getSelectorBuilder()
+                                             .field("Algorithm")
+                                             .equals(algorithm.toString())
+                                             .and()
+                                             .field("Dataset")
+                                             .equals(dataset.toString())
+                                             .and()
+                                             .field("gsFactor")
+                                             .equals(String.valueOf(gsFactor))
+                                             .and()
+                                             .field("gsFactorStepSize")
+                                             .equals(String.valueOf(gsStepSize))
+                                             .and()
+                                             .field("SuppressionLimit")
+                                             .greater(String.valueOf(0d))
+                                             .build();
+
+        // Read data into 2D series
+        Series2D rgrSeriesRuntime = new Series2D(file,
+                                                 selectorRGR,
+                                                 new Field("SuppressionLimit"),
+                                                 new Field("Runtime", Analyzer.VALUE));
+
+        // Dirty hack for creating a 3D series from two 2D series'
+        Series3D series = new Series3D(file, selectorRGR, new Field("Dataset"), // Cluster
+                                       new Field("UtilityMeasure"), // Type
+                                       new Field("PrivacyModel")); // Value
+        series.getData().clear();
+
+        for (Point2D point : rgrSeriesRuntime.getData()) {
+            series.getData().add(new Point3D(point.x, "RGR (Runtime)", point.y));
+        }
+
+        // Plot
+        List<Plot<?>> plots = new ArrayList<Plot<?>>();
+        plots.add(new PlotLinesClustered("Dataset " + dataset.toString() + " / Measure: " +
+                                         measure.toString() + " / gsFactor: " + gsFactor +
+                                         " / gsStepSize: " + gsStepSize + " / Algorithm: " +
+                                         algorithm.toString(), new Labels("Suppression Limit",
+                                                                          "Runtime [ms]"), series));
+
+        GnuPlotParams params = new GnuPlotParams();
+        params.colorize = true;
+        params.rotateXTicks = 0;
+        params.keypos = KeyPos.BOTTOM_RIGHT;
+        params.size = 1.0d;
+        params.ratio = 0.5d;
+        params.minY = 0d;
+        return new PlotGroup("Development of runtime with different suppression limits. ",
                              plots,
                              params,
                              1.0d);

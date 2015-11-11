@@ -2,11 +2,10 @@
 <config>
 	<!-- add datasets -->
     <dataset>ADULT</dataset>
-<!-- 	<dataset>CUP</dataset> -->
+	<dataset>CUP</dataset>
 
 	<!-- add algorithms -->
     <algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
-    <algorithm>FLASH</algorithm>
     
 	<!-- add privacy models -->
     <privacyModel>K5_ANONYMITY</privacyModel>
@@ -17,25 +16,23 @@
 	<!-- add suppression limits. can be any double value between 0 and 1 -->
     <suppressionLimit>0.0</suppressionLimit>
     <suppressionLimit>0.001</suppressionLimit>
+    <suppressionLimit>0.01</suppressionLimit>
 	<suppressionLimit from="0.025" to="0.2" stepSize="0.025" />
 	<suppressionLimit from="0.3" to="0.9" stepSize="0.1" />
     <suppressionLimit>0.95</suppressionLimit>
-    <suppressionLimit>0.999</suppressionLimit>
+    <suppressionLimit>0.99999</suppressionLimit>
 
 	<!-- add gsFactors. Can be any double value between 0 and 1. Closer to 0 
 		means more suppression. -->
-	<gsFactor>0.05</gsFactor>
-	<gsFactor>0.1</gsFactor>
-	<gsFactor>0.5</gsFactor>
+	<gsFactor>0.0</gsFactor>
 	
 	<!-- add gsStepSizes -->
-	<gsStepSize>0.0</gsStepSize>
 	<gsStepSize>0.05</gsStepSize>
 
 	<!-- set paths for output files -->
-    <outputFile>results/suppressionScaling_update.csv</outputFile>
-    <plotFile>results/suppressionScaling_update.pdf</plotFile>
+    <outputFile>results/suppressionScaling.csv</outputFile>
+    <plotFile>results/suppressionScaling.pdf</plotFile>
     
     <!-- set number of runs -->
-    <numberOfRuns>1</numberOfRuns>
+    <numberOfRuns>5</numberOfRuns>
 </config>

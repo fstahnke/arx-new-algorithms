@@ -63,7 +63,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
     /** RUNTIME */
     private final int                RUNTIME                   = BENCHMARK.addMeasure("Runtime");
     /** NUMBER OF SUPPRESSED TUPLES */
-    private final int                SUPPRESSED                = BENCHMARK.addMeasure("Suppressed");
+    private final int                SUPPRESSED                = BENCHMARK.addMeasure("SuppressionLimit");
     /** RATIO OF SUPPRESSED TUPLES */
     private final int                SUPPRESSED_RATIO          = BENCHMARK.addMeasure("SuppressedRatio");
     /** GENERALIZATION VARIANCE */
@@ -80,6 +80,8 @@ public class BenchmarkExperimentUtilityAndRuntime {
     private BenchmarkSetup           setup;
     /** The metadata of this experiment */
     private BenchmarkMetadataUtility metadata;
+    /** The file to save results*/
+    private File resultFile;
 
     public BenchmarkExperimentUtilityAndRuntime(String benchmarkConfig) throws IOException {
         // Init
@@ -93,6 +95,10 @@ public class BenchmarkExperimentUtilityAndRuntime {
 
         setup = new BenchmarkSetup(benchmarkConfig);
         metadata = new BenchmarkMetadataUtility(setup);
+        resultFile = new File(setup.getOutputFile());
+        resultFile.getParentFile().mkdirs();
+        numberOfRuns = setup.getNumberOfRuns();
+        numberOfWarmups = setup.getNumberOfWarmups();
 
     }
 
@@ -104,11 +110,6 @@ public class BenchmarkExperimentUtilityAndRuntime {
      * @throws RollbackRequiredException
      */
     public void execute() throws IOException, RollbackRequiredException {
-
-        File resultFile = new File(setup.getOutputFile());
-        resultFile.getParentFile().mkdirs();
-        numberOfRuns = setup.getNumberOfRuns();
-        numberOfWarmups = setup.getNumberOfWarmups();
 
         // Do an initial warmup
         initialWarmup(BenchmarkDataset.ADULT,
@@ -124,54 +125,35 @@ public class BenchmarkExperimentUtilityAndRuntime {
             for (BenchmarkUtilityMeasure measure : setup.getUtilityMeasures()) {
                 for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
                     for (BenchmarkDataset dataset : setup.getDatasets()) {
-                        for (double suppressionLimit : setup.getSuppressionLimits()) {
-                            for (double gsStepSize : setup.getGsStepSizes()) {
-                                for (double gsFactor : setup.getGsFactors()) {
+                        if (algorithm == BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING) {
+                            for (double suppressionLimit : setup.getSuppressionLimits()) {
+                                for (double gsStepSize : setup.getGsStepSizes()) {
+                                    for (double gsFactor : setup.getGsFactors()) {
 
-                                    // Tassa and FLASH don't support all
-                                    // parameters
-                                    if (algorithm == BenchmarkAlgorithm.TASSA) {
-                                        suppressionLimit = 0.0;
-                                        gsFactor = 0.0;
-                                        gsStepSize = 0.0;
-                                    } else if (algorithm == BenchmarkAlgorithm.FLASH) {
-                                        gsFactor = 0.5;
-                                        gsStepSize = 0.0;
-                                    }
-
-                                    System.out.println("Performing run: " + dataset.name() + " / " +
-                                                       measure + " / " + model + " / " + algorithm +
-                                                       " / suppLimit: " + suppressionLimit +
-                                                       " / gsFactor: " + gsFactor +
-                                                       " / gsStepSize: " + gsStepSize + " / QIs: " +
-                                                       dataset.getNumQIs() + " / Records: " +
-                                                       dataset.getNumRecords());
-
-                                    performExperiment(dataset,
-                                                      measure,
-                                                      model,
-                                                      algorithm,
-                                                      suppressionLimit,
-                                                      gsFactor,
-                                                      gsStepSize);
-                                    // Write after each experiment
-                                    BENCHMARK.getResults().write(resultFile);
-                                    // Break gsFactor loop for Tassa
-                                    if (algorithm == BenchmarkAlgorithm.TASSA ||
-                                        algorithm == BenchmarkAlgorithm.FLASH) {
-                                        break;
+                                        performExperiment(dataset,
+                                                          measure,
+                                                          model,
+                                                          algorithm,
+                                                          suppressionLimit,
+                                                          gsFactor,
+                                                          gsStepSize);
                                     }
                                 }
-                                // Break gsStepSize loop for Tassa
-                                if (algorithm == BenchmarkAlgorithm.TASSA ||
-                                    algorithm == BenchmarkAlgorithm.FLASH) {
-                                    break;
-                                }
                             }
-                            // Break suppression limit loop for Tassa
-                            if (algorithm == BenchmarkAlgorithm.TASSA) {
-                                break;
-                            }
+
+                        } else {
+                            // We take default values for Flash and Clustering
+                            double gsFactor = 0.5;
+                            double gsStepSize = 0.0;
+                            double suppressionLimit = (algorithm == BenchmarkAlgorithm.FLASH) ? 1d : 0.0;
+
+                            performExperiment(dataset,
+                                              measure,
+                                              model,
+                                              algorithm,
+                                              suppressionLimit,
+                                              gsFactor,
+                                              gsStepSize);
                         }
                     }
                 }
@@ -290,6 +272,12 @@ public class BenchmarkExperimentUtilityAndRuntime {
                                    final double gsStepSize) throws IOException,
                                                            RollbackRequiredException {
 
+        System.out.println("Performing run: " + dataset.name() + " / " + measure + " / " + model +
+                           " / " + algorithm + " / suppLimit: " + suppressionLimit +
+                           " / gsFactor: " + gsFactor + " / gsStepSize: " + gsStepSize +
+                           " / QIs: " + dataset.getNumQIs() + " / Records: " +
+                           dataset.getNumRecords());
+
         final Data data = BenchmarkSetup.getData(dataset, model);
         ARXConfiguration config = BenchmarkSetup.getConfiguration(dataset,
                                                                   measure,
@@ -388,7 +376,10 @@ public class BenchmarkExperimentUtilityAndRuntime {
                         BENCHMARK.addValue(SUPPRESSED_RATIO, suppressedRatio);
                         BENCHMARK.addValue(VARIANCE, variance);
                         BENCHMARK.addValue(VARIANCE_NOTSUPPRESSED, varianceNotSuppressed);
-                        BENCHMARK.addValue(NUMBER_OF_TRANSFORMATIONS, BenchmarkHelper.calculateNumberOfTransformations(output, header, hierarchies));
+                        BENCHMARK.addValue(NUMBER_OF_TRANSFORMATIONS,
+                                           BenchmarkHelper.calculateNumberOfTransformations(output,
+                                                                                            header,
+                                                                                            hierarchies));
                     }
                 }
 
@@ -425,6 +416,9 @@ public class BenchmarkExperimentUtilityAndRuntime {
                 algorithmImplementation.execute();
             }
             System.out.println(">> done!");
+
+            // Write after each experiment
+            BENCHMARK.getResults().write(resultFile);
 
         } else {
             throw new UnsupportedOperationException("Unimplemented Algorithm: " + algorithm);

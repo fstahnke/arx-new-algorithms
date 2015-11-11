@@ -56,10 +56,6 @@ public class BenchmarkAnalysisRecordScaling {
      * Choose benchmarkConfig to run and comment others out.
      */
     private static final String benchmarkConfig = "benchmarkConfig/recordScaling.xml";
-    // private static final String benchmarkConfig =
-    // "benchmarkConfig/QIScaling.xml";
-    // private static final String benchmarkConfig =
-    // "benchmarkConfig/kScaling.xml";
 
     /**
      * Main
@@ -74,18 +70,38 @@ public class BenchmarkAnalysisRecordScaling {
         BenchmarkSetup setup = new BenchmarkSetup(benchmarkConfig);
         CSVFile file = new CSVFile(new File(setup.getOutputFile()));
 
-        groups.add(analyze(file,
-                           BenchmarkDataset.ADULT,
-                           BenchmarkUtilityMeasure.LOSS,
-                           BenchmarkPrivacyModel.K5_ANONYMITY,
-                           null,
-                           0.05));
-        groups.add(analyze(file,
-                           BenchmarkDataset.ADULT,
-                           BenchmarkUtilityMeasure.LOSS,
-                           BenchmarkPrivacyModel.K5_ANONYMITY,
-                           null,
-                           0.1));
+        groups.add(analyzeRuntime(file,
+                                  BenchmarkDataset.ADULT,
+                                  BenchmarkUtilityMeasure.LOSS,
+                                  BenchmarkPrivacyModel.K5_ANONYMITY,
+                                  null,
+                                  0.1,
+                                  0.0,
+                                  0.05));
+        groups.add(analyzeUtility(file,
+                                  BenchmarkDataset.ADULT,
+                                  BenchmarkUtilityMeasure.LOSS,
+                                  BenchmarkPrivacyModel.K5_ANONYMITY,
+                                  null,
+                                  0.1,
+                                  0.0,
+                                  0.05));
+        groups.add(analyzeRuntime(file,
+                                  BenchmarkDataset.ADULT,
+                                  BenchmarkUtilityMeasure.LOSS,
+                                  BenchmarkPrivacyModel.K5_ANONYMITY,
+                                  null,
+                                  0.95,
+                                  0.0,
+                                  0.05));
+        groups.add(analyzeUtility(file,
+                                  BenchmarkDataset.ADULT,
+                                  BenchmarkUtilityMeasure.LOSS,
+                                  BenchmarkPrivacyModel.K5_ANONYMITY,
+                                  null,
+                                  0.95,
+                                  0.0,
+                                  0.05));
         LaTeX.plot(groups, setup.getPlotFile(), true);
 
     }
@@ -94,7 +110,7 @@ public class BenchmarkAnalysisRecordScaling {
      * Performs the analysis
      * 
      * @param file
-     * @param suppression
+     * @param suppressionLimit
      * @param algorithm
      * @param model
      * @param measure
@@ -102,12 +118,14 @@ public class BenchmarkAnalysisRecordScaling {
      * @return
      * @throws ParseException
      */
-    private static PlotGroup analyze(CSVFile file,
-                                     BenchmarkDataset data,
-                                     BenchmarkUtilityMeasure measure,
-                                     BenchmarkPrivacyModel model,
-                                     BenchmarkAlgorithm algorithm,
-                                     double suppression) throws ParseException {
+    private static PlotGroup analyzeRuntime(CSVFile file,
+                                            BenchmarkDataset data,
+                                            BenchmarkUtilityMeasure measure,
+                                            BenchmarkPrivacyModel model,
+                                            BenchmarkAlgorithm algorithm,
+                                            double suppressionLimit,
+                                            double gsFactor,
+                                            double gsStepSize) throws ParseException {
 
         // Selects according rows
         Selector<String[]> selectorRGR = file.getSelectorBuilder()
@@ -124,7 +142,7 @@ public class BenchmarkAnalysisRecordScaling {
                                              .equals(BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING.toString())
                                              .and()
                                              .field("SuppressionLimit")
-                                             .equals(String.valueOf(suppression))
+                                             .equals(String.valueOf(suppressionLimit))
                                              .build();
 
         // Selects according rows
@@ -142,7 +160,7 @@ public class BenchmarkAnalysisRecordScaling {
                                                .equals(BenchmarkAlgorithm.FLASH.toString())
                                                .and()
                                                .field("SuppressionLimit")
-                                               .equals(String.valueOf(suppression))
+                                               .equals(String.valueOf(suppressionLimit))
                                                .build();
 
         // Selects according rows
@@ -166,47 +184,48 @@ public class BenchmarkAnalysisRecordScaling {
         // Read data into 2D series
         Series2D rgrSeries = new Series2D(file,
                                           selectorRGR,
-                                          new Field("Records", Analyzer.VALUE),
+                                          new Field("Records"),
                                           new Field("Runtime", Analyzer.VALUE));
 
         // Read data into 2D series
         Series2D flashSeries = new Series2D(file,
                                             selectorFlash,
-                                            new Field("Records", Analyzer.VALUE),
+                                            new Field("Records"),
                                             new Field("Runtime", Analyzer.VALUE));
 
         // Read data into 2D series
         Series2D tassaSeries = new Series2D(file,
                                             selectorTassa,
-                                            new Field("Records", Analyzer.VALUE),
+                                            new Field("Records"),
                                             new Field("Runtime", Analyzer.VALUE));
 
         // Dirty hack for creating a 3D series from two 2D series'
-        Series3D series = new Series3D(file,
-                                       selectorRGR,
-                                       new Field("Dataset"), // Cluster
+        Series3D series = new Series3D(file, selectorRGR, new Field("Dataset"), // Cluster
                                        new Field("UtilityMeasure"), // Type
                                        new Field("PrivacyModel")); // Value
         series.getData().clear();
         for (Point2D point : rgrSeries.getData()) {
-            series.getData().add(new Point3D(point.x, "RGR", point.y));
+            series.getData().add(new Point3D(point.x,
+                                             "RGR",
+                                             String.valueOf((Double.valueOf(point.y) / 1000))));
         }
         for (Point2D point : flashSeries.getData()) {
-            series.getData().add(new Point3D(point.x, "Flash", point.y));
+            series.getData().add(new Point3D(point.x,
+                                             "Flash",
+                                             String.valueOf((Double.valueOf(point.y) / 1000))));
         }
-        int tassaScalingFactor = 10;
+        int tassaScalingFactor = 1;
         for (Point2D point : tassaSeries.getData()) {
-            series.getData()
-                  .add(new Point3D(point.x,
-                                   "Tassa [divided by " + tassaScalingFactor + "]",
-                                   String.valueOf((Double.valueOf(point.y) / tassaScalingFactor))));
+            series.getData().add(new Point3D(point.x,
+                                             "Clustering",
+                                             String.valueOf((Double.valueOf(point.y) / tassaScalingFactor / 1000))));
         }
 
         // Plot
         List<Plot<?>> plots = new ArrayList<Plot<?>>();
         plots.add(new PlotLinesClustered(data.toString() + " / " + measure.toString() + " / " +
-                                         model.toString() + " / " + suppression,
-                                         new Labels("Records", "Time [ms]"),
+                                                 model.toString() + " / " + suppressionLimit,
+                                         new Labels("Records", "Time [s]"),
                                          series));
 
         GnuPlotParams params = new GnuPlotParams();
@@ -215,6 +234,141 @@ public class BenchmarkAnalysisRecordScaling {
         params.keypos = KeyPos.TOP_LEFT;
         params.size = 1.0d;
         params.ratio = 0.5d;
+        return new PlotGroup("Scaling of anonymization algorithms with number of records. ",
+                             plots,
+                             params,
+                             1.0d);
+    }
+
+    /**
+     * Performs the analysis
+     * 
+     * @param file
+     * @param suppressionLimit
+     * @param algorithm
+     * @param model
+     * @param measure
+     * @param data
+     * @return
+     * @throws ParseException
+     */
+    private static PlotGroup analyzeUtility(CSVFile file,
+                                            BenchmarkDataset data,
+                                            BenchmarkUtilityMeasure measure,
+                                            BenchmarkPrivacyModel model,
+                                            BenchmarkAlgorithm algorithm,
+                                            double suppressionLimit,
+                                            double gsFactor,
+                                            double gsStepSize) throws ParseException {
+
+        // Selects according rows
+        Selector<String[]> selectorRGR = file.getSelectorBuilder()
+                                             .field("Dataset")
+                                             .equals(data.toString())
+                                             .and()
+                                             .field("UtilityMeasure")
+                                             .equals(measure.toString())
+                                             .and()
+                                             .field("PrivacyModel")
+                                             .equals(model.toString())
+                                             .and()
+                                             .field("Algorithm")
+                                             .equals(BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING.toString())
+                                             .and()
+                                             .field("SuppressionLimit")
+                                             .equals(String.valueOf(suppressionLimit))
+                                             .build();
+
+        // Selects according rows
+        Selector<String[]> selectorFlash = file.getSelectorBuilder()
+                                               .field("Dataset")
+                                               .equals(data.toString())
+                                               .and()
+                                               .field("UtilityMeasure")
+                                               .equals(measure.toString())
+                                               .and()
+                                               .field("PrivacyModel")
+                                               .equals(model.toString())
+                                               .and()
+                                               .field("Algorithm")
+                                               .equals(BenchmarkAlgorithm.FLASH.toString())
+                                               .and()
+                                               .field("SuppressionLimit")
+                                               .equals(String.valueOf(suppressionLimit))
+                                               .build();
+
+        // Selects according rows
+        Selector<String[]> selectorTassa = file.getSelectorBuilder()
+                                               .field("Dataset")
+                                               .equals(data.toString())
+                                               .and()
+                                               .field("UtilityMeasure")
+                                               .equals(measure.toString())
+                                               .and()
+                                               .field("PrivacyModel")
+                                               .equals(model.toString())
+                                               .and()
+                                               .field("Algorithm")
+                                               .equals(BenchmarkAlgorithm.TASSA.toString())
+                                               .and()
+                                               .field("SuppressionLimit")
+                                               .equals("0.0")
+                                               .build();
+
+        // Read data into 2D series
+        Series2D rgrSeries = new Series2D(file,
+                                          selectorRGR,
+                                          new Field("Records"),
+                                          new Field("Utility", Analyzer.VALUE));
+
+        // Read data into 2D series
+        Series2D flashSeries = new Series2D(file,
+                                            selectorFlash,
+                                            new Field("Records"),
+                                            new Field("Utility", Analyzer.VALUE));
+
+        // Read data into 2D series
+        Series2D tassaSeries = new Series2D(file,
+                                            selectorTassa,
+                                            new Field("Records"),
+                                            new Field("Utility", Analyzer.VALUE));
+
+        // Dirty hack for creating a 3D series from two 2D series'
+        Series3D series = new Series3D(file, selectorRGR, new Field("Dataset"), // Cluster
+                                       new Field("UtilityMeasure"), // Type
+                                       new Field("PrivacyModel")); // Value
+        series.getData().clear();
+        for (Point2D point : rgrSeries.getData()) {
+            series.getData().add(new Point3D(point.x,
+                                             "RGR",
+                                             String.valueOf((1 - Double.valueOf(point.y)) * 100)));
+        }
+        for (Point2D point : flashSeries.getData()) {
+            series.getData().add(new Point3D(point.x,
+                                             "Flash",
+                                             String.valueOf((1 - Double.valueOf(point.y)) * 100)));
+        }
+        for (Point2D point : tassaSeries.getData()) {
+            series.getData().add(new Point3D(point.x,
+                                             "Clustering",
+                                             String.valueOf((1 - Double.valueOf(point.y)) * 100)));
+        }
+
+        // Plot
+        List<Plot<?>> plots = new ArrayList<Plot<?>>();
+        plots.add(new PlotLinesClustered(data.toString() + " / " + measure.toString() + " / " +
+                                                 model.toString() + " / " + suppressionLimit,
+                                         new Labels("Records", "Utility [%]"),
+                                         series));
+
+        GnuPlotParams params = new GnuPlotParams();
+        params.colorize = true;
+        params.rotateXTicks = 0;
+        params.keypos = KeyPos.BOTTOM_RIGHT;
+        params.size = 1.0d;
+        params.ratio = 0.5d;
+        params.minY = 0d;
+        params.maxY = 100d;
         return new PlotGroup("Scaling of anonymization algorithms with number of records. ",
                              plots,
                              params,

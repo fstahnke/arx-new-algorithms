@@ -55,11 +55,7 @@ public class BenchmarkAnalysisQiScaling {
     /**
      * Choose benchmarkConfig to run and comment others out.
      */
-    // private static final String benchmarkConfig =
-    // "benchmarkConfig/recordScaling.xml";
     private static final String benchmarkConfig = "benchmarkConfig/QIScaling.xml";
-    // private static final String benchmarkConfig =
-    // "benchmarkConfig/kScaling.xml";
 
     /**
      * Main
@@ -74,18 +70,14 @@ public class BenchmarkAnalysisQiScaling {
         BenchmarkSetup setup = new BenchmarkSetup(benchmarkConfig);
         CSVFile file = new CSVFile(new File(setup.getOutputFile()));
 
-        groups.add(analyze(file,
+        groups.add(analyzeRuntime(file,
                            BenchmarkDataset.ADULT,
                            BenchmarkUtilityMeasure.LOSS,
                            BenchmarkPrivacyModel.K5_ANONYMITY,
                            null,
+                           0.95,
+                           0d,
                            0.05));
-        groups.add(analyze(file,
-                           BenchmarkDataset.ADULT,
-                           BenchmarkUtilityMeasure.LOSS,
-                           BenchmarkPrivacyModel.K5_ANONYMITY,
-                           null,
-                           0.1));
         
         LaTeX.plot(groups, setup.getPlotFile(), true);
 
@@ -95,7 +87,7 @@ public class BenchmarkAnalysisQiScaling {
      * Performs the analysis
      * 
      * @param file
-     * @param suppression
+     * @param suppressionLimit
      * @param algorithm
      * @param model
      * @param measure
@@ -103,12 +95,14 @@ public class BenchmarkAnalysisQiScaling {
      * @return
      * @throws ParseException
      */
-    private static PlotGroup analyze(CSVFile file,
+    private static PlotGroup analyzeRuntime(CSVFile file,
                                      BenchmarkDataset data,
                                      BenchmarkUtilityMeasure measure,
                                      BenchmarkPrivacyModel model,
                                      BenchmarkAlgorithm algorithm,
-                                     double suppression) throws ParseException {
+                                     double suppressionLimit,
+                                     double gsFactor,
+                                     double gsStepSize) throws ParseException {
 
         // Selects according rows
         Selector<String[]> selectorRGR = file.getSelectorBuilder()
@@ -124,8 +118,8 @@ public class BenchmarkAnalysisQiScaling {
                                              .field("Algorithm")
                                              .equals(BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING.toString())
                                              .and()
-                                             .field("Suppression")
-                                             .equals(String.valueOf(suppression))
+                                             .field("SuppressionLimit")
+                                             .equals(String.valueOf(suppressionLimit))
                                              .build();
 
         // Selects according rows
@@ -142,8 +136,8 @@ public class BenchmarkAnalysisQiScaling {
                                                .field("Algorithm")
                                                .equals(BenchmarkAlgorithm.FLASH.toString())
                                                .and()
-                                               .field("Suppression")
-                                               .equals(String.valueOf(suppression))
+                                               .field("SuppressionLimit")
+                                               .equals(String.valueOf(suppressionLimit))
                                                .build();
 
         // Selects according rows
@@ -160,26 +154,26 @@ public class BenchmarkAnalysisQiScaling {
                                                .field("Algorithm")
                                                .equals(BenchmarkAlgorithm.TASSA.toString())
                                                .and()
-                                               .field("Suppression")
+                                               .field("SuppressionLimit")
                                                .equals("0.0")
                                                .build();
 
         // Read data into 2D series
         Series2D rgrSeries = new Series2D(file,
                                           selectorRGR,
-                                          new Field("QIs", Analyzer.VALUE),
+                                          new Field("QIs"),
                                           new Field("Runtime", Analyzer.VALUE));
 
         // Read data into 2D series
         Series2D flashSeries = new Series2D(file,
                                             selectorFlash,
-                                            new Field("QIs", Analyzer.VALUE),
+                                            new Field("QIs"),
                                             new Field("Runtime", Analyzer.VALUE));
 
         // Read data into 2D series
         Series2D tassaSeries = new Series2D(file,
                                             selectorTassa,
-                                            new Field("QIs", Analyzer.VALUE),
+                                            new Field("QIs"),
                                             new Field("Runtime", Analyzer.VALUE));
 
         // Dirty hack for creating a 3D series from two 2D series'
@@ -195,7 +189,7 @@ public class BenchmarkAnalysisQiScaling {
         for (Point2D point : flashSeries.getData()) {
             series.getData().add(new Point3D(point.x, "Time (Flash)", point.y));
         }
-        int tassaScalingFactor = 100;
+        int tassaScalingFactor = 1;
         for (Point2D point : tassaSeries.getData()) {
             series.getData()
                   .add(new Point3D(point.x,
@@ -206,7 +200,7 @@ public class BenchmarkAnalysisQiScaling {
         // Plot
         List<Plot<?>> plots = new ArrayList<Plot<?>>();
         plots.add(new PlotLinesClustered(data.toString() + " / " + measure.toString() + " / " +
-                                         model.toString() + " / " + suppression,
+                                         model.toString() + " / " + suppressionLimit,
                                          new Labels("QIs", "Time [ms]"),
                                          series));
 

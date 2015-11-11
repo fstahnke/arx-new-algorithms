@@ -102,6 +102,14 @@ public class BenchmarkAnalysisBoxPlots {
                                                        suppressionLimit,
                                                        gsFactor,
                                                        gsFactorStepSize));
+                            groups.add(analyzeTransformations(file,
+                                                       dataset,
+                                                       measure,
+                                                       null,
+                                                       null,
+                                                       suppressionLimit,
+                                                       gsFactor,
+                                                       gsFactorStepSize));
                         }
                     }
                 }
@@ -266,9 +274,164 @@ public class BenchmarkAnalysisBoxPlots {
         if (measure != BenchmarkUtilityMeasure.DISCERNIBILITY) {
             params.minY = 0d;
         }
-        params.maxY = 100d;
-        params.yScalingFactor = 100d;
+        params.maxY = 1d;
         return new PlotGroup("Comparison of utility of RGR, Flash and Tassa with different K. gsFactor and gsStepSize only apply to RGR.",
+                             plots,
+                             params,
+                             1.0d);
+    }
+
+    /**
+     * Performs the analysis
+     * 
+     * @param file
+     * @param suppressionLimit
+     * @param algorithm
+     * @param model
+     * @param measure
+     * @param data
+     * @return
+     * @throws ParseException
+     */
+    private static PlotGroup analyzeTransformations(CSVFile file,
+                                                    BenchmarkDataset data,
+                                                    BenchmarkUtilityMeasure measure,
+                                                    BenchmarkPrivacyModel model,
+                                                    BenchmarkAlgorithm algorithm,
+                                                    double suppressionLimit,
+                                                    double gsFactor,
+                                                    double gsFactorStepSize) throws ParseException {
+
+        // Selects according rows
+        Selector<String[]> selectorRGR = file.getSelectorBuilder()
+                                             .field("Dataset")
+                                             .equals(data.toString())
+                                             .and()
+                                             .field("UtilityMeasure")
+                                             .equals(measure.toString())
+                                             // .and()
+                                             // .field("PrivacyModel")
+                                             // .equals(model.toString())
+                                             .and()
+                                             .field("Algorithm")
+                                             .equals(BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING.toString())
+                                             .and()
+                                             .field("SuppressionLimit")
+                                             .equals(String.valueOf(suppressionLimit))
+                                             .and()
+                                             .field("gsFactor")
+                                             .equals(String.valueOf(gsFactor))
+                                             .and()
+                                             .field("gsFactorStepSize")
+                                             .equals(String.valueOf(gsFactorStepSize))
+                                             .build();
+
+        // Selects according rows
+        Selector<String[]> selectorFlash = file.getSelectorBuilder()
+                                               .field("Dataset")
+                                               .equals(data.toString())
+                                               .and()
+                                               .field("UtilityMeasure")
+                                               .equals(measure.toString())
+                                               // .and()
+                                               // .field("PrivacyModel")
+                                               // .equals(model.toString())
+                                               .and()
+                                               .field("Algorithm")
+                                               .equals(BenchmarkAlgorithm.FLASH.toString())
+                                               .and()
+                                               .field("SuppressionLimit")
+                                               .equals(String.valueOf(suppressionLimit))
+                                               .and()
+                                               .field("gsFactor")
+                                               .equals("0.5")
+                                               .and()
+                                               .field("gsFactorStepSize")
+                                               .equals("0.0")
+                                               .build();
+
+        // Selects according rows
+        Selector<String[]> selectorTassa = file.getSelectorBuilder()
+                                               .field("Dataset")
+                                               .equals(data.toString())
+                                               .and()
+                                               .field("UtilityMeasure")
+                                               .equals(measure.toString())
+                                               // .and()
+                                               // .field("PrivacyModel")
+                                               // .equals(model.toString())
+                                               .and()
+                                               .field("Algorithm")
+                                               .equals(BenchmarkAlgorithm.TASSA.toString())
+                                               .and()
+                                               .field("SuppressionLimit")
+                                               .equals("0.0")
+                                               .and()
+                                               .field("gsFactor")
+                                               .equals("0.0")
+                                               .and()
+                                               .field("gsFactorStepSize")
+                                               .equals("0.0")
+                                               .build();
+
+        // Read data into 2D series
+        Series2D rgrSeries = new Series2D(file,
+                                          selectorRGR,
+                                          new Field("K"),
+                                          new Field("Transformations", Analyzer.VALUE));
+
+        // Read data into 2D series
+        Series2D flashSeries = new Series2D(file,
+                                            selectorFlash,
+                                            new Field("K"),
+                                            new Field("Transformations", Analyzer.VALUE));
+
+        // Read data into 2D series
+        Series2D tassaSeries = new Series2D(file,
+                                            selectorTassa,
+                                            new Field("K"),
+                                            new Field("Transformations", Analyzer.VALUE));
+
+        // Dirty hack for creating a 3D series from two 2D series'
+        Series3D series = new Series3D(file, selectorRGR, new Field("Dataset"), // Cluster
+                                       new Field("UtilityMeasure"), // Type
+                                       new Field("PrivacyModel")); // Value
+        series.getData().clear();
+        for (Point2D point : tassaSeries.getData()) {
+            series.getData()
+                  .add(new Point3D(point.x, BenchmarkAlgorithm.TASSA.toString(), point.y));
+        }
+        for (Point2D point : rgrSeries.getData()) {
+            series.getData()
+                  .add(new Point3D(point.x,
+                                   BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING.toString(),
+                                   point.y));
+        }
+        for (Point2D point : flashSeries.getData()) {
+            series.getData()
+                  .add(new Point3D(point.x, BenchmarkAlgorithm.FLASH.toString(), point.y));
+        }
+
+        // Plot
+        List<Plot<?>> plots = new ArrayList<Plot<?>>();
+
+        plots.add(new PlotHistogramClustered("Dataset: " + data.toString() + " / Measure: " +
+                                                     measure.toString() + " / Suppression Limit: " +
+                                                     suppressionLimit + " / gsFactor: " + gsFactor +
+                                                     " / gsStepSize: " + gsFactorStepSize,
+                                             new Labels("K", "Number of transformations"),
+                                             series));
+
+        GnuPlotParams params = new GnuPlotParams();
+        params.printValues = false;
+        params.colorize = true;
+        params.rotateXTicks = 0;
+        params.keypos = KeyPos.TOP_RIGHT;
+        params.size = 1.0d;
+        params.ratio = 0.5d;
+        params.minY = 0d;
+        params.maxY = 600d;
+        return new PlotGroup("Comparison of standard deviation of RGR, Flash and Tassa with different K. gsFactor and gsStepSize only apply to RGR.",
                              plots,
                              params,
                              1.0d);
@@ -427,8 +590,6 @@ public class BenchmarkAnalysisBoxPlots {
         if (measure != BenchmarkUtilityMeasure.DISCERNIBILITY) {
             params.minY = 0d;
         }
-        // params.maxY = 100d;
-        params.yScalingFactor = 100d;
         return new PlotGroup("Comparison of standard deviation of RGR, Flash and Tassa with different K. gsFactor and gsStepSize only apply to RGR.",
                              plots,
                              params,
@@ -552,13 +713,18 @@ public class BenchmarkAnalysisBoxPlots {
                                        new Field("PrivacyModel")); // Value
         series.getData().clear();
         for (Point2D point : tassaSeries.getData()) {
-            series.getData().add(new Point3D(point.x, BenchmarkAlgorithm.TASSA.toString(), point.y));
+            series.getData()
+                  .add(new Point3D(point.x, BenchmarkAlgorithm.TASSA.toString(), point.y));
         }
         for (Point2D point : rgrSeries.getData()) {
-            series.getData().add(new Point3D(point.x, BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING.toString(), point.y));
+            series.getData()
+                  .add(new Point3D(point.x,
+                                   BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING.toString(),
+                                   point.y));
         }
         for (Point2D point : flashSeries.getData()) {
-            series.getData().add(new Point3D(point.x, BenchmarkAlgorithm.FLASH.toString(), point.y));
+            series.getData()
+                  .add(new Point3D(point.x, BenchmarkAlgorithm.FLASH.toString(), point.y));
         }
 
         // Plot
@@ -580,8 +746,6 @@ public class BenchmarkAnalysisBoxPlots {
         if (measure != BenchmarkUtilityMeasure.DISCERNIBILITY) {
             params.minY = 0d;
         }
-        params.yScalingFactor = 0.001;
-        // params.maxY = 1d;
         return new PlotGroup("Comparison of utility of RGR, Flash and Tassa with different K. gsFactor and gsStepSize only apply to RGR.",
                              plots,
                              params,

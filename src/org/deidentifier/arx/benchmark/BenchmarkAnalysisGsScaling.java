@@ -56,11 +56,7 @@ public class BenchmarkAnalysisGsScaling {
     /**
      * Choose benchmarkConfig to run and comment others out.
      */
-    // private static final String benchmarkConfig =
-    // "benchmarkConfig/recordScaling.xml";
-    // private static final String benchmarkConfig =
-    // "benchmarkConfig/QIScaling.xml";
-    private static final String benchmarkConfig = "benchmarkConfig/gsFactorDynamicScaling.xml";
+    private static final String benchmarkConfig = "benchmarkConfig/gsFactorScaling.xml";
 
     /**
      * Main
@@ -108,7 +104,7 @@ public class BenchmarkAnalysisGsScaling {
      * Performs the analysis
      * 
      * @param file
-     * @param suppression
+     * @param suppressionLimit
      * @param algorithm
      * @param model
      * @param measure
@@ -122,7 +118,7 @@ public class BenchmarkAnalysisGsScaling {
                                             BenchmarkUtilityMeasure measure,
                                             BenchmarkPrivacyModel model,
                                             BenchmarkAlgorithm algorithm,
-                                            double suppression,
+                                            double suppressionLimit,
                                             double gsStepSize) throws ParseException {
 
         Selector<String[]> tmpSelector = null;
@@ -168,7 +164,7 @@ public class BenchmarkAnalysisGsScaling {
             for (Point2D point : series2D.getData()) {
                 series3D.getData()
                         .add(new Point3D(point.x,
-                                         "Suppression Limit " + suppress + " (Utility)",
+                                         "Suppression Limit " + suppress,
                                          String.valueOf(1 - Double.valueOf(point.y))));
             }
         }
@@ -261,7 +257,7 @@ public class BenchmarkAnalysisGsScaling {
             for (Point2D point : series2D.getData()) {
                 series3D.getData()
                         .add(new Point3D(point.x,
-                                         "Suppression Limit " + suppress + " (Runtime)",
+                                         "Suppression Limit " + suppress,
                                          point.y));
             }
         }

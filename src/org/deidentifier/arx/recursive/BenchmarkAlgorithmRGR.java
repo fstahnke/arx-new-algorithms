@@ -82,10 +82,12 @@ public class BenchmarkAlgorithmRGR extends BenchmarkAlgorithm {
 
         // Outer loop
         boolean tuplesChanged = true;
-        while (result.isOptimizable(outHandle) && tuplesChanged && gsFactor <= 0.5d) {
+        while (result.isOptimizable(outHandle) && tuplesChanged) {
 
             // Perform individual optimization
-            tuplesChanged = result.optimize(outHandle, gsFactor) > 0;
+            int changedTup = result.optimize(outHandle, gsFactor);
+            tuplesChanged = changedTup > 0;
+//            System.out.println("gsFactor: " + gsFactor + ", changed tuples: " + changedTup);
 
             // Convert result and call listener
             output = converter.toArray(outHandle);
@@ -94,6 +96,7 @@ public class BenchmarkAlgorithmRGR extends BenchmarkAlgorithm {
             // Try to adapt, if possible
             if (!tuplesChanged && adaptationFactor > 0d && gsFactor < 0.5d) {
                 gsFactor += adaptationFactor;
+                System.out.println("Hooray, we are adapting! gsFactor is now: " + gsFactor);
                 tuplesChanged = true;
             }
         }
