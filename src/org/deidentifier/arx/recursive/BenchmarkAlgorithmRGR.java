@@ -110,6 +110,61 @@ public class BenchmarkAlgorithmRGR extends BenchmarkAlgorithm {
 
 
     /**
+     * This method optimizes the given data output with local recoding to
+     * improve its utility
+     * 
+     * @param result
+     * @param outHandle
+     * @param gsFactor
+     *            A factor [0,1] weighting generalization and suppression. The
+     *            default value is 0.5, which means that generalization and
+     *            suppression will be treated equally. A factor of 0 will favor
+     *            suppression, and a factor of 1 will favor generalization. The
+     *            values in between can be used for balancing both methods.
+     * @param adaptationFactor
+     *            Is added to the gsFactor when reaching a fixpoint
+     * @throws RollbackRequiredException
+     */
+    private void optimizeIterativeSuppLimit(final ARXResult result,
+                                  double gsFactor,
+                                  final double adaptationFactor) throws RollbackRequiredException {
+
+        if (gsFactor < 0d || gsFactor > 1d) { throw new IllegalArgumentException("Generalization/suppression factor must be in [0, 1]"); }
+        if (adaptationFactor < 0d || adaptationFactor > 1d) { throw new IllegalArgumentException("Adaption factor must be in [0, 1]"); }
+
+        DataHandle outHandle = result.getOutput(false);
+        DataConverter converter = new DataConverter();
+        String[][] output = converter.toArray(outHandle);
+        super.updated(output, result.getGlobalOptimum().getTransformation());
+        double currentSuppressionLimit = result.getConfiguration().getMaxOutliers();
+
+        // Outer loop
+        int tuplesChanged = Integer.MAX_VALUE;
+        while (result.isOptimizable(outHandle) && tuplesChanged > 0) {
+
+            // Perform individual optimization
+            tuplesChanged = result.optimize(outHandle, gsFactor);
+            System.out.println("Suppression Limit: " + currentSuppressionLimit + ", changed tuples: " + tuplesChanged);
+
+            // Convert result and call listener
+            output = converter.toArray(outHandle);
+            super.updated(output, result.getGlobalOptimum().getTransformation());
+
+            // Try to adapt, if possible
+            if (tuplesChanged <= 100 && adaptationFactor > 0d && gsFactor < 0.5d) {
+                
+                currentSuppressionLimit = round(currentSuppressionLimit - adaptationFactor, 7);
+                result.getConfiguration().setMaxOutliers(currentSuppressionLimit);
+                System.out.println("Hooray, we are adapting! suppressionLimit is now: " + currentSuppressionLimit);
+                tuplesChanged = Integer.MAX_VALUE;
+            }
+        }
+        
+        super.finished(output);
+        outHandle.release();
+    }
+
+    /**
      * Helper method for rounding doubles to a specific number of decimals.
      * 
      * @param value

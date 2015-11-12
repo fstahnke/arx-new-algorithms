@@ -943,7 +943,7 @@ public class BenchmarkSetup {
                                                       .getNamedItem("stepSize")
                                                       .getTextContent());
 
-                    for (double value = from; value <= to; value += stepSize) {
+                    for (double value = from; round(value, 5) <= to; value += stepSize) {
                         valueList.add(round(value, 5));
                     }
                 } else {

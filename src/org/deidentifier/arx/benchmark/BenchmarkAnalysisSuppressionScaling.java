@@ -89,6 +89,14 @@ public class BenchmarkAnalysisSuppressionScaling {
                                               0.0,
                                               gsFactor,
                                               gsStepSize));
+                    groups.add(analyzeHeterogeneity(file,
+                                              dataset,
+                                              BenchmarkUtilityMeasure.LOSS,
+                                              BenchmarkPrivacyModel.K5_ANONYMITY,
+                                              BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING,
+                                              0.0,
+                                              gsFactor,
+                                              gsStepSize));
                 }
             }
         }
@@ -246,6 +254,83 @@ public class BenchmarkAnalysisSuppressionScaling {
         params.ratio = 0.5d;
         params.minY = 0d;
         return new PlotGroup("Development of runtime with different suppression limits. ",
+                             plots,
+                             params,
+                             1.0d);
+    }
+
+    
+    /**
+     * Performs the analysis
+     * 
+     * @param file
+     * @param suppression
+     * @param algorithm
+     * @param model
+     * @param measure
+     * @param dataset
+     * @return
+     * @throws ParseException
+     */
+    private static PlotGroup analyzeHeterogeneity(CSVFile file,
+                                            BenchmarkDataset dataset,
+                                            BenchmarkUtilityMeasure measure,
+                                            BenchmarkPrivacyModel model,
+                                            BenchmarkAlgorithm algorithm,
+                                            double suppression,
+                                            double gsFactor,
+                                            double gsStepSize) throws ParseException {
+
+        // Selects according rows
+        Selector<String[]> selectorRGR = file.getSelectorBuilder()
+                                             .field("Algorithm")
+                                             .equals(algorithm.toString())
+                                             .and()
+                                             .field("Dataset")
+                                             .equals(dataset.toString())
+                                             .and()
+                                             .field("gsFactor")
+                                             .equals(String.valueOf(gsFactor))
+                                             .and()
+                                             .field("gsFactorStepSize")
+                                             .equals(String.valueOf(gsStepSize))
+                                             .and()
+                                             .field("SuppressionLimit")
+                                             .greater(String.valueOf(0d))
+                                             .build();
+
+        // Read data into 2D series
+        Series2D rgrSeriesRuntime = new Series2D(file,
+                                                 selectorRGR,
+                                                 new Field("SuppressionLimit"),
+                                                 new Field("Transformations", Analyzer.VALUE));
+
+        // Dirty hack for creating a 3D series from two 2D series'
+        Series3D series = new Series3D(file, selectorRGR, new Field("Dataset"), // Cluster
+                                       new Field("UtilityMeasure"), // Type
+                                       new Field("PrivacyModel")); // Value
+        series.getData().clear();
+
+        for (Point2D point : rgrSeriesRuntime.getData()) {
+            series.getData().add(new Point3D(point.x, "RGR (Transformations)", point.y));
+        }
+
+        // Plot
+        List<Plot<?>> plots = new ArrayList<Plot<?>>();
+        plots.add(new PlotLinesClustered("Dataset " + dataset.toString() + " / Measure: " +
+                                         measure.toString() + " / gsFactor: " + gsFactor +
+                                         " / gsStepSize: " + gsStepSize + " / Algorithm: " +
+                                         algorithm.toString(), new Labels("Suppression Limit",
+                                                                          "Heterogeneity"), series));
+
+        GnuPlotParams params = new GnuPlotParams();
+        params.colorize = true;
+        params.rotateXTicks = 0;
+        params.keypos = KeyPos.BOTTOM_RIGHT;
+        params.size = 1.0d;
+        params.ratio = 0.5d;
+        params.minY = 0d;
+        return new PlotGroup("Development of heterogeneity with different suppression limits. ",
                              plots,
                              params,
                              1.0d);
