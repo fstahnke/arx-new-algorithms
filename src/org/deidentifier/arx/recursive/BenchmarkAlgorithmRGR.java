@@ -29,7 +29,7 @@ public class BenchmarkAlgorithmRGR extends BenchmarkAlgorithm {
         this.data = data;
         this.config = config;
         if (minOptimizationThreshold < 0d || minOptimizationThreshold > 1d) {
-            throw new IllegalArgumentException("Group size must be in [0, 1]");
+            throw new IllegalArgumentException("Optimization threshold must be in [0, 1]");
         } else {
             this.minOptimizationThreshold = minOptimizationThreshold;
         }
@@ -38,7 +38,21 @@ public class BenchmarkAlgorithmRGR extends BenchmarkAlgorithm {
     public void execute() throws IOException, RollbackRequiredException {
         super.start();
 
-        config.setMaxOutliers(Math.min(1 - minOptimizationThreshold, config.getMaxOutliers()));
+        double maxOutliers;
+
+        if (config.getMaxOutliers() == 1 && minOptimizationThreshold == 0) {
+            // If there is no restriction by suppression limit nor by
+            // optimization threshold,
+            // we want to optimize at least 1 record.
+            double minGeneralization = 1d / data.getHandle().getNumRows();
+            maxOutliers = 1 - minGeneralization;
+        } else {
+            // If there is a restriction by either suppression limit or
+            // optimization threshold,
+            // take the value that optimizes more records.
+            maxOutliers = Math.min(1 - minOptimizationThreshold, config.getMaxOutliers());
+        }
+        config.setMaxOutliers(maxOutliers);
 
         // Execute the first anonymization
         ARXResult result = anonymizer.anonymize(data, config);
@@ -63,7 +77,8 @@ public class BenchmarkAlgorithmRGR extends BenchmarkAlgorithm {
      *            suppression, and a factor of 1 will favor generalization. The
      *            values in between can be used for balancing both methods.
      * @param minOptimizationThreshold
-     *            The minimum number of records that is optimized by each iteration.
+     *            The minimum number of records that is optimized by each
+     *            iteration.
      * @throws RollbackRequiredException
      */
     private void
@@ -75,9 +90,9 @@ public class BenchmarkAlgorithmRGR extends BenchmarkAlgorithm {
         if (minOptimizationThreshold < 0d || minOptimizationThreshold > 1d) { throw new IllegalArgumentException("Min equivalence class size must be in [0, 1]"); }
 
         DataHandle outHandle = result.getOutput(false);
+
         if (outHandle == null) {
-            String[][] output = new String[][] { new String[] { "*" } };
-            super.finished(output);
+            super.finished(new String[][] { new String[] { "*" } });
             System.err.println("No result found. Increase time limit for heuristic. Current limit: " +
                                config.getHeuristicSearchTimeLimit() + " ms");
             return;
@@ -91,39 +106,35 @@ public class BenchmarkAlgorithmRGR extends BenchmarkAlgorithm {
         // Outer loop
         int tuplesChanged = Integer.MAX_VALUE;
 
-        if (!result.isOptimizable(outHandle)) {
-            System.err.println("We never entered the loop");
-        }
-        while (result.isOptimizable(outHandle) && tuplesChanged > 0) {
+        while (result.isOptimizable(outHandle)) {
+
+            int optimizableRecords = BenchmarkHelper.getNumSuppressed(output);
+
+            if (optimizableRecords <= 0) {
+                System.err.println("Result not optimizable but isOptimizable() returned true!");
+            }
+            if (tuplesChanged <= 0) {
+                System.err.println("Result hasn't changed in the last iteration.");
+            }
 
             // Adapt suppression limit
-            int optimizableRecords = BenchmarkHelper.getNumSuppressed(output);
-            if (minOptimizationThreshold < 1 && optimizableRecords > 0) {
-                // Calculate the maximum suppression limit for the current
-                // subset
-                double localMaxSuppressionLimit = 1 - (minOptimizationThreshold * output.length /
-                                                       optimizableRecords);
-                // We don't want to have a negative suppression limit
-                localMaxSuppressionLimit = Math.max(localMaxSuppressionLimit, 0);
-                // Set the new local suppression limit if it's smaller than the
-                // original suppression limit
-                double localSuppressionLimit = Math.min(localMaxSuppressionLimit,
-                                                        originalSuppressionLimit);
-                config.setMaxOutliers(localSuppressionLimit);
+            double localSuppressionLimit = 1 - (minOptimizationThreshold * output.length / optimizableRecords);
+            // We want to optimize at least 1 record
+            localSuppressionLimit = Math.min(localSuppressionLimit, 1 - (1d / optimizableRecords));
+            // We don't want to have a suppression limit below 0
+            localSuppressionLimit = Math.max(localSuppressionLimit, 0);
+            config.setMaxOutliers(localSuppressionLimit);
 
-                // System.out.println("Adapting suppressionLimit to: "
-                // + BenchmarkHelper.round(config.getMaxOutliers(), 3));
-            }
             // Perform individual optimization
             tuplesChanged = result.optimize(outHandle, gsFactor);
 
-            System.out.println("Suppression Limit: " + config.getMaxOutliers() +
-                               ", changed tuples: " + tuplesChanged);
+//             System.out.println("Suppression Limit: " +
+//             config.getMaxOutliers() +
+//             ", changed tuples: " + tuplesChanged);
 
             // Convert result and call listener
             output = converter.toArray(outHandle);
             super.updated(output, result.getGlobalOptimum().getTransformation());
-
         }
 
         super.finished(output);

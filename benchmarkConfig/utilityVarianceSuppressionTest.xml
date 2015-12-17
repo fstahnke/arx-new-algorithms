@@ -10,7 +10,7 @@
     <privacyModel>K5_ANONYMITY</privacyModel>
     
 	<!-- add utility measures -->
-    <utilityMeasure>NMENTROPY</utilityMeasure>
+    <utilityMeasure>LOSS</utilityMeasure>
     
 	<!-- add suppression limits. can be any double value between 0 and 1 -->
     <suppressionLimit>1</suppressionLimit>

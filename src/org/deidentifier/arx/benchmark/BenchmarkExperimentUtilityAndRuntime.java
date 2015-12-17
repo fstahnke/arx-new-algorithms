@@ -35,7 +35,6 @@ import org.deidentifier.arx.utility.DataConverter;
 import org.deidentifier.arx.utility.UtilityMeasureDiscernibility;
 import org.deidentifier.arx.utility.UtilityMeasureGenericNonUniformEntropyWithLowerBound;
 import org.deidentifier.arx.utility.UtilityMeasureLoss;
-import org.deidentifier.arx.utility.UtilityMeasureNonUniformEntropy;
 
 import de.linearbits.subframe.Benchmark;
 import de.linearbits.subframe.analyzer.ValueBuffer;
