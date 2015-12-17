@@ -13,14 +13,14 @@
     <utilityMeasure>NMENTROPY</utilityMeasure>
     
 	<!-- add suppression limits. can be any double value between 0 and 1 -->
-    <suppressionLimit>0.95</suppressionLimit>
+    <suppressionLimit>1</suppressionLimit>
 
 	<!-- add gsFactors. Can be any double value between 0 and 1. Closer to 0 
 		means more suppression. -->
 	<gsFactor>0.0</gsFactor>
 	
 	<!-- add gsStepSizes -->
-    <gsStepSize>.99</gsStepSize>
+    <gsStepSize>0.01</gsStepSize>
 	
 	<!-- set paths for output files -->
     <outputFile>results/utilityVarianceSuppressionTest1.csv</outputFile>
