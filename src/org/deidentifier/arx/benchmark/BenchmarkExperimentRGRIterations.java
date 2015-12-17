@@ -80,7 +80,7 @@ public class BenchmarkExperimentRGRIterations {
     /** Number of runs for each benchmark setting */
     private int                      numberOfRuns;
     /** Number of warmup runs */
-    private int                      numberOfWarmups          = 0;
+    private int                      numberOfWarmups          = 1;
     /** The setup of this experiment */
     private BenchmarkSetup           setup;
     /** The metadata of this experiment */
@@ -170,9 +170,9 @@ public class BenchmarkExperimentRGRIterations {
                       BenchmarkUtilityMeasure.LOSS,
                       BenchmarkPrivacyModel.K5_ANONYMITY,
                       BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING,
-                      0.1,
+                      0.9,
                       0.0,
-                      0.05);
+                      0.1);
 
         // Repeat for each data set
         for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {

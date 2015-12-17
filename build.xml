@@ -4,7 +4,7 @@
 	<description>Builds, tests, and runs the project.</description>
 
 	<!-- defines the version number -->
-	<property name="version" value="0.0.10-compact" />
+	<property name="version" value="0.1.1-compact" />
 	
 	<path id="compile.classpath">
 		<fileset dir="lib">
@@ -40,7 +40,7 @@
 			<fileset dir="build/lib" defaultexcludes="no" />
 			<manifest>
 				<attribute name="Main-Class" value="org.deidentifier.arx.benchmark.BenchmarkManager" />
-                <attribute name="Class-Path" value="lib/libarx-3.3.0.jar lib/subframe-0.2-lib.jar"/>
+                <attribute name="Class-Path" value="lib/libarx-3.3.1.jar lib/subframe-0.2-lib.jar"/>
 			</manifest>
 		</jar>
 	</target>

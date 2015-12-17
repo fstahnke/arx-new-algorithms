@@ -333,6 +333,7 @@ public class TassaAlgorithmImpl {
     private boolean isSignficantlySmaller(double oldValue,
                                           double newValue,
                                           double normalizationFactor) {
+        // TODO: Normalization shouldn't be necessary here.
         return newValue / normalizationFactor - oldValue / normalizationFactor < -0.0001d;
     }
 

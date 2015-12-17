@@ -39,32 +39,32 @@ public class TassaAlgorithm extends BenchmarkAlgorithm {
     /**
      * Create a new instance
      * 
-     * @param observer
+     * @param listener
      * @param data
      * @param config
      * @throws IOException
      */
-    public TassaAlgorithm(IBenchmarkListener observer,
+    public TassaAlgorithm(IBenchmarkListener listener,
                           Data data,
                           ARXConfiguration config) throws IOException {
-        this(observer, data, config, 0d);
+        this(listener, data, config, 0d);
     }
 
     /**
      * Create a new recursive instance
      * 
-     * @param observer
+     * @param listener
      * @param data
      * @param config
      * @param threshold
      *            Set to 0 to perform a single pass
      * @throws IOException
      */
-    public TassaAlgorithm(IBenchmarkListener observer,
+    public TassaAlgorithm(IBenchmarkListener listener,
                           Data data,
                           ARXConfiguration config,
                           double threshold) throws IOException {
-        super(observer);
+        super(listener);
         this.arxInterface = new ARXInterface(data, config);
         this.threshold = threshold;
         weights = new int[data.getHandle().getNumRows()];

@@ -235,7 +235,9 @@ public class BenchmarkSetup {
 
     public static enum BenchmarkUtilityMeasure {
         DISCERNIBILITY("Discernibility"),
-        LOSS("Loss");
+        LOSS("Loss"),
+        NMENTROPY("NMEntropy"),
+        KLDIVERGENCE("KLDivergence");
 
         private final String name;
 
@@ -295,12 +297,21 @@ public class BenchmarkSetup {
             case LOSS:
                 config.setMetric(Metric.createLossMetric(gsFactor, AggregateFunction.GEOMETRIC_MEAN));
                 break;
+            case NMENTROPY:
+                config.setMetric(Metric.createPrecomputedEntropyMetric(1, false, gsFactor, AggregateFunction.ARITHMETIC_MEAN));
+                break;
+            case KLDIVERGENCE:
+                config.setMetric(Metric.createKLDivergenceMetric());
+                break;
             default:
                 throw new IllegalArgumentException("");
         }
 
         config.setMaxOutliers(suppressionLimit);
-
+        
+        config.setHeuristicSearchEnabled(false);
+        config.setHeuristicSearchTimeLimit(5000);
+        
         switch (criterion) {
             case K5_ANONYMITY:
             case K10_ANONYMITY:

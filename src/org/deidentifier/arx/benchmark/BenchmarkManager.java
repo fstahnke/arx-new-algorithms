@@ -9,22 +9,6 @@ public class BenchmarkManager {
 
     public static void main(String[] args) throws IOException, RollbackRequiredException {
 
-        /*
-         * Results so far: Utility & Variance (TODO: Rerun to fix variance
-         * values. TODO: Rerun with good value for dynamic gsScaling.) k-scaling
-         * (TODO: fix values for utility & variance of Tassa in k-Scaling)
-         * QI-scaling record scaling suppressionLimit-Scaling: Split plots into
-         * two graphs (utility & runtime) gsFactor-scaling: graph to visualize
-         * flaw of initial approach dynamic gsFactor-scaling: adult (TODO: Rerun
-         * (fix runtime outlier). TODO: run for other datasets)
-         * stepSize-scaling: adult (TODO: other datasets) suppressionScaling2:
-         * adult (TODO: other datasets) RGR Iteration Analysis: (TODO: Rerun
-         * with smaller gsFactor. TODO: How to analyse the dynamic gsFactor?
-         * TODO: Add utility gain?)
-         * 
-         * TODO: All, check boundaries for plots
-         */
-
         boolean iterationAnalysis = false;
         String[] configFiles = Arrays.copyOf(args, args.length);
 

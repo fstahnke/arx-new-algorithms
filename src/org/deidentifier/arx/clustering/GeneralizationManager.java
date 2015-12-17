@@ -125,7 +125,8 @@ public class GeneralizationManager {
     }
 
     /**
-     * Once cluster. This method has two side effects: it updates the generalization and cache arrays
+     * Once cluster. This method has two side effects: it updates the generalization and cache arrays.
+     * Information loss is not normalized.
      * @param cluster
      * @param generalization
      * @param cache 

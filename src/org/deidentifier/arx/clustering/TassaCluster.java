@@ -150,6 +150,7 @@ public class TassaCluster {
 
     /**
      * Updates the cluster
+     * The information loss includes the cluster size / is not normalized.
      */
     private void update() {
         // If cluster is empty

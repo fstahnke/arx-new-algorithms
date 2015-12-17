@@ -43,7 +43,6 @@ import de.linearbits.subframe.render.GnuPlotParams;
 import de.linearbits.subframe.render.GnuPlotParams.KeyPos;
 import de.linearbits.subframe.render.LaTeX;
 import de.linearbits.subframe.render.PlotGroup;
-import sun.security.jgss.GSSToken;
 
 /**
  * BenchmarkAnalysis analyzing scaling of the different algorithms. x-Axis:

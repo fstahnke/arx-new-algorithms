@@ -1,18 +1,18 @@
 /*
- * Benchmark of risk-based anonymization in ARX 3.0.0
- * Copyright 2015 - Fabian Prasser
+ * Benchmark of risk-based anonymization in ARX 3.0.0 Copyright 2015 - Fabian
+ * Prasser
  * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  * 
  * http://www.apache.org/licenses/LICENSE-2.0
  * 
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package org.deidentifier.arx.benchmark;
@@ -32,6 +32,7 @@ import org.deidentifier.arx.utility.AggregateFunction;
 import org.deidentifier.arx.utility.DataConverter;
 import org.deidentifier.arx.utility.UtilityMeasureDiscernibility;
 import org.deidentifier.arx.utility.UtilityMeasureLoss;
+import org.deidentifier.arx.utility.UtilityMeasureNonUniformEntropy;
 
 /**
  * Bounds on utility
@@ -40,16 +41,17 @@ import org.deidentifier.arx.utility.UtilityMeasureLoss;
  */
 public class BenchmarkMetadataUtility {
 
-    /** Bound*/
+    /** Bound */
     private Map<BenchmarkDataset, Map<BenchmarkUtilityMeasure, Double>> lower = new HashMap<BenchmarkDataset, Map<BenchmarkUtilityMeasure, Double>>();
-    /** Bound*/
+    /** Bound */
     private Map<BenchmarkDataset, Map<BenchmarkUtilityMeasure, Double>> upper = new HashMap<BenchmarkDataset, Map<BenchmarkUtilityMeasure, Double>>();
-    
+
     /**
      * Creates a new instance
+     * 
      * @throws IOException
      */
-    public BenchmarkMetadataUtility(BenchmarkSetup setup) throws IOException{
+    public BenchmarkMetadataUtility(BenchmarkSetup setup) throws IOException {
         long time = System.currentTimeMillis();
         System.out.print("Preparing utility metadata...");
         for (BenchmarkDataset dataset : setup.getDatasets()) {
@@ -58,10 +60,10 @@ public class BenchmarkMetadataUtility {
         }
         System.out.println("Done in " + (System.currentTimeMillis() - time) + "[ms]");
     }
-    
 
     /**
      * Returns the lower bound
+     * 
      * @param dataset
      * @param measure
      * @return
@@ -72,6 +74,7 @@ public class BenchmarkMetadataUtility {
 
     /**
      * Returns the lower bound
+     * 
      * @param dataset
      * @param measure
      * @return
@@ -79,9 +82,10 @@ public class BenchmarkMetadataUtility {
     public double getUpperBound(BenchmarkDataset dataset, BenchmarkUtilityMeasure measure) {
         return upper.get(dataset).get(measure);
     }
-    
+
     /**
      * Computes the lower bounds
+     * 
      * @param dataset
      * @throws IOException
      */
@@ -101,9 +105,17 @@ public class BenchmarkMetadataUtility {
         Arrays.fill(transformation, 0);
 
         // Compute metrics
-        double outputLoss = new UtilityMeasureLoss<Double>(header, hierarchies, AggregateFunction.GEOMETRIC_MEAN).evaluate(output)
-                                                                                                                 .getUtility();
-        double outputDiscernibility = new UtilityMeasureDiscernibility().evaluate(output).getUtility();
+        double outputLoss = new UtilityMeasureLoss<Double>(header,
+                                                           hierarchies,
+                                                           AggregateFunction.GEOMETRIC_MEAN).evaluate(output)
+                                                                                            .getUtility();
+        double outputDiscernibility = new UtilityMeasureDiscernibility().evaluate(output)
+                                                                        .getUtility();
+        
+        double outputNMEntropy = new UtilityMeasureNonUniformEntropy<Double>(header,
+                                                                             input,
+                                                                             AggregateFunction.ARITHMETIC_MEAN).evaluate(output)
+                                                                                                              .getUtility();
 
         // Store results
         if (!lower.containsKey(dataset)) {
@@ -111,10 +123,12 @@ public class BenchmarkMetadataUtility {
         }
         lower.get(dataset).put(BenchmarkUtilityMeasure.LOSS, outputLoss);
         lower.get(dataset).put(BenchmarkUtilityMeasure.DISCERNIBILITY, outputDiscernibility);
+        lower.get(dataset).put(BenchmarkUtilityMeasure.NMENTROPY, outputNMEntropy);
     }
 
     /**
      * Computes the upper bounds
+     * 
      * @param dataset
      * @throws IOException
      */
@@ -126,6 +140,7 @@ public class BenchmarkMetadataUtility {
 
         // Convert to completely suppressed output data
         DataConverter converter = new DataConverter();
+        String[][] input = converter.toArray(inputHandle);
         String[][] output = new String[inputHandle.getNumRows()][inputHandle.getNumColumns()];
         for (int i = 0; i < inputHandle.getNumRows(); i++) {
             Arrays.fill(output[i], "*");
@@ -139,8 +154,17 @@ public class BenchmarkMetadataUtility {
         }
 
         // Compute metrics
-        double outputLoss = new UtilityMeasureLoss<Double>(header, hierarchies, AggregateFunction.GEOMETRIC_MEAN).evaluate(output).getUtility();
-        double outputDiscernibility = new UtilityMeasureDiscernibility().evaluate(output).getUtility();
+        double outputLoss = new UtilityMeasureLoss<Double>(header,
+                                                           hierarchies,
+                                                           AggregateFunction.GEOMETRIC_MEAN).evaluate(output)
+                                                                                            .getUtility();
+        double outputDiscernibility = new UtilityMeasureDiscernibility().evaluate(output)
+                                                                        .getUtility();
+        
+        double outputNMEntropy = new UtilityMeasureNonUniformEntropy<Double>(header,
+                                                                             input,
+                                                                             AggregateFunction.ARITHMETIC_MEAN).evaluate(output)
+                                                                                                              .getUtility();
 
         // Store results
         if (!upper.containsKey(dataset)) {
@@ -148,5 +172,6 @@ public class BenchmarkMetadataUtility {
         }
         upper.get(dataset).put(BenchmarkUtilityMeasure.LOSS, outputLoss);
         upper.get(dataset).put(BenchmarkUtilityMeasure.DISCERNIBILITY, outputDiscernibility);
+        upper.get(dataset).put(BenchmarkUtilityMeasure.NMENTROPY, outputNMEntropy);
     }
 }

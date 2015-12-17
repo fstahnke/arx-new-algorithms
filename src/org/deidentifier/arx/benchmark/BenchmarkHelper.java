@@ -1,10 +1,7 @@
 package org.deidentifier.arx.benchmark;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,7 +13,7 @@ public class BenchmarkHelper {
     /**
      * The scale for calculations with BigDecimal.
      */
-    public static final int DECIMAL_SCALE = 10;
+    private static final int DECIMAL_SCALE = 10;
 
     /** The separator*/
     private static final char   SEPERATOR = ';';
@@ -152,9 +149,6 @@ public class BenchmarkHelper {
                 for (int level = row.length - 1; level >= 0; level--) {
                     if (map.containsKey(row[level])) {
                         int lvl = Math.max(map.get(row[level]), level);
-                        if (map.get(row[level]) != level) {
-                            System.out.println("That happened! (with " + attribute + ")");                            
-                        }
                         map.put(row[level], lvl);
                     } else {
                         map.put(row[level], level);
@@ -174,7 +168,7 @@ public class BenchmarkHelper {
      * @param values
      * @return The arithmetic mean.
      */
-    public static BigDecimal calculateArithmeticMean(BigDecimal[] values) {
+    private static BigDecimal calculateArithmeticMean(BigDecimal[] values) {
         if (values.length == 1) { return values[0].setScale(DECIMAL_SCALE, BigDecimal.ROUND_HALF_UP); }
         BigDecimal arithmeticMean = BigDecimal.valueOf(0d);
         for (BigDecimal value : values) {
@@ -240,6 +234,24 @@ public class BenchmarkHelper {
             if (!s.equals("*")) { return false; }
         }
         return true;
+    }
+    
+
+    /**
+     * Helper method for rounding doubles to a specific number of decimals.
+     * 
+     * @param value
+     *            Input value.
+     * @param places
+     *            Number of decimals.
+     * @return Rounded value.
+     */
+    public static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        BigDecimal bd = new BigDecimal(value);
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
     }
 
 }

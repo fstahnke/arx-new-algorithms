@@ -23,14 +23,14 @@ public class BenchmarkAlgorithmFlash extends BenchmarkAlgorithm {
     private final ARXAnonymizer    anonymizer;
 
     /**
-     * @param observer
+     * @param listener
      * @param data
      * @param config
      */
-    public BenchmarkAlgorithmFlash(IBenchmarkListener observer,
+    public BenchmarkAlgorithmFlash(IBenchmarkListener listener,
                                    final Data data,
                                    final ARXConfiguration config) {
-        super(observer);
+        super(listener);
         this.anonymizer = new ARXAnonymizer();
         this.data = data;
         this.config = config;

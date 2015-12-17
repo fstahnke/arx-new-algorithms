@@ -1,55 +1,51 @@
 package org.deidentifier.arx.recursive;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.Iterator;
 
 import org.deidentifier.arx.ARXAnonymizer;
 import org.deidentifier.arx.ARXConfiguration;
-import org.deidentifier.arx.ARXListener;
 import org.deidentifier.arx.ARXResult;
 import org.deidentifier.arx.Data;
 import org.deidentifier.arx.DataHandle;
 import org.deidentifier.arx.benchmark.BenchmarkAlgorithm;
+import org.deidentifier.arx.benchmark.BenchmarkHelper;
 import org.deidentifier.arx.benchmark.IBenchmarkListener;
-import org.deidentifier.arx.criteria.KAnonymity;
-import org.deidentifier.arx.criteria.LDiversity;
 import org.deidentifier.arx.exceptions.RollbackRequiredException;
-import org.deidentifier.arx.metric.v2.MetricMDNMLoss;
 import org.deidentifier.arx.utility.DataConverter;
 
 public class BenchmarkAlgorithmRGR extends BenchmarkAlgorithm {
 
-    private final Data             data;
-    private final ARXConfiguration config;
-    private final ARXAnonymizer    anonymizer;
-    private final double           stepSize;
+    private final Data     data;
+    final ARXConfiguration config;
+    final ARXAnonymizer    anonymizer;
+    private final double   maxSuppressionLimit;
 
     public BenchmarkAlgorithmRGR(IBenchmarkListener listener,
                                  final Data data,
                                  final ARXConfiguration config,
-                                 final double stepSize) {
+                                 final double maxSuppressionLimit) {
         super(listener);
         this.anonymizer = new ARXAnonymizer();
         this.data = data;
         this.config = config;
-        if (stepSize < 0d || stepSize > 1d) {
-            throw new IllegalArgumentException("Step size must be in [0, 1]");
+        if (maxSuppressionLimit < 0d || maxSuppressionLimit > 1d) {
+            throw new IllegalArgumentException("Group size must be in [0, 1]");
         } else {
-            this.stepSize = stepSize;
+            this.maxSuppressionLimit = maxSuppressionLimit;
         }
     }
 
     public void execute() throws IOException, RollbackRequiredException {
         super.start();
 
+        config.setMaxOutliers(Math.min(maxSuppressionLimit, config.getMaxOutliers()));
+
         // Execute the first anonymization
         ARXResult result = anonymizer.anonymize(data, config);
 
         // Optimize result
-        double gsFactor = ((MetricMDNMLoss) config.getMetric()).getGeneralizationSuppressionFactor();
-        optimizeIterative(result, gsFactor, stepSize);
+        double gsFactor = config.getMetric().getGeneralizationSuppressionFactor();
+        optimizeIterative(result, gsFactor, maxSuppressionLimit);
 
         data.getHandle().release();
     }
@@ -66,118 +62,70 @@ public class BenchmarkAlgorithmRGR extends BenchmarkAlgorithm {
      *            suppression will be treated equally. A factor of 0 will favor
      *            suppression, and a factor of 1 will favor generalization. The
      *            values in between can be used for balancing both methods.
-     * @param adaptationFactor
-     *            Is added to the gsFactor when reaching a fixpoint
+     * @param maxSuppressionLimit
+     *            The minimum size of a group that is transformed with the same
+     *            transformation in relation to the total size of the dataset.
      * @throws RollbackRequiredException
      */
-    private void optimizeIterative(final ARXResult result,
-                                  double gsFactor,
-                                  final double adaptationFactor) throws RollbackRequiredException {
+    private void
+            optimizeIterative(final ARXResult result,
+                                       double gsFactor,
+                                       final double maxSuppressionLimit) throws RollbackRequiredException {
 
         if (gsFactor < 0d || gsFactor > 1d) { throw new IllegalArgumentException("Generalization/suppression factor must be in [0, 1]"); }
-        if (adaptationFactor < 0d || adaptationFactor > 1d) { throw new IllegalArgumentException("Adaption factor must be in [0, 1]"); }
+        if (maxSuppressionLimit < 0d || maxSuppressionLimit > 1d) { throw new IllegalArgumentException("Min equivalence class size must be in [0, 1]"); }
 
         DataHandle outHandle = result.getOutput(false);
-        DataConverter converter = new DataConverter();
-        String[][] output = converter.toArray(outHandle);
-        super.updated(output, result.getGlobalOptimum().getTransformation());
-
-        // Outer loop
-        boolean tuplesChanged = true;
-        while (result.isOptimizable(outHandle) && tuplesChanged) {
-
-            // Perform individual optimization
-            int changedTup = result.optimize(outHandle, gsFactor);
-            tuplesChanged = changedTup > 0;
-//            System.out.println("gsFactor: " + gsFactor + ", changed tuples: " + changedTup);
-
-            // Convert result and call listener
-            output = converter.toArray(outHandle);
-            super.updated(output, result.getGlobalOptimum().getTransformation());
-
-            // Try to adapt, if possible
-            if (!tuplesChanged && adaptationFactor > 0d && gsFactor < 0.5d) {
-                gsFactor = round(gsFactor + adaptationFactor, 7);
-                System.out.println("Hooray, we are adapting! gsFactor is now: " + gsFactor);
-                tuplesChanged = true;
-            }
+        if (outHandle == null) {
+            String[][] output = new String[][] { new String[] { "*" } };
+            super.finished(output);
+            System.err.println("No result found. Increase time limit for heuristic. Current limit: " +
+                               config.getHeuristicSearchTimeLimit() + " ms");
+            return;
         }
-        
-        super.finished(output);
-        outHandle.release();
-    }
-    
 
-
-    /**
-     * This method optimizes the given data output with local recoding to
-     * improve its utility
-     * 
-     * @param result
-     * @param outHandle
-     * @param gsFactor
-     *            A factor [0,1] weighting generalization and suppression. The
-     *            default value is 0.5, which means that generalization and
-     *            suppression will be treated equally. A factor of 0 will favor
-     *            suppression, and a factor of 1 will favor generalization. The
-     *            values in between can be used for balancing both methods.
-     * @param adaptationFactor
-     *            Is added to the gsFactor when reaching a fixpoint
-     * @throws RollbackRequiredException
-     */
-    private void optimizeIterativeSuppLimit(final ARXResult result,
-                                  double gsFactor,
-                                  final double adaptationFactor) throws RollbackRequiredException {
-
-        if (gsFactor < 0d || gsFactor > 1d) { throw new IllegalArgumentException("Generalization/suppression factor must be in [0, 1]"); }
-        if (adaptationFactor < 0d || adaptationFactor > 1d) { throw new IllegalArgumentException("Adaption factor must be in [0, 1]"); }
-
-        DataHandle outHandle = result.getOutput(false);
         DataConverter converter = new DataConverter();
         String[][] output = converter.toArray(outHandle);
         super.updated(output, result.getGlobalOptimum().getTransformation());
-        double currentSuppressionLimit = result.getConfiguration().getMaxOutliers();
+        double originalSuppressionLimit = config.getMaxOutliers();
 
         // Outer loop
         int tuplesChanged = Integer.MAX_VALUE;
+
+        if (!result.isOptimizable(outHandle)) {
+            System.err.println("We never entered the loop");
+        }
         while (result.isOptimizable(outHandle) && tuplesChanged > 0) {
 
+            // Adapt suppression limit
+            int optimizableRecords = BenchmarkHelper.getNumSuppressed(output);
+            if (maxSuppressionLimit < 1 && optimizableRecords > 0) {
+                // Calculate the maximum suppression limit for the current subset
+                double localMaxSuppressionLimit = (1 - (1 - maxSuppressionLimit) * output.length / optimizableRecords);
+                // We don't want to have a negative suppression limit
+                localMaxSuppressionLimit = Math.max(localMaxSuppressionLimit, 0);
+                // Set the new local suppression limit if it's smaller than the original suppression limit
+                double localSuppressionLimit = Math.min(localMaxSuppressionLimit, originalSuppressionLimit);
+                config.setMaxOutliers(localSuppressionLimit);
+                
+//                 System.out.println("Adapting suppressionLimit to: "
+//                 + BenchmarkHelper.round(config.getMaxOutliers(), 3));
+            }
             // Perform individual optimization
             tuplesChanged = result.optimize(outHandle, gsFactor);
-            System.out.println("Suppression Limit: " + currentSuppressionLimit + ", changed tuples: " + tuplesChanged);
+
+             System.out.println("Suppression Limit: " +
+             config.getMaxOutliers() + ", changed tuples: " + tuplesChanged);
 
             // Convert result and call listener
             output = converter.toArray(outHandle);
             super.updated(output, result.getGlobalOptimum().getTransformation());
 
-            // Try to adapt, if possible
-            if (tuplesChanged <= 100 && adaptationFactor > 0d && gsFactor < 0.5d) {
-                
-                currentSuppressionLimit = round(currentSuppressionLimit - adaptationFactor, 7);
-                result.getConfiguration().setMaxOutliers(currentSuppressionLimit);
-                System.out.println("Hooray, we are adapting! suppressionLimit is now: " + currentSuppressionLimit);
-                tuplesChanged = Integer.MAX_VALUE;
-            }
         }
-        
+
         super.finished(output);
+        // reset suppression limit for next run
+        result.getConfiguration().setMaxOutliers(originalSuppressionLimit);
         outHandle.release();
-    }
-
-    /**
-     * Helper method for rounding doubles to a specific number of decimals.
-     * 
-     * @param value
-     *            Input value.
-     * @param places
-     *            Number of decimals.
-     * @return Rounded value.
-     */
-    private static double round(double value, int places) {
-        if (places < 0) throw new IllegalArgumentException();
-
-        BigDecimal bd = new BigDecimal(value);
-        bd = bd.setScale(places, RoundingMode.HALF_UP);
-        return bd.doubleValue();
     }
 }

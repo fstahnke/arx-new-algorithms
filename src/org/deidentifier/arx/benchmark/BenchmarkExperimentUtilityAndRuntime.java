@@ -33,7 +33,9 @@ import org.deidentifier.arx.recursive.BenchmarkAlgorithmRGR;
 import org.deidentifier.arx.utility.AggregateFunction;
 import org.deidentifier.arx.utility.DataConverter;
 import org.deidentifier.arx.utility.UtilityMeasureDiscernibility;
+import org.deidentifier.arx.utility.UtilityMeasureGenericNonUniformEntropyWithLowerBound;
 import org.deidentifier.arx.utility.UtilityMeasureLoss;
+import org.deidentifier.arx.utility.UtilityMeasureNonUniformEntropy;
 
 import de.linearbits.subframe.Benchmark;
 import de.linearbits.subframe.analyzer.ValueBuffer;
@@ -80,8 +82,8 @@ public class BenchmarkExperimentUtilityAndRuntime {
     private BenchmarkSetup           setup;
     /** The metadata of this experiment */
     private BenchmarkMetadataUtility metadata;
-    /** The file to save results*/
-    private File resultFile;
+    /** The file to save results */
+    private File                     resultFile;
 
     public BenchmarkExperimentUtilityAndRuntime(String benchmarkConfig) throws IOException {
         // Init
@@ -116,15 +118,15 @@ public class BenchmarkExperimentUtilityAndRuntime {
                       BenchmarkUtilityMeasure.LOSS,
                       BenchmarkPrivacyModel.K5_ANONYMITY,
                       BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING,
-                      0.1,
+                      0.9,
                       0.0,
-                      0.05);
+                      0.9);
 
         // Repeat for each data set
-        for (BenchmarkPrivacyModel model : setup.getPrivacyModels()) {
             for (BenchmarkUtilityMeasure measure : setup.getUtilityMeasures()) {
                 for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
                     for (BenchmarkDataset dataset : setup.getDatasets()) {
+                        for (BenchmarkPrivacyModel model : setup.getPrivacyModels()) {
                         if (algorithm == BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING) {
                             for (double suppressionLimit : setup.getSuppressionLimits()) {
                                 for (double gsStepSize : setup.getGsStepSizes()) {
@@ -145,15 +147,29 @@ public class BenchmarkExperimentUtilityAndRuntime {
                             // We take default values for Flash and Clustering
                             double gsFactor = 0.5;
                             double gsStepSize = 0.0;
-                            double suppressionLimit = (algorithm == BenchmarkAlgorithm.FLASH) ? 1d : 0.0;
+                            if (algorithm == BenchmarkAlgorithm.TASSA) {
+                                double suppressionLimit = 0.0;
 
-                            performExperiment(dataset,
-                                              measure,
-                                              model,
-                                              algorithm,
-                                              suppressionLimit,
-                                              gsFactor,
-                                              gsStepSize);
+                                performExperiment(dataset,
+                                                  measure,
+                                                  model,
+                                                  algorithm,
+                                                  suppressionLimit,
+                                                  gsFactor,
+                                                  gsStepSize);
+                            } else {
+                                // double suppressionLimit = 1.0;
+                                for (double suppressionLimit : setup.getSuppressionLimits()) {
+
+                                    performExperiment(dataset,
+                                                      measure,
+                                                      model,
+                                                      algorithm,
+                                                      suppressionLimit,
+                                                      gsFactor,
+                                                      gsStepSize);
+                                }
+                            }
                         }
                     }
                 }
@@ -287,6 +303,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
 
         final Map<String, String[][]> hierarchies = new DataConverter().toMap(data.getDefinition());
         final String[] header = new DataConverter().getHeader(data.getHandle());
+        final String[][] input = new DataConverter().toArray(data.getHandle());
 
         // Calculate max generalization levels
         final int maxGeneralizationLevels[] = new int[header.length];
@@ -298,6 +315,7 @@ public class BenchmarkExperimentUtilityAndRuntime {
         if (algorithm == BenchmarkAlgorithm.TASSA ||
             algorithm == BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING ||
             algorithm == BenchmarkAlgorithm.FLASH) {
+
             IBenchmarkListener listener = new IBenchmarkListener() {
 
                 private boolean  isWarmup       = false;
@@ -325,6 +343,12 @@ public class BenchmarkExperimentUtilityAndRuntime {
                                                                                                   .getUtility();
                     } else if (measure == BenchmarkUtilityMeasure.DISCERNIBILITY) {
                         utility = new UtilityMeasureDiscernibility().evaluate(output).getUtility();
+                    } else if (measure == BenchmarkUtilityMeasure.NMENTROPY) {
+                        utility = new UtilityMeasureGenericNonUniformEntropyWithLowerBound<Double>(header,
+                                                                              input,
+                                                                              hierarchies,
+                                                                              AggregateFunction.ARITHMETIC_MEAN).evaluate(output)
+                                                                                                               .getUtility();
                     }
 
                     // Normalize
@@ -403,17 +427,22 @@ public class BenchmarkExperimentUtilityAndRuntime {
 
             if (numberOfWarmups > 0) {
                 System.out.print("Warmup... ");
+                double time = System.currentTimeMillis();
                 listener.setWarmup(true);
                 for (int i = 0; i < numberOfWarmups; i++) {
                     algorithmImplementation.execute();
                 }
                 listener.setWarmup(false);
-                System.out.println("done!");
+                double elapsed = (System.currentTimeMillis() - time) / 1000d;
+                System.out.println("done in " + (int) elapsed + "s!");
 
                 System.out.print("Iteration: ");
             }
             for (int i = 0; i < numberOfRuns; i++) {
+                double time = System.currentTimeMillis();
                 algorithmImplementation.execute();
+                double elapsed = (System.currentTimeMillis() - time) / 1000d;
+                System.out.print("(" + (int) elapsed + " s), ");
             }
             System.out.println(">> done!");
 

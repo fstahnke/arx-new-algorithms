@@ -55,7 +55,7 @@ public class BenchmarkAnalysisBoxPlots {
     /**
      * Choose benchmarkConfig
      */
-    private static final String benchmarkConfig = "benchmarkConfig/kScaling.xml";
+    private static final String benchmarkConfig = "results/utilityVarianceSuppressionNM_RGR.xml";
 
     /**
      * Main
@@ -77,7 +77,8 @@ public class BenchmarkAnalysisBoxPlots {
                 // {
                 for (double suppressionLimit : setup.getSuppressionLimits()) {
                     for (double gsFactor : setup.getGsFactors()) {
-                        for (double gsFactorStepSize : setup.getGsStepSizes()) {
+//                        for (double gsFactorStepSize : setup.getGsStepSizes()) {
+                        double gsFactorStepSize = 0d;
                             groups.add(analyzeUtility(file,
                                                       dataset,
                                                       measure,
@@ -94,14 +95,14 @@ public class BenchmarkAnalysisBoxPlots {
                                                       suppressionLimit,
                                                       gsFactor,
                                                       gsFactorStepSize));
-                            groups.add(analyzeVariance(file,
-                                                       dataset,
-                                                       measure,
-                                                       null,
-                                                       null,
-                                                       suppressionLimit,
-                                                       gsFactor,
-                                                       gsFactorStepSize));
+//                            groups.add(analyzeVariance(file,
+//                                                       dataset,
+//                                                       measure,
+//                                                       null,
+//                                                       null,
+//                                                       suppressionLimit,
+//                                                       gsFactor,
+//                                                       gsFactorStepSize));
                             groups.add(analyzeTransformations(file,
                                                        dataset,
                                                        measure,
@@ -110,7 +111,7 @@ public class BenchmarkAnalysisBoxPlots {
                                                        suppressionLimit,
                                                        gsFactor,
                                                        gsFactorStepSize));
-                        }
+//                        }
                     }
                 }
                 // }
@@ -141,6 +142,8 @@ public class BenchmarkAnalysisBoxPlots {
                                             double suppressionLimit,
                                             double gsFactor,
                                             double gsFactorStepSize) throws ParseException {
+        
+        double flashSuppressionLimit = suppressionLimit;
 
         // Selects according rows
         Selector<String[]> selectorRGR = file.getSelectorBuilder()
@@ -161,9 +164,9 @@ public class BenchmarkAnalysisBoxPlots {
                                              .and()
                                              .field("gsFactor")
                                              .equals(String.valueOf(gsFactor))
-                                             .and()
-                                             .field("gsFactorStepSize")
-                                             .equals(String.valueOf(gsFactorStepSize))
+//                                             .and()
+//                                             .field("gsFactorStepSize")
+//                                             .equals(String.valueOf(gsFactorStepSize))
                                              .build();
 
         // Selects according rows
@@ -181,13 +184,13 @@ public class BenchmarkAnalysisBoxPlots {
                                                .equals(BenchmarkAlgorithm.FLASH.toString())
                                                .and()
                                                .field("SuppressionLimit")
-                                               .equals(String.valueOf(suppressionLimit))
+                                               .equals(String.valueOf(flashSuppressionLimit))
                                                .and()
                                                .field("gsFactor")
                                                .equals("0.5")
-                                               .and()
-                                               .field("gsFactorStepSize")
-                                               .equals("0.0")
+//                                               .and()
+//                                               .field("gsFactorStepSize")
+//                                               .equals("0.0")
                                                .build();
 
         // Selects according rows
@@ -209,9 +212,9 @@ public class BenchmarkAnalysisBoxPlots {
                                                .and()
                                                .field("gsFactor")
                                                .equals("0.0")
-                                               .and()
-                                               .field("gsFactorStepSize")
-                                               .equals("0.0")
+//                                               .and()
+//                                               .field("gsFactorStepSize")
+//                                               .equals("0.0")
                                                .build();
 
         // Read data into 2D series
@@ -237,11 +240,11 @@ public class BenchmarkAnalysisBoxPlots {
                                        new Field("UtilityMeasure"), // Type
                                        new Field("PrivacyModel")); // Value
         series.getData().clear();
-        for (Point2D point : tassaSeries.getData()) {
-            series.getData().add(new Point3D(point.x,
-                                             BenchmarkAlgorithm.TASSA.toString(),
-                                             String.valueOf(1 - Double.valueOf(point.y))));
-        }
+//        for (Point2D point : tassaSeries.getData()) {
+//            series.getData().add(new Point3D(point.x,
+//                                             BenchmarkAlgorithm.TASSA.toString(),
+//                                             String.valueOf(1 - Double.valueOf(point.y))));
+//        }
         for (Point2D point : rgrSeries.getData()) {
             series.getData()
                   .add(new Point3D(point.x,
@@ -261,7 +264,7 @@ public class BenchmarkAnalysisBoxPlots {
                                                      measure.toString() + " / Suppression Limit: " +
                                                      suppressionLimit + " / gsFactor: " + gsFactor +
                                                      " / gsStepSize: " + gsFactorStepSize,
-                                             new Labels("K", "Utility [%]"),
+                                             new Labels("minGroupSize", "Utility [%]"),
                                              series));
 
         GnuPlotParams params = new GnuPlotParams();
@@ -301,6 +304,9 @@ public class BenchmarkAnalysisBoxPlots {
                                                     double suppressionLimit,
                                                     double gsFactor,
                                                     double gsFactorStepSize) throws ParseException {
+        
+
+        double flashSuppressionLimit = suppressionLimit;
 
         // Selects according rows
         Selector<String[]> selectorRGR = file.getSelectorBuilder()
@@ -321,9 +327,9 @@ public class BenchmarkAnalysisBoxPlots {
                                              .and()
                                              .field("gsFactor")
                                              .equals(String.valueOf(gsFactor))
-                                             .and()
-                                             .field("gsFactorStepSize")
-                                             .equals(String.valueOf(gsFactorStepSize))
+//                                             .and()
+//                                             .field("gsFactorStepSize")
+//                                             .equals(String.valueOf(gsFactorStepSize))
                                              .build();
 
         // Selects according rows
@@ -341,13 +347,13 @@ public class BenchmarkAnalysisBoxPlots {
                                                .equals(BenchmarkAlgorithm.FLASH.toString())
                                                .and()
                                                .field("SuppressionLimit")
-                                               .equals(String.valueOf(suppressionLimit))
+                                               .equals(String.valueOf(String.valueOf(flashSuppressionLimit)))
                                                .and()
                                                .field("gsFactor")
                                                .equals("0.5")
-                                               .and()
-                                               .field("gsFactorStepSize")
-                                               .equals("0.0")
+//                                               .and()
+//                                               .field("gsFactorStepSize")
+//                                               .equals("0.0")
                                                .build();
 
         // Selects according rows
@@ -369,9 +375,9 @@ public class BenchmarkAnalysisBoxPlots {
                                                .and()
                                                .field("gsFactor")
                                                .equals("0.0")
-                                               .and()
-                                               .field("gsFactorStepSize")
-                                               .equals("0.0")
+//                                               .and()
+//                                               .field("gsFactorStepSize")
+//                                               .equals("0.0")
                                                .build();
 
         // Read data into 2D series
@@ -397,10 +403,10 @@ public class BenchmarkAnalysisBoxPlots {
                                        new Field("UtilityMeasure"), // Type
                                        new Field("PrivacyModel")); // Value
         series.getData().clear();
-        for (Point2D point : tassaSeries.getData()) {
-            series.getData()
-                  .add(new Point3D(point.x, BenchmarkAlgorithm.TASSA.toString(), point.y));
-        }
+//        for (Point2D point : tassaSeries.getData()) {
+//            series.getData()
+//                  .add(new Point3D(point.x, BenchmarkAlgorithm.TASSA.toString(), point.y));
+//        }
         for (Point2D point : rgrSeries.getData()) {
             series.getData()
                   .add(new Point3D(point.x,
@@ -419,7 +425,7 @@ public class BenchmarkAnalysisBoxPlots {
                                                      measure.toString() + " / Suppression Limit: " +
                                                      suppressionLimit + " / gsFactor: " + gsFactor +
                                                      " / gsStepSize: " + gsFactorStepSize,
-                                             new Labels("K", "Number of transformations"),
+                                             new Labels("minGroupSize", "Number of transformations"),
                                              series));
 
         GnuPlotParams params = new GnuPlotParams();
@@ -457,6 +463,9 @@ public class BenchmarkAnalysisBoxPlots {
                                              double suppressionLimit,
                                              double gsFactor,
                                              double gsFactorStepSize) throws ParseException {
+        
+
+        double flashSuppressionLimit = suppressionLimit;
 
         // Selects according rows
         Selector<String[]> selectorRGR = file.getSelectorBuilder()
@@ -477,9 +486,9 @@ public class BenchmarkAnalysisBoxPlots {
                                              .and()
                                              .field("gsFactor")
                                              .equals(String.valueOf(gsFactor))
-                                             .and()
-                                             .field("gsFactorStepSize")
-                                             .equals(String.valueOf(gsFactorStepSize))
+//                                             .and()
+//                                             .field("gsFactorStepSize")
+//                                             .equals(String.valueOf(gsFactorStepSize))
                                              .build();
 
         // Selects according rows
@@ -497,13 +506,13 @@ public class BenchmarkAnalysisBoxPlots {
                                                .equals(BenchmarkAlgorithm.FLASH.toString())
                                                .and()
                                                .field("SuppressionLimit")
-                                               .equals(String.valueOf(suppressionLimit))
+                                               .equals(String.valueOf(flashSuppressionLimit))
                                                .and()
                                                .field("gsFactor")
                                                .equals("0.5")
-                                               .and()
-                                               .field("gsFactorStepSize")
-                                               .equals("0.0")
+//                                               .and()
+//                                               .field("gsFactorStepSize")
+//                                               .equals("0.0")
                                                .build();
 
         // Selects according rows
@@ -525,9 +534,9 @@ public class BenchmarkAnalysisBoxPlots {
                                                .and()
                                                .field("gsFactor")
                                                .equals("0.0")
-                                               .and()
-                                               .field("gsFactorStepSize")
-                                               .equals("0.0")
+//                                               .and()
+//                                               .field("gsFactorStepSize")
+//                                               .equals("0.0")
                                                .build();
 
         // Read data into 2D series
@@ -553,11 +562,11 @@ public class BenchmarkAnalysisBoxPlots {
                                        new Field("UtilityMeasure"), // Type
                                        new Field("PrivacyModel")); // Value
         series.getData().clear();
-        for (Point2D point : tassaSeries.getData()) {
-            series.getData().add(new Point3D(point.x,
-                                             BenchmarkAlgorithm.TASSA.toString(),
-                                             String.valueOf(Math.sqrt(Double.valueOf(point.y)))));
-        }
+//        for (Point2D point : tassaSeries.getData()) {
+//            series.getData().add(new Point3D(point.x,
+//                                             BenchmarkAlgorithm.TASSA.toString(),
+//                                             String.valueOf(Math.sqrt(Double.valueOf(point.y)))));
+//        }
         for (Point2D point : rgrSeries.getData()) {
             series.getData()
                   .add(new Point3D(point.x,
@@ -577,7 +586,7 @@ public class BenchmarkAnalysisBoxPlots {
                                                      measure.toString() + " / Suppression Limit: " +
                                                      suppressionLimit + " / gsFactor: " + gsFactor +
                                                      " / gsStepSize: " + gsFactorStepSize,
-                                             new Labels("K", "Standard deviation"),
+                                             new Labels("minGroupSize", "Standard deviation"),
                                              series));
 
         GnuPlotParams params = new GnuPlotParams();
@@ -616,6 +625,9 @@ public class BenchmarkAnalysisBoxPlots {
                                             double suppressionLimit,
                                             double gsFactor,
                                             double gsFactorStepSize) throws ParseException {
+        
+
+        double flashSuppressionLimit = suppressionLimit;
 
         // Selects according rows
         Selector<String[]> selectorRGR = file.getSelectorBuilder()
@@ -636,9 +648,9 @@ public class BenchmarkAnalysisBoxPlots {
                                              .and()
                                              .field("gsFactor")
                                              .equals(String.valueOf(gsFactor))
-                                             .and()
-                                             .field("gsFactorStepSize")
-                                             .equals(String.valueOf(gsFactorStepSize))
+//                                             .and()
+//                                             .field("gsFactorStepSize")
+//                                             .equals(String.valueOf(gsFactorStepSize))
                                              .build();
 
         // Selects according rows
@@ -656,13 +668,13 @@ public class BenchmarkAnalysisBoxPlots {
                                                .equals(BenchmarkAlgorithm.FLASH.toString())
                                                .and()
                                                .field("SuppressionLimit")
-                                               .equals(String.valueOf(suppressionLimit))
+                                               .equals(String.valueOf(flashSuppressionLimit))
                                                .and()
                                                .field("gsFactor")
                                                .equals("0.5")
-                                               .and()
-                                               .field("gsFactorStepSize")
-                                               .equals("0.0")
+//                                               .and()
+//                                               .field("gsFactorStepSize")
+//                                               .equals("0.0")
                                                .build();
 
         // Selects according rows
@@ -684,9 +696,9 @@ public class BenchmarkAnalysisBoxPlots {
                                                .and()
                                                .field("gsFactor")
                                                .equals("0.0")
-                                               .and()
-                                               .field("gsFactorStepSize")
-                                               .equals("0.0")
+//                                               .and()
+//                                               .field("gsFactorStepSize")
+//                                               .equals("0.0")
                                                .build();
 
         // Read data into 2D series
@@ -712,19 +724,19 @@ public class BenchmarkAnalysisBoxPlots {
                                        new Field("UtilityMeasure"), // Type
                                        new Field("PrivacyModel")); // Value
         series.getData().clear();
-        for (Point2D point : tassaSeries.getData()) {
-            series.getData()
-                  .add(new Point3D(point.x, BenchmarkAlgorithm.TASSA.toString(), point.y));
-        }
+//        for (Point2D point : tassaSeries.getData()) {
+//            series.getData()
+//                  .add(new Point3D(point.x, BenchmarkAlgorithm.TASSA.toString(), point.y));
+//        }
         for (Point2D point : rgrSeries.getData()) {
             series.getData()
                   .add(new Point3D(point.x,
                                    BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING.toString(),
-                                   point.y));
+                                   String.valueOf(Double.valueOf(point.y) / 1000)));
         }
         for (Point2D point : flashSeries.getData()) {
             series.getData()
-                  .add(new Point3D(point.x, BenchmarkAlgorithm.FLASH.toString(), point.y));
+                  .add(new Point3D(point.x, BenchmarkAlgorithm.FLASH.toString(), String.valueOf(Double.valueOf(point.y) / 1000)));
         }
 
         // Plot
@@ -734,7 +746,7 @@ public class BenchmarkAnalysisBoxPlots {
                                                      measure.toString() + " / Suppression Limit: " +
                                                      suppressionLimit + " / gsFactor: " + gsFactor +
                                                      " / gsStepSize: " + gsFactorStepSize,
-                                             new Labels("K", "Runtime [sec]"),
+                                             new Labels("minGroupSize", "Execution time [s]"),
                                              series));
 
         GnuPlotParams params = new GnuPlotParams();

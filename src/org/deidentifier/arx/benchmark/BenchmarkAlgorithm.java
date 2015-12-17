@@ -8,6 +8,7 @@ public abstract class BenchmarkAlgorithm {
 
     private final IBenchmarkListener observer;
     private long                     start;
+    private long                     overhead = 0;
 
     public BenchmarkAlgorithm(IBenchmarkListener observer) {
         this.observer = observer;
@@ -20,10 +21,12 @@ public abstract class BenchmarkAlgorithm {
     }
 
     protected void updated(String[][] data, int[] transformation) {
-        observer.notify(System.currentTimeMillis() - start, data, transformation);
+        long startOverhead = System.currentTimeMillis();
+        observer.notify(System.currentTimeMillis() - start - overhead, data, transformation);
+        overhead += System.currentTimeMillis() - startOverhead;
     }
 
     protected void finished(String[][] data) {
-        observer.notifyFinished(System.currentTimeMillis() - start, data);
+        observer.notifyFinished(System.currentTimeMillis() - start - overhead, data);
     }
 }

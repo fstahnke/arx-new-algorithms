@@ -61,7 +61,7 @@ public class BenchmarkAnalysisGeneralizationDegrees {
     public static void main(String[] args) throws IOException, ParseException {
 
         List<PlotGroup> groups = new ArrayList<PlotGroup>();
-        BenchmarkSetup setup = new BenchmarkSetup("benchmarkConfig/rgrIterationAnalysis.xml");
+        BenchmarkSetup setup = new BenchmarkSetup("benchmarkConfig/utilityVarianceSuppressionTest.xml");
         CSVFile file = new CSVFile(new File(setup.getOutputFile()));
 
         // Repeat for each data set
@@ -69,15 +69,19 @@ public class BenchmarkAnalysisGeneralizationDegrees {
             for (BenchmarkDataset data : setup.getDatasets()) {
                 for (BenchmarkPrivacyModel model : setup.getPrivacyModels()) {
                     for (BenchmarkUtilityMeasure measure : setup.getUtilityMeasures()) {
-                        for (double suppression : setup.getSuppressionLimits()) {
-                            groups.add(analyze(file, data, measure, model, algorithm, suppression));
+                        for (double suppressionLimit : setup.getSuppressionLimits()) {
+                            for (double minGroupSize : setup.getGsStepSizes()) {
+                            groups.add(analyzePrecision(file, data, measure, model, algorithm, suppressionLimit, minGroupSize));
+                            //groups.add(analyzeTransformations(file, data, measure, model, algorithm, suppression, minGroupSize));
+                            groups.add(analyzeExecutionTime(file, data, measure, model, algorithm, suppressionLimit, minGroupSize));
+                            }
                         }
                     }
                 }
             }
         }
 
-        LaTeX.plot(groups, setup.getPlotFile());
+        LaTeX.plot(groups, setup.getPlotFile(), true);
 
     }
 
@@ -85,7 +89,7 @@ public class BenchmarkAnalysisGeneralizationDegrees {
      * Performs the analysis
      * 
      * @param file
-     * @param suppression
+     * @param suppressionLimit
      * @param algorithm
      * @param model
      * @param measure
@@ -93,12 +97,13 @@ public class BenchmarkAnalysisGeneralizationDegrees {
      * @return
      * @throws ParseException
      */
-    private static PlotGroup analyze(CSVFile file,
+    private static PlotGroup analyzePrecision(CSVFile file,
                                      BenchmarkDataset data,
                                      BenchmarkUtilityMeasure measure,
                                      BenchmarkPrivacyModel model,
                                      BenchmarkAlgorithm algorithm,
-                                     double suppression) throws ParseException {
+                                     double suppressionLimit,
+                                     double minGroupSize) throws ParseException {
 
         // Selects according rows
         Selector<String[]> selector = file.getSelectorBuilder()
@@ -114,8 +119,11 @@ public class BenchmarkAnalysisGeneralizationDegrees {
                                           .field("Algorithm")
                                           .equals(algorithm.toString())
                                           .and()
-                                          .field("Suppression")
-                                          .equals(String.valueOf(suppression))
+                                          .field("SuppressionLimit")
+                                          .equals(String.valueOf(suppressionLimit))
+                                          .and()
+                                          .field("gsFactorStepSize")
+                                          .equals(String.valueOf(minGroupSize))
                                           .build();
 
         Series2D utility = new Series2D(file,
@@ -141,7 +149,7 @@ public class BenchmarkAnalysisGeneralizationDegrees {
         
         // Read utility into 3D series
         for (Point2D point : utility.getData()) {
-            series.getData().add(new Point3D(point.x, "Total Utility", point.y));
+            series.getData().add(new Point3D(point.x, "Total Utility", String.valueOf(1 - Double.valueOf(point.y))));
         }
         
         // Read generalization degrees into 2D series
@@ -156,9 +164,9 @@ public class BenchmarkAnalysisGeneralizationDegrees {
         List<Plot<?>> plots = new ArrayList<Plot<?>>();
         plots.add(new PlotLinesClustered(data.toString() + "/" + measure.toString() + "/" +
                                                  model.toString() + "/" +
-                                                 String.valueOf(suppression),
+                                                 String.valueOf(suppressionLimit),
                                          new Labels("Recursive Step",
-                                                    "Generalization Degree / Utility"),
+                                                    "Precision"),
                                          series));
 
         GnuPlotParams params = new GnuPlotParams();
@@ -169,7 +177,172 @@ public class BenchmarkAnalysisGeneralizationDegrees {
         params.ratio = 0.5d;
         params.minY = 0d;
         params.maxY = 1d;
-        return new PlotGroup("Development of utility and ratio of suppressed tuples over time. ",
+        return new PlotGroup("Development of utility and precision with each step. ",
+                             plots,
+                             params,
+                             1.0d);
+    }
+    
+
+
+    /**
+     * Performs the analysis
+     * 
+     * @param file
+     * @param suppressionLimit
+     * @param algorithm
+     * @param model
+     * @param measure
+     * @param data
+     * @return
+     * @throws ParseException
+     */
+    private static PlotGroup analyzeTransformations(CSVFile file,
+                                     BenchmarkDataset data,
+                                     BenchmarkUtilityMeasure measure,
+                                     BenchmarkPrivacyModel model,
+                                     BenchmarkAlgorithm algorithm,
+                                     double suppressionLimit,
+                                     double minGroupSize) throws ParseException {
+
+        // Selects according rows
+        Selector<String[]> selector = file.getSelectorBuilder()
+                                          .field("Dataset")
+                                          .equals(data.toString())
+                                          .and()
+                                          .field("UtilityMeasure")
+                                          .equals(measure.toString())
+                                          .and()
+                                          .field("PrivacyModel")
+                                          .equals(model.toString())
+                                          .and()
+                                          .field("Algorithm")
+                                          .equals(algorithm.toString())
+                                          .and()
+                                          .field("SuppressionLimit")
+                                          .equals(String.valueOf(suppressionLimit))
+                                          .and()
+                                          .field("gsFactorStepSize")
+                                          .equals(String.valueOf(minGroupSize))
+                                          .build();
+
+        Series2D utility = new Series2D(file,
+                                        selector,
+                                        new Field("Step", Analyzer.VALUE),
+                                        new Field("Transformations", Analyzer.VALUE));
+
+        // Dirty hack for creating a 3D series from two 2D series'
+        Series3D series = new Series3D(file, selector, new Field("Dataset"), // Cluster
+                                       new Field("UtilityMeasure"), // Type
+                                       new Field("PrivacyModel")); // Value
+        series.getData().clear();
+        
+        
+        // Read utility into 3D series
+        for (Point2D point : utility.getData()) {
+            series.getData().add(new Point3D(point.x, "Heterogeneity", point.y));
+        }
+
+        // Plot
+        List<Plot<?>> plots = new ArrayList<Plot<?>>();
+        plots.add(new PlotLinesClustered(data.toString() + "/" + measure.toString() + "/" +
+                                                 model.toString() + "/" +
+                                                 String.valueOf(suppressionLimit),
+                                         new Labels("Recursive Step",
+                                                    "Heterogeneity"),
+                                         series));
+
+        GnuPlotParams params = new GnuPlotParams();
+        params.colorize = true;
+        params.rotateXTicks = 0;
+        params.keypos = KeyPos.TOP_LEFT;
+        params.size = 1.0d;
+        params.ratio = 0.5d;
+        params.minY = 0d;
+        return new PlotGroup("Development of heterogeneity with each step. ",
+                             plots,
+                             params,
+                             1.0d);
+    }
+    
+
+
+    /**
+     * Performs the analysis
+     * 
+     * @param file
+     * @param suppressionLimit
+     * @param algorithm
+     * @param model
+     * @param measure
+     * @param data
+     * @return
+     * @throws ParseException
+     */
+    private static PlotGroup analyzeExecutionTime(CSVFile file,
+                                     BenchmarkDataset data,
+                                     BenchmarkUtilityMeasure measure,
+                                     BenchmarkPrivacyModel model,
+                                     BenchmarkAlgorithm algorithm,
+                                     double suppressionLimit,
+                                     double minGroupSize) throws ParseException {
+
+        // Selects according rows
+        Selector<String[]> selector = file.getSelectorBuilder()
+                                          .field("Dataset")
+                                          .equals(data.toString())
+                                          .and()
+                                          .field("UtilityMeasure")
+                                          .equals(measure.toString())
+                                          .and()
+                                          .field("PrivacyModel")
+                                          .equals(model.toString())
+                                          .and()
+                                          .field("Algorithm")
+                                          .equals(algorithm.toString())
+                                          .and()
+                                          .field("SuppressionLimit")
+                                          .equals(String.valueOf(suppressionLimit))
+                                          .and()
+                                          .field("gsFactorStepSize")
+                                          .equals(String.valueOf(minGroupSize))
+                                          .build();
+
+        Series2D utility = new Series2D(file,
+                                        selector,
+                                        new Field("Runtime", Analyzer.VALUE),
+                                        new Field("Utility", Analyzer.VALUE));
+
+        // Dirty hack for creating a 3D series from two 2D series'
+        Series3D series = new Series3D(file, selector, new Field("Dataset"), // Cluster
+                                       new Field("UtilityMeasure"), // Type
+                                       new Field("PrivacyModel")); // Value
+        series.getData().clear();
+        
+        
+        // Read utility into 3D series
+        for (Point2D point : utility.getData()) {
+            series.getData().add(new Point3D(String.valueOf(Double.valueOf(point.x)/1000), "Utility", String.valueOf(1 - Double.valueOf(point.y))));
+        }
+
+        // Plot
+        List<Plot<?>> plots = new ArrayList<Plot<?>>();
+        plots.add(new PlotLinesClustered(data.toString() + "/" + measure.toString() + "/" +
+                                                 model.toString() + "/" +
+                                                 String.valueOf(suppressionLimit),
+                                         new Labels("Execution time [s]",
+                                                    "Utility"),
+                                         series));
+
+        GnuPlotParams params = new GnuPlotParams();
+        params.colorize = true;
+        params.rotateXTicks = 0;
+        params.keypos = KeyPos.TOP_LEFT;
+        params.size = 1.0d;
+        params.ratio = 0.5d;
+        params.minY = 0d;
+        params.maxY = 1d;
+        return new PlotGroup("Development of utility over time. ",
                              plots,
                              params,
                              1.0d);
