@@ -5,6 +5,7 @@
 
 	<!-- add algorithms -->
     <algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
+    <algorithm>FLASH</algorithm>
 
 	<!-- add privacy models -->
     <privacyModel>K5_ANONYMITY</privacyModel>

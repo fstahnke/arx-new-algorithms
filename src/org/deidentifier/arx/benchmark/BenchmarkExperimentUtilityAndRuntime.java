@@ -122,10 +122,10 @@ public class BenchmarkExperimentUtilityAndRuntime {
                       0.9);
 
         // Repeat for each data set
-            for (BenchmarkUtilityMeasure measure : setup.getUtilityMeasures()) {
-                for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
-                    for (BenchmarkDataset dataset : setup.getDatasets()) {
-                        for (BenchmarkPrivacyModel model : setup.getPrivacyModels()) {
+        for (BenchmarkUtilityMeasure measure : setup.getUtilityMeasures()) {
+            for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
+                for (BenchmarkDataset dataset : setup.getDatasets()) {
+                    for (BenchmarkPrivacyModel model : setup.getPrivacyModels()) {
                         if (algorithm == BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING) {
                             for (double suppressionLimit : setup.getSuppressionLimits()) {
                                 for (double gsStepSize : setup.getGsStepSizes()) {
@@ -319,12 +319,14 @@ public class BenchmarkExperimentUtilityAndRuntime {
 
                 private boolean  isWarmup       = false;
                 private int      run            = 0;
+                private int      iteration      = 0;
                 private double[] utilityResults = new double[numberOfRuns];
                 private double[] runtimes       = new double[numberOfRuns];
 
                 @Override
                 public void notify(long timestamp, String[][] output, int[] transformation) {
-                    // Empty by design. We only want final results.
+                    // we have another transformation
+                    iteration++;
                 }
 
                 @Override
@@ -344,10 +346,10 @@ public class BenchmarkExperimentUtilityAndRuntime {
                         utility = new UtilityMeasureDiscernibility().evaluate(output).getUtility();
                     } else if (measure == BenchmarkUtilityMeasure.NMENTROPY) {
                         utility = new UtilityMeasureGenericNonUniformEntropyWithLowerBound<Double>(header,
-                                                                              input,
-                                                                              hierarchies,
-                                                                              AggregateFunction.ARITHMETIC_MEAN).evaluate(output)
-                                                                                                               .getUtility();
+                                                                                                   input,
+                                                                                                   hierarchies,
+                                                                                                   AggregateFunction.ARITHMETIC_MEAN).evaluate(output)
+                                                                                                                                     .getUtility();
                     }
 
                     // Normalize
@@ -382,6 +384,30 @@ public class BenchmarkExperimentUtilityAndRuntime {
                                                                                          header,
                                                                                          hierarchies,
                                                                                          true);
+                        int numberOfTransformations = 0;
+                        switch (algorithm) {
+                            case FLASH:
+                                if (suppressionLimit > 0) {
+                                    numberOfTransformations = 2;
+                                } else {
+                                    numberOfTransformations = 1;
+                                }
+                                break;
+                            case RECURSIVE_GLOBAL_RECODING:
+                                numberOfTransformations = iteration;
+                                if (suppressedTuples > 0) {
+                                    numberOfTransformations++;
+                                }
+                                break;
+                            case TASSA:
+                                numberOfTransformations = BenchmarkHelper.calculateNumberOfTransformations(output,
+                                                                                                           header,
+                                                                                                           hierarchies);
+                                break;
+                            default:
+                                break;
+                        }
+
                         // Add results to Benchmark run
                         BENCHMARK.addRun(dataset,
                                          measure,
@@ -399,11 +425,10 @@ public class BenchmarkExperimentUtilityAndRuntime {
                         BENCHMARK.addValue(SUPPRESSED_RATIO, suppressedRatio);
                         BENCHMARK.addValue(VARIANCE, variance);
                         BENCHMARK.addValue(VARIANCE_NOTSUPPRESSED, varianceNotSuppressed);
-                        BENCHMARK.addValue(NUMBER_OF_TRANSFORMATIONS,
-                                           BenchmarkHelper.calculateNumberOfTransformations(output,
-                                                                                            header,
-                                                                                            hierarchies));
+                        BENCHMARK.addValue(NUMBER_OF_TRANSFORMATIONS, numberOfTransformations);
                     }
+                    // reset iteration counter
+                    iteration = 0;
                 }
 
                 @Override

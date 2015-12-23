@@ -9,17 +9,13 @@
 
 	<!-- add algorithms -->
     <algorithm>RECURSIVE_GLOBAL_RECODING</algorithm>
-    <algorithm>FLASH</algorithm>
 
 	<!-- add privacy models -->
     <privacyModel>K5_ANONYMITY</privacyModel>
-    <privacyModel>K10_ANONYMITY</privacyModel>
-    <privacyModel>K25_ANONYMITY</privacyModel>
-    <privacyModel>K50_ANONYMITY</privacyModel>
     
 	<!-- add utility measures -->
-    <utilityMeasure>LOSS</utilityMeasure>
     <utilityMeasure>NMENTROPY</utilityMeasure>
+    <utilityMeasure>LOSS</utilityMeasure>
     
 	<!-- add suppression limits. can be any double value between 0 and 1 -->
     <suppressionLimit>1</suppressionLimit>
@@ -29,12 +25,20 @@
 	<gsFactor>0.0</gsFactor>
 	
 	<!-- add gsStepSizes -->
+    <gsStepSize>0.0</gsStepSize>
+	<gsStepSize>0.001</gsStepSize>
 	<gsStepSize>0.01</gsStepSize>
+	<gsStepSize>0.02</gsStepSize>
+	<gsStepSize>0.05</gsStepSize>
+	<gsStepSize>0.10</gsStepSize>
+	<gsStepSize>0.25</gsStepSize>
+	<gsStepSize>0.33</gsStepSize>
+	<gsStepSize>0.5</gsStepSize>
 	
 	<!-- set paths for output files -->
-    <outputFile>results/utilityVarianceSuppression.csv</outputFile>
-    <plotFile>results/utilityVarianceSuppression.pdf</plotFile>
+    <outputFile>results/minOptimizationThresholdScaling.csv</outputFile>
+    <plotFile>results/minOptimizationThresholdScaling.pdf</plotFile>
     
     <!-- set number of runs -->
-    <numberOfRuns>1</numberOfRuns>
+    <numberOfRuns>5</numberOfRuns>
 </config>
