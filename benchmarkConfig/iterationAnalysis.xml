@@ -15,18 +15,20 @@
     
 	<!-- add utility measures -->
     <utilityMeasure>LOSS</utilityMeasure>
+    <utilityMeasure>NMENTROPY</utilityMeasure>
     
 	<!-- add suppression limits. can be any double value between 0 and 1 -->
-    <suppressionLimit>0.1</suppressionLimit>
-    <suppressionLimit>0.95</suppressionLimit>
-    <suppressionLimit>0.9999</suppressionLimit>
+    <suppressionLimit>1</suppressionLimit>
 
 	<!-- add gsFactors. Can be any double value between 0 and 1. Closer to 0 
 		means more suppression. -->
 	<gsFactor>0.0</gsFactor>
 	
 	<!-- add gsStepSizes -->
+	<gsStepSize>0.0</gsStepSize>
+	<gsStepSize>0.01</gsStepSize>
 	<gsStepSize>0.05</gsStepSize>
+	<gsStepSize>0.10</gsStepSize>
 	
 	<!-- set paths for output files -->
     <outputFile>results/iterationAnalysis.csv</outputFile>

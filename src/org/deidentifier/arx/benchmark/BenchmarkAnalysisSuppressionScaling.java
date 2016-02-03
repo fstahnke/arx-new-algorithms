@@ -69,33 +69,35 @@ public class BenchmarkAnalysisSuppressionScaling {
         List<PlotGroup> groups = new ArrayList<PlotGroup>();
         BenchmarkSetup setup = new BenchmarkSetup(benchmarkConfig);
         CSVFile file = new CSVFile(new File(setup.getOutputFile()));
-        for (BenchmarkDataset dataset : setup.getDatasets()) {
-            for (double gsStepSize : setup.getGsStepSizes()) {
-                for (double gsFactor : setup.getGsFactors()) {
-                    groups.add(analyzeUtility(file,
-                                              dataset,
-                                              BenchmarkUtilityMeasure.LOSS,
-                                              BenchmarkPrivacyModel.K5_ANONYMITY,
-                                              BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING,
-                                              0.0,
-                                              gsFactor,
-                                              gsStepSize));
-                    groups.add(analyzeRuntime(file,
-                                              dataset,
-                                              BenchmarkUtilityMeasure.LOSS,
-                                              BenchmarkPrivacyModel.K5_ANONYMITY,
-                                              BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING,
-                                              0.0,
-                                              gsFactor,
-                                              gsStepSize));
-                    groups.add(analyzeHeterogeneity(file,
-                                              dataset,
-                                              BenchmarkUtilityMeasure.LOSS,
-                                              BenchmarkPrivacyModel.K5_ANONYMITY,
-                                              BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING,
-                                              0.0,
-                                              gsFactor,
-                                              gsStepSize));
+        for (BenchmarkUtilityMeasure measure : setup.getUtilityMeasures()) {
+            for (BenchmarkDataset dataset : setup.getDatasets()) {
+                for (double gsStepSize : setup.getGsStepSizes()) {
+                    for (double gsFactor : setup.getGsFactors()) {
+                        groups.add(analyzeUtility(file,
+                                                  dataset,
+                                                  measure,
+                                                  BenchmarkPrivacyModel.K5_ANONYMITY,
+                                                  BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING,
+                                                  0.0,
+                                                  gsFactor,
+                                                  gsStepSize));
+                        groups.add(analyzeRuntime(file,
+                                                  dataset,
+                                                  measure,
+                                                  BenchmarkPrivacyModel.K5_ANONYMITY,
+                                                  BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING,
+                                                  0.0,
+                                                  gsFactor,
+                                                  gsStepSize));
+                        groups.add(analyzeHeterogeneity(file,
+                                                        dataset,
+                                                        measure,
+                                                        BenchmarkPrivacyModel.K5_ANONYMITY,
+                                                        BenchmarkAlgorithm.RECURSIVE_GLOBAL_RECODING,
+                                                        0.0,
+                                                        gsFactor,
+                                                        gsStepSize));
+                    }
                 }
             }
         }
@@ -127,6 +129,9 @@ public class BenchmarkAnalysisSuppressionScaling {
 
         // Selects according rows
         Selector<String[]> selectorRGR = file.getSelectorBuilder()
+                                             .field("UtilityMeasure")
+                                             .equals(measure.toString())
+                                             .and()
                                              .field("Algorithm")
                                              .equals(algorithm.toString())
                                              .and()
@@ -205,6 +210,9 @@ public class BenchmarkAnalysisSuppressionScaling {
 
         // Selects according rows
         Selector<String[]> selectorRGR = file.getSelectorBuilder()
+                                             .field("UtilityMeasure")
+                                             .equals(measure.toString())
+                                             .and()
                                              .field("Algorithm")
                                              .equals(algorithm.toString())
                                              .and()
@@ -258,7 +266,6 @@ public class BenchmarkAnalysisSuppressionScaling {
                              1.0d);
     }
 
-    
     /**
      * Performs the analysis
      * 
@@ -272,16 +279,19 @@ public class BenchmarkAnalysisSuppressionScaling {
      * @throws ParseException
      */
     private static PlotGroup analyzeHeterogeneity(CSVFile file,
-                                            BenchmarkDataset dataset,
-                                            BenchmarkUtilityMeasure measure,
-                                            BenchmarkPrivacyModel model,
-                                            BenchmarkAlgorithm algorithm,
-                                            double suppression,
-                                            double gsFactor,
-                                            double gsStepSize) throws ParseException {
+                                                  BenchmarkDataset dataset,
+                                                  BenchmarkUtilityMeasure measure,
+                                                  BenchmarkPrivacyModel model,
+                                                  BenchmarkAlgorithm algorithm,
+                                                  double suppression,
+                                                  double gsFactor,
+                                                  double gsStepSize) throws ParseException {
 
         // Selects according rows
         Selector<String[]> selectorRGR = file.getSelectorBuilder()
+                                             .field("UtilityMeasure")
+                                             .equals(measure.toString())
+                                             .and()
                                              .field("Algorithm")
                                              .equals(algorithm.toString())
                                              .and()

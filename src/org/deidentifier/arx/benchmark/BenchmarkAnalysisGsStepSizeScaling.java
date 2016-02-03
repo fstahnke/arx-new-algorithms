@@ -60,7 +60,7 @@ public class BenchmarkAnalysisGsStepSizeScaling {
     // "benchmarkConfig/recordScaling.xml";
     // private static final String benchmarkConfig =
     // "benchmarkConfig/QIScaling.xml";
-    private static final String benchmarkConfig = "benchmarkConfig/gsStepSizeScaling.xml";
+    private static final String benchmarkConfig = "benchmarkConfig/minOptimizationThresholdScaling.xml";
 
     /**
      * Main
@@ -77,25 +77,25 @@ public class BenchmarkAnalysisGsStepSizeScaling {
 
         for (BenchmarkDataset dataset : setup.getDatasets()) {
             for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
-//                for (double gsStepSize : setup.getGsStepSizes()) {
-                    groups.add(analyzeUtility(file,
-                                              setup,
-                                              dataset,
-                                              BenchmarkUtilityMeasure.LOSS,
-                                              BenchmarkPrivacyModel.K5_ANONYMITY,
-                                              algorithm,
-                                              0.2,
-                                              0.05));
+                // for (double gsStepSize : setup.getGsStepSizes()) {
+                groups.add(analyzeUtility(file,
+                                          setup,
+                                          dataset,
+                                          BenchmarkUtilityMeasure.LOSS,
+                                          BenchmarkPrivacyModel.K5_ANONYMITY,
+                                          algorithm,
+                                          1,
+                                          0.05));
 
-                    groups.add(analyzeRuntime(file,
-                                              setup,
-                                              dataset,
-                                              BenchmarkUtilityMeasure.LOSS,
-                                              BenchmarkPrivacyModel.K5_ANONYMITY,
-                                              algorithm,
-                                              0.2,
-                                              0.05));
-//                }
+                groups.add(analyzeRuntime(file,
+                                          setup,
+                                          dataset,
+                                          BenchmarkUtilityMeasure.LOSS,
+                                          BenchmarkPrivacyModel.K5_ANONYMITY,
+                                          algorithm,
+                                          1,
+                                          0.05));
+                // }
             }
         }
         LaTeX.plot(groups, setup.getPlotFile(), true);
@@ -130,10 +130,16 @@ public class BenchmarkAnalysisGsStepSizeScaling {
 
             // Selects according rows
             Selector<String[]> selector = file.getSelectorBuilder()
+                                              .field("UtilityMeasure")
+                                              .equals(measure.toString())
+                                              .and()
+                                              .field("PrivacyModel")
+                                              .equals(model.toString())
+                                              .and()
                                               .field("Algorithm")
                                               .equals(algorithm.toString())
                                               .and()
-                                              .field("Suppression Limit")
+                                              .field("SuppressionLimit")
                                               .equals(String.valueOf(suppress))
                                               .and()
                                               .field("Dataset")
@@ -142,7 +148,7 @@ public class BenchmarkAnalysisGsStepSizeScaling {
 
             Series2D series = new Series2D(file,
                                            selector,
-                                           new Field("Suppression Weight"),
+                                           new Field("gsFactorStepSize"),
                                            new Field("Utility", Analyzer.VALUE));
 
             seriesList.add(series);
@@ -167,8 +173,10 @@ public class BenchmarkAnalysisGsStepSizeScaling {
 
         // Plot
         List<Plot<?>> plots = new ArrayList<Plot<?>>();
-        plots.add(new PlotLinesClustered("Algorithm: " + algorithm.toString() + " / Dataset: " + data.toString() + " / Measure: " +
-                measure.toString() + " / Model: " + model.toString() + " / gsStepSize: " + gsStepSize,
+        plots.add(new PlotLinesClustered("Algorithm: " + algorithm.toString() + " / Dataset: " +
+                                                 data.toString() + " / Measure: " +
+                                                 measure.toString() + " / Model: " +
+                                                 model.toString() + " / gsStepSize: " + gsStepSize,
                                          new Labels("Factor: Generalization / Suppression",
                                                     "Utility"), series3D));
 
@@ -214,10 +222,16 @@ public class BenchmarkAnalysisGsStepSizeScaling {
 
             // Selects according rows
             Selector<String[]> selector = file.getSelectorBuilder()
+                                              .field("UtilityMeasure")
+                                              .equals(measure.toString())
+                                              .and()
+                                              .field("PrivacyModel")
+                                              .equals(model.toString())
+                                              .and()
                                               .field("Algorithm")
                                               .equals(algorithm.toString())
                                               .and()
-                                              .field("Suppression Limit")
+                                              .field("SuppressionLimit")
                                               .equals(String.valueOf(suppress))
                                               .and()
                                               .field("Dataset")
@@ -226,7 +240,7 @@ public class BenchmarkAnalysisGsStepSizeScaling {
 
             Series2D series = new Series2D(file,
                                            selector,
-                                           new Field("Suppression Weight"),
+                                           new Field("gsFactorStepSize"),
                                            new Field("Runtime", Analyzer.VALUE));
 
             tmpSelector = selector;
@@ -250,8 +264,10 @@ public class BenchmarkAnalysisGsStepSizeScaling {
 
         // Plot
         List<Plot<?>> plots = new ArrayList<Plot<?>>();
-        plots.add(new PlotLinesClustered("Algorithm: " + algorithm.toString() + " / Dataset: " + data.toString() + " / Measure: " +
-                                                 measure.toString() + " / Model: " + model.toString() + " / gsStepSize: " + gsStepSize,
+        plots.add(new PlotLinesClustered("Algorithm: " + algorithm.toString() + " / Dataset: " +
+                                                 data.toString() + " / Measure: " +
+                                                 measure.toString() + " / Model: " +
+                                                 model.toString() + " / gsStepSize: " + gsStepSize,
                                          new Labels("Factor: Generalization / Suppression",
                                                     "Runtime"), series3D));
 

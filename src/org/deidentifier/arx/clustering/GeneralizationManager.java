@@ -1,5 +1,9 @@
 package org.deidentifier.arx.clustering;
 
+import java.util.HashSet;
+
+import cern.colt.map.OpenIntIntHashMap;
+
 import org.deidentifier.arx.ARXInterface;
 import org.deidentifier.arx.framework.data.GeneralizationHierarchy;
 import org.deidentifier.arx.metric.v2.DomainShareMaterialized;
@@ -138,6 +142,47 @@ public class GeneralizationManager {
         int[] record = data[cluster.getQuick(0)];
         
         for (int i = 0; i < numAttributes; i++) {
+            int level = getGeneralizationLevel(i, cluster);
+            if (level != generalization[i] || cache[i] == -1d) {
+                generalization[i] = level;
+                int[][] hierarchy = hierarchies[i];
+                int value = hierarchy[record[i]][level];
+                double share = getDomainShare(i, level, value);
+                cost += share;
+                cache[i] = share;
+            } else {
+                cost += cache[i];
+            }
+        }
+        
+        cost /= (double) numAttributes;
+        cost *= cluster.size();
+        return cost;
+    }
+
+    /**
+     * Once cluster. This method has two side effects: it updates the generalization and cache arrays.
+     * Information loss is not normalized.
+     * @param cluster
+     * @param generalization
+     * @param cache 
+     * @return
+     */
+    public double getNMEntropy(IntArrayList cluster, int[] generalization, double[] cache) {
+
+        double cost = 0d;
+        int[] record = data[cluster.getQuick(0)];
+        
+        double[] attributeEntropies = new double[numAttributes];
+        
+        for (int i = 0; i < numAttributes; i++) {
+            
+            OpenIntIntHashMap distinctValues = new OpenIntIntHashMap();
+            
+            for (int j = 0; j < cluster.size(); j++) {
+                distinctValues.put(data[cluster.getQuick(j)][i], 0);
+            }
+            
             int level = getGeneralizationLevel(i, cluster);
             if (level != generalization[i] || cache[i] == -1d) {
                 generalization[i] = level;

@@ -55,7 +55,7 @@ public class BenchmarkAnalysisBoxPlots {
     /**
      * Choose benchmarkConfig
      */
-    private static final String benchmarkConfig = "results/utilityVarianceSuppressionNM_RGR.xml";
+    private static final String benchmarkConfig = "benchmarkConfig/utilityVarianceSuppression.xml";
 
     /**
      * Main
@@ -240,11 +240,11 @@ public class BenchmarkAnalysisBoxPlots {
                                        new Field("UtilityMeasure"), // Type
                                        new Field("PrivacyModel")); // Value
         series.getData().clear();
-//        for (Point2D point : tassaSeries.getData()) {
-//            series.getData().add(new Point3D(point.x,
-//                                             BenchmarkAlgorithm.TASSA.toString(),
-//                                             String.valueOf(1 - Double.valueOf(point.y))));
-//        }
+        for (Point2D point : tassaSeries.getData()) {
+            series.getData().add(new Point3D(point.x,
+                                             BenchmarkAlgorithm.TASSA.toString(),
+                                             String.valueOf(1 - Double.valueOf(point.y))));
+        }
         for (Point2D point : rgrSeries.getData()) {
             series.getData()
                   .add(new Point3D(point.x,
@@ -403,10 +403,10 @@ public class BenchmarkAnalysisBoxPlots {
                                        new Field("UtilityMeasure"), // Type
                                        new Field("PrivacyModel")); // Value
         series.getData().clear();
-//        for (Point2D point : tassaSeries.getData()) {
-//            series.getData()
-//                  .add(new Point3D(point.x, BenchmarkAlgorithm.TASSA.toString(), point.y));
-//        }
+        for (Point2D point : tassaSeries.getData()) {
+            series.getData()
+                  .add(new Point3D(point.x, BenchmarkAlgorithm.TASSA.toString(), point.y));
+        }
         for (Point2D point : rgrSeries.getData()) {
             series.getData()
                   .add(new Point3D(point.x,
@@ -436,7 +436,7 @@ public class BenchmarkAnalysisBoxPlots {
         params.size = 1.0d;
         params.ratio = 0.5d;
         params.minY = 0d;
-        params.maxY = 600d;
+//        params.maxY = 600d;
         return new PlotGroup("Comparison of standard deviation of RGR, Flash and Tassa with different K. gsFactor and gsStepSize only apply to RGR.",
                              plots,
                              params,
@@ -724,10 +724,10 @@ public class BenchmarkAnalysisBoxPlots {
                                        new Field("UtilityMeasure"), // Type
                                        new Field("PrivacyModel")); // Value
         series.getData().clear();
-//        for (Point2D point : tassaSeries.getData()) {
-//            series.getData()
-//                  .add(new Point3D(point.x, BenchmarkAlgorithm.TASSA.toString(), point.y));
-//        }
+        for (Point2D point : tassaSeries.getData()) {
+            series.getData()
+                  .add(new Point3D(point.x, BenchmarkAlgorithm.TASSA.toString(), String.valueOf(Double.valueOf(point.y) / 1000)));
+        }
         for (Point2D point : rgrSeries.getData()) {
             series.getData()
                   .add(new Point3D(point.x,

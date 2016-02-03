@@ -61,7 +61,7 @@ public class BenchmarkAnalysisGeneralizationDegrees {
     public static void main(String[] args) throws IOException, ParseException {
 
         List<PlotGroup> groups = new ArrayList<PlotGroup>();
-        BenchmarkSetup setup = new BenchmarkSetup("benchmarkConfig/utilityVarianceSuppressionTest.xml");
+        BenchmarkSetup setup = new BenchmarkSetup("benchmarkConfig/iterationAnalysis.xml");
         CSVFile file = new CSVFile(new File(setup.getOutputFile()));
 
         // Repeat for each data set
@@ -71,9 +71,9 @@ public class BenchmarkAnalysisGeneralizationDegrees {
                     for (BenchmarkUtilityMeasure measure : setup.getUtilityMeasures()) {
                         for (double suppressionLimit : setup.getSuppressionLimits()) {
                             for (double minGroupSize : setup.getGsStepSizes()) {
-                            groups.add(analyzePrecision(file, data, measure, model, algorithm, suppressionLimit, minGroupSize));
-                            //groups.add(analyzeTransformations(file, data, measure, model, algorithm, suppression, minGroupSize));
-                            groups.add(analyzeExecutionTime(file, data, measure, model, algorithm, suppressionLimit, minGroupSize));
+//                            groups.add(analyzePrecision(file, data, measure, model, algorithm, suppressionLimit, minGroupSize));
+                            groups.add(analyzeTransformations(file, data, measure, model, algorithm, suppressionLimit, minGroupSize));
+//                            groups.add(analyzeExecutionTime(file, data, measure, model, algorithm, suppressionLimit, minGroupSize));
                             }
                         }
                     }

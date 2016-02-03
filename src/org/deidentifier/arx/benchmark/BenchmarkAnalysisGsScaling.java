@@ -71,27 +71,29 @@ public class BenchmarkAnalysisGsScaling {
         BenchmarkSetup setup = new BenchmarkSetup(benchmarkConfig);
         CSVFile file = new CSVFile(new File(setup.getOutputFile()));
 
-        for (BenchmarkDataset dataset : setup.getDatasets()) {
-            for (BenchmarkPrivacyModel model : setup.getPrivacyModels()) {
-                for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
-                    for (double gsStepSize : setup.getGsStepSizes()) {
-                        groups.add(analyzeUtility(file,
-                                                  setup,
-                                                  dataset,
-                                                  BenchmarkUtilityMeasure.LOSS,
-                                                  model,
-                                                  algorithm,
-                                                  0.0,
-                                                  gsStepSize));
+        for (BenchmarkUtilityMeasure measure : setup.getUtilityMeasures()) {
+            for (BenchmarkDataset dataset : setup.getDatasets()) {
+                for (BenchmarkPrivacyModel model : setup.getPrivacyModels()) {
+                    for (BenchmarkAlgorithm algorithm : setup.getAlgorithms()) {
+                        for (double gsStepSize : setup.getGsStepSizes()) {
+                            groups.add(analyzeUtility(file,
+                                                      setup,
+                                                      dataset,
+                                                      measure,
+                                                      model,
+                                                      algorithm,
+                                                      0.0,
+                                                      gsStepSize));
 
-                        groups.add(analyzeRuntime(file,
-                                                  setup,
-                                                  dataset,
-                                                  BenchmarkUtilityMeasure.LOSS,
-                                                  model,
-                                                  algorithm,
-                                                  0.0,
-                                                  gsStepSize));
+                            groups.add(analyzeRuntime(file,
+                                                      setup,
+                                                      dataset,
+                                                      measure,
+                                                      model,
+                                                      algorithm,
+                                                      0.0,
+                                                      gsStepSize));
+                        }
                     }
                 }
             }
@@ -128,6 +130,9 @@ public class BenchmarkAnalysisGsScaling {
 
             // Selects according rows
             Selector<String[]> selector = file.getSelectorBuilder()
+                                              .field("UtilityMeasure")
+                                              .equals(measure.toString())
+                                              .and()
                                               .field("Algorithm")
                                               .equals(algorithm.toString())
                                               .and()
@@ -151,9 +156,7 @@ public class BenchmarkAnalysisGsScaling {
         }
 
         // Dirty hack for creating a 3D series from two 2D series'
-        Series3D series3D = new Series3D(file,
-                                         tmpSelector,
-                                         new Field("Dataset"), // Cluster
+        Series3D series3D = new Series3D(file, tmpSelector, new Field("Dataset"), // Cluster
                                          new Field("UtilityMeasure"), // Type
                                          new Field("PrivacyModel")); // Value
         series3D.getData().clear();
@@ -162,22 +165,20 @@ public class BenchmarkAnalysisGsScaling {
         for (double suppress : setup.getSuppressionLimits()) {
             Series2D series2D = itr.next();
             for (Point2D point : series2D.getData()) {
-                series3D.getData()
-                        .add(new Point3D(point.x,
-                                         "Suppression Limit " + suppress,
-                                         String.valueOf(1 - Double.valueOf(point.y))));
+                series3D.getData().add(new Point3D(point.x,
+                                                   "Suppression Limit " + suppress,
+                                                   String.valueOf(1 - Double.valueOf(point.y))));
             }
         }
 
         // Plot
         List<Plot<?>> plots = new ArrayList<Plot<?>>();
         plots.add(new PlotLinesClustered("Algorithm: " + algorithm.toString() + " / Dataset: " +
-                                         data.toString() + " / Measure: " + measure.toString() +
-                                         " / Model: " + model.toString() + " / gsStepSize: " +
-                                         gsStepSize,
+                                                 data.toString() + " / Measure: " +
+                                                 measure.toString() + " / Model: " +
+                                                 model.toString() + " / gsStepSize: " + gsStepSize,
                                          new Labels("Factor: Generalization / Suppression",
-                                                    "Utility"),
-                                         series3D));
+                                                    "Utility"), series3D));
 
         GnuPlotParams params = new GnuPlotParams();
         params.colorize = true;
@@ -221,6 +222,9 @@ public class BenchmarkAnalysisGsScaling {
 
             // Selects according rows
             Selector<String[]> selector = file.getSelectorBuilder()
+                                              .field("UtilityMeasure")
+                                              .equals(measure.toString())
+                                              .and()
                                               .field("Algorithm")
                                               .equals(algorithm.toString())
                                               .and()
@@ -244,9 +248,7 @@ public class BenchmarkAnalysisGsScaling {
         }
 
         // Dirty hack for creating a 3D series from two 2D series'
-        Series3D series3D = new Series3D(file,
-                                         tmpSelector,
-                                         new Field("Dataset"), // Cluster
+        Series3D series3D = new Series3D(file, tmpSelector, new Field("Dataset"), // Cluster
                                          new Field("UtilityMeasure"), // Type
                                          new Field("PrivacyModel")); // Value
         series3D.getData().clear();
@@ -255,22 +257,20 @@ public class BenchmarkAnalysisGsScaling {
         for (double suppress : setup.getSuppressionLimits()) {
             Series2D series2D = itr.next();
             for (Point2D point : series2D.getData()) {
-                series3D.getData()
-                        .add(new Point3D(point.x,
-                                         "Suppression Limit " + suppress,
-                                         point.y));
+                series3D.getData().add(new Point3D(point.x,
+                                                   "Suppression Limit " + suppress,
+                                                   point.y));
             }
         }
 
         // Plot
         List<Plot<?>> plots = new ArrayList<Plot<?>>();
         plots.add(new PlotLinesClustered("Algorithm: " + algorithm.toString() + " / Dataset: " +
-                                         data.toString() + " / Measure: " + measure.toString() +
-                                         " / Model: " + model.toString() + " / gsStepSize: " +
-                                         gsStepSize,
+                                                 data.toString() + " / Measure: " +
+                                                 measure.toString() + " / Model: " +
+                                                 model.toString() + " / gsStepSize: " + gsStepSize,
                                          new Labels("Factor: Generalization / Suppression",
-                                                    "Runtime"),
-                                         series3D));
+                                                    "Runtime"), series3D));
 
         GnuPlotParams params = new GnuPlotParams();
         params.colorize = true;
